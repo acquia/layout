@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Responsive layout builder tool for Panels.
+ */
+
+/**
+ * Implementation of hook_ctools_plugin_directory().
+ */
+function layout_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'panels' && $plugin_type == 'layouts') {
+    return "plugins/$plugin_type";
+  }
+}
