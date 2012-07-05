@@ -69,7 +69,9 @@ Drupal.responsiveLayout.regionsSave = function() {
 Drupal.responsiveLayout.regionAdd = function() {
   // Get the name and label from the input fields.
   var key = $('#panels-responsive-new-region-name').val();
+  $('#panels-responsive-new-region-name').val('');
   var label = $('#panels-responsive-new-region-label').val();
+  $('#panels-responsive-new-region-label').val('');
   Drupal.responsiveLayout.regionAddtoDom('prepend', key, label);
   Drupal.responsiveLayout.regionsSave();
   return false;
