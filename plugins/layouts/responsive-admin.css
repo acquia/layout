@@ -1,7 +1,31 @@
-#panels-responsive-regions-editor {
-  height: 300px;
+.panels-responsive-admin {
   width: 300px;
 }
-#panels-responsive-regions-save {
-  display: block;
+.panels-responsive-admin .region {
+  position: relative;
+  height: 50px;
+  background-color: #484848;
+  color: #f5f5f5;
+  font-weight: bold;
+  padding: 10px;
+  margin: 1em 0;
+}
+.ui-state-highlight {
+  height: 50px;
+  padding: 10px;
+  margin: 1em 0;
+}
+.panels-responsive-admin .region .drag-icon {
+  font-size: 2em;
+  margin-right: 1em;
+}
+.panels-responsive-admin .region .close-icon {
+  position: absolute;
+  right: 5px;
+  top: 20px;
+  background-color: #cdcdcd;
+  border-radius: 10px;
+  color: #484848;
+  padding: 4px;
+  font-size: 10px;
 }

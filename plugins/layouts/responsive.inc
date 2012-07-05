@@ -100,7 +100,7 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
-    $default_settings = array(
+    $settings = array(
       'regions' => array(
         'header-a' => 'Header A',
         'header-b' => 'Header B',
@@ -120,7 +120,6 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
       ),
       'breakpoints' => array(320 => 'Smartphone', 768 => 'Tablet', 960 => 'Standard'),
     );
-    $settings += $default_settings;
 
     // A layout is a region key => grid class map.
     // @todo make nesting possible.
@@ -168,6 +167,7 @@ function theme_layout_responsive_admin($vars) {
     'regions' => url($handler->get_url('layout', 'regions'), array('absolute' => TRUE)),
   );
   drupal_add_js(array('responsiveLayout' => array('settings' => $settings, 'ajaxURLs' => $ajaxURLs)), 'setting');
+  drupal_add_library('system', 'ui.sortable');
 
   // This is filled in on the client side.
   return '<div class="panels-responsive-admin"></a>';

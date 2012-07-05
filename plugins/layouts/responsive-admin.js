@@ -9,22 +9,38 @@ Drupal.behaviors.responsiveLayoutAdmin = {
 }
 
 Drupal.responsiveLayout.regionsEditor = function() {
-  var editorText = '';
+  $('.panels-responsive-admin').append('<button id="panels-responsive-save">Save regions</button>');
   for (key in Drupal.settings.responsiveLayout.settings.regions) {
-    editorText += key + ': ' + Drupal.settings.responsiveLayout.settings.regions[key] + "\n";
+    $('.panels-responsive-admin').append('<div class="region region-' + key + '"><span class="drag-icon">&#8597;</span>' + Drupal.settings.responsiveLayout.settings.regions[key] + '<span class="close-icon">X</span></div>');
+    $('.panels-responsive-admin .region-' + key).data('region-key', key);
   }
-  $('.panels-responsive-admin').append('<h4>Regions</h4><textarea id="panels-responsive-regions-editor"></textarea><button id="panels-responsive-regions-save">Save regions</button>');
-  $('#panels-responsive-regions-editor').val(editorText);
-  $('#panels-responsive-regions-save').click(Drupal.responsiveLayout.regionsSave);
+
+  // Initialize sortable widget.
+  $('.panels-responsive-admin').sortable({
+      // Make a placeholder visible when dragging.
+      placeholder: "ui-state-highlight",
+  });
+  $('.panels-responsive-admin').disableSelection();
+
+  $('.panels-responsive-admin .region .close-icon').click(Drupal.responsiveLayout.regionRemove);
+  $('#panels-responsive-save').click(Drupal.responsiveLayout.regionsSave);
+  //$('#panels-responsive-regions-save').click(Drupal.responsiveLayout.regionsSave);
+}
+
+Drupal.responsiveLayout.regionRemove = function() {
+  // Slide up the region when the close button is clicked. This will hide it
+  // from view and will make it not being saved later.
+  $(this).parent().slideUp();
 }
 
 Drupal.responsiveLayout.regionsSave = function() {
   var regionList = {};
-  var editorLines = $('#panels-responsive-regions-editor').val().split("\n");
-  for (lineNo in editorLines) {
-    var regionDefinition = editorLines[lineNo].split(':', 2);
-    regionList[regionDefinition[0]] = $.trim(regionDefinition[1]);
-  }
+  // Look at the visible regions only and gather theire region keys.
+  var regionsDom = $('.panels-responsive-admin .region:visible');
+  $(regionsDom).each(function (key, value) {
+    var regionKey = $(value).data('region-key');
+    regionList[regionKey] = Drupal.settings.responsiveLayout.settings.regions[regionKey];
+  });
 
   var element_settings = {
     url: Drupal.settings.responsiveLayout.ajaxURLs.regions,
