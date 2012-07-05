@@ -1,6 +1,12 @@
 .panels-responsive-admin {
   width: 300px;
 }
+.panels-responsive-admin fieldset {
+  padding: 0.8em;
+}
+.panels-responsive-admin fieldset button {
+  display: block;
+}
 .panels-responsive-admin-regions .region {
   position: relative;
   height: 50px;
@@ -9,6 +15,7 @@
   font-weight: bold;
   padding: 10px;
   margin: 1em 0;
+  cursor: move;
 }
 .panels-responsive-admin-regions .ui-state-highlight {
   height: 50px;
@@ -27,5 +34,5 @@
   border-radius: 10px;
   color: #484848;
   padding: 4px;
-  font-size: 10px;
+  cursor: default;
 }
