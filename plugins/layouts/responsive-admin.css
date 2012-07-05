@@ -1,7 +1,7 @@
 .panels-responsive-admin {
   width: 300px;
 }
-.panels-responsive-admin .region {
+.panels-responsive-admin-regions .region {
   position: relative;
   height: 50px;
   background-color: #484848;
@@ -10,16 +10,16 @@
   padding: 10px;
   margin: 1em 0;
 }
-.ui-state-highlight {
+.panels-responsive-admin-regions .ui-state-highlight {
   height: 50px;
   padding: 10px;
   margin: 1em 0;
 }
-.panels-responsive-admin .region .drag-icon {
+.panels-responsive-admin-regions .region .drag-icon {
   font-size: 2em;
   margin-right: 1em;
 }
-.panels-responsive-admin .region .close-icon {
+.panels-responsive-admin-regions .region .close-icon {
   position: absolute;
   right: 5px;
   top: 20px;

@@ -184,7 +184,7 @@ function layout_ajax_responsive_edit_regions($handler) {
   $settings['regions'] = array();
   foreach ($_POST['regions'] as $key => $label) {
     // Ensure key is a machine name. For security.
-    if (!is_numeric($key) && preg_match('!^([a-z0-9-])+$!', $key)) {
+    if (!is_numeric($key) && preg_match('!^([a-z0-9_-])+$!', $key)) {
       $settings['regions'][$key] = $label;
     }
   }
