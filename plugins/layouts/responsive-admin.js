@@ -17,7 +17,7 @@ Drupal.responsiveLayout.regionsEditorInit = function() {
 
   // For each region in the configuration, add the required markup.
   for (key in Drupal.settings.responsiveLayout.settings.regions) {
-    Drupal.responsiveLayout.regionAddtoDom('append', key, Drupal.settings.responsiveLayout.settings.regions[key]);
+    Drupal.responsiveLayout.regionAddtoDom('append', key, Drupal.settings.responsiveLayout.settings.regions[key], false);
   }
 
   // Initialize sortable widget.
@@ -72,22 +72,27 @@ Drupal.responsiveLayout.regionAdd = function() {
   $('#panels-responsive-new-region-name').val('');
   var label = $('#panels-responsive-new-region-label').val();
   $('#panels-responsive-new-region-label').val('');
-  Drupal.responsiveLayout.regionAddtoDom('prepend', key, label);
+  Drupal.responsiveLayout.regionAddtoDom('prepend', key, label, true);
   Drupal.responsiveLayout.regionsSave();
   return false;
 }
 
-Drupal.responsiveLayout.regionAddtoDom = function(placement, key, label) {
+Drupal.responsiveLayout.regionAddtoDom = function(placement, key, label, animate) {
   // Add region related markup and data.
-  var markup = '<div class="region region-' + key + '"><span class="drag-icon">&#8597;</span>' + label + '<span class="close-icon">X</span></div>';
+  var regions = $('.panels-responsive-admin-regions');
+  var markup = '<div class="region region-' + key + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + label + '<span class="close-icon">X</span></div>';
   if (placement == 'prepend') {
-    $('.panels-responsive-admin-regions').prepend(markup);
+    $(regions).prepend(markup);
   }
   else {
-    $('.panels-responsive-admin-regions').append(markup);
+    $(regions).append(markup);
   }
-  $('.panels-responsive-admin-regions .region-' + key).data('region-key', key);
-  $('.panels-responsive-admin-regions .region-' + key).data('region-label', label);
+  var region = $(regions).find('.region-' + key);
+  $(region).data('region-key', key).data('region-label', label);
+  $(region).find('.close-icon').click(Drupal.responsiveLayout.regionRemove);
+  if (animate) {
+    $(region).slideDown();
+  }
 }
 
 })(jQuery);
