@@ -14,6 +14,8 @@ $plugin = array(
   'css' => 'responsive.css',
   'admin css' => 'responsive-admin.css',
   'regions function' => 'layout_responsive_panels',
+  'settings form' => 'layout_responsive_settings_form',
+  'settings submit' => 'layout_responsive_settings_form_submit',
 
   // Reusable layout Builder specific directives.
   'builder' => TRUE,
@@ -28,6 +30,45 @@ $plugin = array(
     'regions' => 'layout_ajax_responsive_edit_regions',
   ),
 );
+
+/**
+ * Form callback. Add our form elements for data interchange.
+ */
+function layout_responsive_settings_form($display, $layout, $layout_settings) {
+  $form = array();
+  layout_responsive_merge_default_settings($layout_settings, $layout);
+  $regions_text = '';
+  foreach ($layout_settings['regions'] as $machine_name => $label) {
+    $regions_text .= $machine_name . ':' . $label . "\n";
+  }
+  $form['layout_responsive_regions'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Regions in order of appearance'),
+    '#default_value' => $regions_text,
+  );
+  return $form;
+}
+
+/**
+ * Form submission. Process the changes to the layout.
+ */
+function layout_responsive_settings_form_submit(&$layout_settings, $display, $layout, $old_layout_settings) {
+  // Get region list and overwrite the whole settings array. This will later
+  // be saved by Panels to the display layout settings.
+  $region_list = explode("\n", $layout_settings['layout_responsive_regions']);
+  $layout_settings = array('regions' => array());
+
+  foreach ($region_list as $region_info) {
+    $region_info = trim($region_info);
+    if (!empty($region_info)) {
+      list($key, $label) = explode(':', trim($region_info));
+      // Ensure key is a machine name. For security.
+      if (!is_numeric($key) && preg_match('!^([a-z0-9_-])+$!', $key)) {
+        $layout_settings['regions'][$key] = $label;
+      }
+    }
+  }
+}
 
 /**
  * Merge the main responsive plugin with a layout to create a sub plugin.

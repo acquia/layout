@@ -8,15 +8,28 @@ Drupal.behaviors.responsiveLayoutAdmin = {
   }
 }
 
+Drupal.responsiveLayout.regionsList = function() {
+  var regionList = {};
+  var editorLines = $('#edit-layout-settings-layout-responsive-regions').val().split("\n");
+  for (lineNo in editorLines) {
+    var line = $.trim(editorLines[lineNo]);
+    if (line.length) {
+      var regionDefinition = editorLines[lineNo].split(':', 2);
+      regionList[regionDefinition[0]] = regionDefinition[1];
+    }
+  }
+  return regionList;
+}
+
 Drupal.responsiveLayout.regionsEditorInit = function() {
   // Add a tiny form section to allow for inline region addition.
-  $('.panels-responsive-admin').append('<fieldset><label for="panels-responsive-new-region-name">New region machine name</label><input id="panels-responsive-new-region-name"><label for="panels-responsive-new-region-label">New region label</label><input id="panels-responsive-new-region-label"><button id="panels-responsive-add">Add region</button></fieldset>');
+  $('.panels-responsive-admin').append('<fieldset><label for="panels-responsive-new-region-name">New region machine name</label><input id="panels-responsive-new-region-name" class="form-text"><label for="panels-responsive-new-region-label">New region label</label><input id="panels-responsive-new-region-label" class="form-text"><button id="panels-responsive-add">Add region</button></fieldset>');
 
   // Add a wrapper to contain the regions.
   $('.panels-responsive-admin').append('<div class="panels-responsive-admin-regions"></div>');
 
   // For each region in the configuration, add the required markup.
-  for (key in Drupal.settings.responsiveLayout.settings.regions) {
+  for (key in Drupal.responsiveLayout.regionsList()) {
     Drupal.responsiveLayout.regionAddtoDom('append', key, Drupal.settings.responsiveLayout.settings.regions[key], false);
   }
 
@@ -44,26 +57,14 @@ Drupal.responsiveLayout.regionRemove = function() {
 }
 
 Drupal.responsiveLayout.regionsSave = function() {
-  var regionList = {};
+  var regionsText = '';
   // Look at the visible regions only and gather their region keys.
   var regionsDom = $('.panels-responsive-admin-regions .region:visible');
   $(regionsDom).each(function (key, value) {
     var regionKey = $(value).data('region-key');
-    regionList[regionKey] = $(value).data('region-label');
+    regionsText += regionKey + ':' + $(value).data('region-label') + "\n";
   });
-
-  var element_settings = {
-    url: Drupal.settings.responsiveLayout.ajaxURLs.regions,
-    event: 'UpdateResponsiveRegions',
-    keypress: false,
-    // No throbber at all.
-    progress: { 'type': 'none' }
-  };
-  Drupal.ajax['panels-responsive-regions-ajax'] = new Drupal.ajax('panels-responsive-regions-ajax', $('.panels-responsive-admin').get(0), element_settings);
-  Drupal.ajax['panels-responsive-regions-ajax'].options.data = {
-    'regions': regionList,
-  };
-  $('.panels-responsive-admin').trigger('UpdateResponsiveRegions');
+  $('#edit-layout-settings-layout-responsive-regions').val(regionsText);
 }
 
 Drupal.responsiveLayout.regionAdd = function() {
