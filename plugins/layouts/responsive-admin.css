@@ -8,7 +8,7 @@
   display: block;
 }
 .form-item-admin-description, .form-item-category,
-#panels-dnd-main h2, #panels-dnd-main #panels-live-preview,
+#panels-live-preview, #ctools-export-ui-edit-item-form h2,
 .form-item-layout-settings-layout-responsive-regions {
   display: none;
 }

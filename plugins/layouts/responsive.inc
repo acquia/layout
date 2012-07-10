@@ -78,7 +78,7 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
  */
 function layout_responsive_merge_plugin($plugin, $layout) {
   $plugin['name'] = 'responsive:' . $layout->name;
-  $plugin['category'] = !empty($layout->category) ? check_plain($layout->category) : t('Miscellaneous');
+  $plugin['category'] = !empty($layout->category) ? check_plain($layout->category) : t('Responsive');
   $plugin['title'] = check_plain($layout->admin_title);
   $plugin['description'] = check_plain($layout->admin_description);
   $plugin['layout'] = $layout;
@@ -186,8 +186,18 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
  * Draw the responsive layout.
  */
 function theme_layout_responsive($vars) {
-  // @todo implement DOM order and wrapper rendering.
-  return 'Your responsive layout rendered.';
+  $css_id = $vars['css_id'];
+  $content = $vars['content'];
+  $settings = $vars['settings'];
+  $display = $vars['display'];
+  $layout = $vars['layout'];
+  $handler = $vars['renderer'];
+
+  layout_responsive_merge_default_settings($settings, $layout);
+
+  // Just return the regions ordered as configured.
+  $output = join('', $content);
+  return '<div class="panel-responsive">' . $output . '</div>';
 }
 
 /**
@@ -201,6 +211,15 @@ function theme_layout_responsive_admin($vars) {
   $layout = $vars['layout'];
   $handler = $vars['renderer'];
 
+  // We never draw stored responsive layouts in admin mode; they must be edited
+  // from the stored layout UI at that point. This can happen if the layout is
+  // displayed in an admin context, but not to administer the layout per say but
+  // to administer other thigns on top of the layout, such as rearranging panes
+  // when switching layouts or when adding new panes.
+  if (!empty($layout['layout'])) {
+    return theme_layout_responsive(array('css_id' => $css_id, 'content' => $content, 'settings' => $settings, 'display' => $display, 'layout' => $layout, 'renderer' => $handler));
+  }
+
   layout_responsive_merge_default_settings($settings, $layout);
 
   drupal_add_js($layout['path'] . '/responsive-admin.js');
@@ -211,7 +230,7 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_library('system', 'ui.sortable');
 
   // This is filled in on the client side.
-  return '<div class="panels-responsive-admin"></a>';
+  return '<div class="panels-responsive-admin"></div>';
 }
 
 /**
