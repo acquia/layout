@@ -1,22 +1,22 @@
 (function (RLD, $) {
-  RLD['LayoutEditor'] = (function () {
+  RLD['LayoutManager'] = (function () {
     
     var defaults = {};
     
-    function LayoutEditor() {
+    function LayoutManager() {
       this.editor = $();
       this.init.apply(this, arguments);
     }
     
-    LayoutEditor.prototype.init = function () {
+    LayoutManager.prototype.init = function () {
       
     };
     
-    LayoutEditor.prototype.getEditor = function () {
+    LayoutManager.prototype.getEditor = function () {
       return this.editor;
     }
     
-    return LayoutEditor;
+    return LayoutManager;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));
