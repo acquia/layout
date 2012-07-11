@@ -51,16 +51,15 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   $form['layout_responsive_add']['label'] = array(
     '#title' => t('Region label'),
     '#type' => 'textfield',
-    '#required' => TRUE,
     '#size' => 30,
   );
   $form['layout_responsive_add']['machine_name'] = array(
     '#type' => 'machine_name',
     '#maxlength' => 32,
     '#machine_name' => array(
-      'exists' => 'layout_region_load',
       'source' => array('layout_settings', 'layout_responsive_add', 'label'),
     ),
+    '#required' => FALSE,
   );
   $form['layout_responsive_add']['button'] = array(
     '#type' => 'button',
