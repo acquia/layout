@@ -55,3 +55,15 @@ function layout_region_load_all() {
     ->execute()
     ->fetchAll();
 }
+
+/**
+ * Load one layout based on its machine name.
+ */
+function layout_region_load($machine_name) {
+  return db_select('layout_regions', 'lr')
+    ->fields('lr')
+    ->condition('machine_name', $machine_name)
+    ->execute()
+    ->fetchObject();
+
+}

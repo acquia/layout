@@ -42,6 +42,31 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     '#title' => t('Regions in order of appearance'),
     '#default_value' => $regions_text,
   );
+
+  // Form section used to support the local system.
+  $form['layout_responsive_add'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Add a region'),
+  );
+  $form['layout_responsive_add']['label'] = array(
+    '#title' => t('Region label'),
+    '#type' => 'textfield',
+    '#required' => TRUE,
+    '#size' => 30,
+  );
+  $form['layout_responsive_add']['machine_name'] = array(
+    '#type' => 'machine_name',
+    '#maxlength' => 32,
+    '#machine_name' => array(
+      'exists' => 'layout_region_load',
+      'source' => array('layout_settings', 'layout_responsive_add', 'label'),
+    ),
+  );
+  $form['layout_responsive_add']['button'] = array(
+    '#type' => 'button',
+    '#value' => t('Add region')
+  );
+
   return $form;
 }
 
