@@ -1,7 +1,5 @@
-(function ($) {
-  var Dialog, StepEditor;
-  // Temp location.
-  var LayoutEditor = (function () {
+(function (RLD, $) {
+  RLD['LayoutEditor'] = (function () {
     
     var defaults = {};
     
@@ -21,5 +19,4 @@
     return LayoutEditor;
     
   }());
-  
-}(jQuery));
+}(ResponsiveLayoutDesigner, jQuery));
