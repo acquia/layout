@@ -5,39 +5,43 @@
    */
   RLD['BreakPointEditor'] = (function build() {
     
-    var defaults = {
-      'ui': {
-        'class-layout': 'layouts',
-        'class-layout-tabs': 'layouts-list',
-        'class-layout-content': 'layouts-content'
-      },
-      'breakpoints': {
-        '1': {
-          'label': 'small'
-        }
-      }
-    };
-    
     function BreakPointEditor() {
-      this.options = {};
-      this.editor = $('<div>', {});
-      this.layouts = $();
-      this.controls = $();
-      this.root = $();
+      this.options = {
+        'ui': {
+          'class-layout': 'layouts',
+          'class-layout-tabs': 'layouts-list',
+          'class-layout-content': 'layouts-content'
+        },
+        'breakpoints': {
+          '1': {
+            'label': 'small'
+          }
+        }
+      };
+      this.$editor = $('<div>', {});
+      this.$layouts = $();
+      this.$controls = $();
+      this.$root = $();
+      this.listeners = {};
+      this.events = {
+        'breakPointAdded': []
+      };
       // Setup
       this.init.apply(this, arguments);
       this.build.apply(this, arguments);
     }
-    
+    /**
+     * Integrate instantiation options.
+     */
     BreakPointEditor.prototype.init = function (options) {
-      this.options = $.extend({}, defaults, options);
-      this.root = options.root;
+      this.options = $.extend({}, this.options, options);
+      this.$root = options.root;
       this.stepEditor = new RLD.StepEditor(this.options.breakpoints);
     };
     
     BreakPointEditor.prototype.build = function () {
       // Set up a basic editor fraemwork.
-      this.editor
+      this.$editor
       .addClass('breakpoint-editor')
       .append($('<div>', {
           'class': 'controls'
@@ -60,10 +64,10 @@
           })
         )
       )
-      .appendTo(this.root);
+      .appendTo(this.$root);
       // Store the important elements of the editor as jQuery references.
-      this.layouts = this.editor.find('.' + this.options.ui['class-layout']);
-      this.controls = this.editor.find('.controls');
+      this.$layouts = this.$editor.find('.' + this.options.ui['class-layout']);
+      this.$controls = this.$editor.find('.controls');
       // Set up jQuery UI objects.
       this.refreshEditor();
       // Add layouts provided to the constructor.
@@ -76,8 +80,8 @@
       // Add layout proxy.
       var fn = $.proxy(this.addLayout, this);
       // Start the jQuery UI elements.
-      this.layouts.tabs();
-      this.controls
+      this.$layouts.tabs();
+      this.$controls
       .find('button')
       .once('control', function () {
         $(this)
@@ -87,7 +91,7 @@
     };
 
     BreakPointEditor.prototype.getEditor = function () {
-      return this.editor;
+      return this.$editor;
     };
 
     BreakPointEditor.prototype.addLayout = function (breakpoints) {
@@ -95,7 +99,7 @@
       for (br in breakpoints) {
         if (breakpoints.hasOwnProperty(br)) {
           id = 'breakpoint-' + br;
-          this.editor
+          this.$editor
           .find('.' + this.options.ui['class-layout-content'])
           .append(
             $('<div>', {
@@ -105,7 +109,7 @@
           );
           // Incorporate the new pane into the tabs.
           label = breakpoints[br].label || 'no label provided';
-          this.layouts.tabs('add', '#breakpoint-' + br, label);
+          this.$layouts.tabs('add', '#breakpoint-' + br, label);
         }
       }
     };
@@ -121,6 +125,10 @@
           $(this).dialog('destroy').removeAttr('style');
         }
       })
+    }
+    
+    BreakPointEditor.prototype.registerEventListener = function (event, fn) {
+      this.listeners[event] = fn;
     }
     
     return BreakPointEditor;
