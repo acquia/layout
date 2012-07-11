@@ -13,3 +13,45 @@ function layout_ctools_plugin_directory($owner, $plugin_type) {
     return "plugins/$plugin_type";
   }
 }
+
+/**
+ * Add or update region in common set of regions.
+ *
+ * @param $region
+ *   Region object with keys 'machine_name' and 'label'.
+ */
+function layout_region_save($region) {
+  $new_values = array(
+    'label' => $region->label,
+  );
+
+  // Only add the custom and weight keys if passed in. When updating existing
+  // items, they might not be provided, so we should not set them to overwrite
+  // existing values.
+  if (isset($region->custom)) {
+    $new_values['custom'] = $region->custom;
+  }
+  if (isset($region->weight)) {
+    $new_values['weight'] = $region->weight;
+  }
+
+  // Add or update the region with the given machine name.
+  return db_merge('layout_regions')
+    ->key(array('machine_name' => $region->machine_name))
+    ->fields($new_values)
+    ->execute();
+}
+
+/**
+ * Load all common layout regions.
+ */
+function layout_region_load_all() {
+  // Get non-custom regions first in order of weights. Weight is not relevant
+  // for custom regions because we don't include them in the default layout.
+  return db_select('layout_regions', 'lr')
+    ->fields('lr')
+    ->orderBy('custom')
+    ->orderBy('weight')
+    ->execute()
+    ->fetchAll();
+}

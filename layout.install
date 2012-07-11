@@ -1,0 +1,78 @@
+<?php
+
+/**
+ * @file
+ * Installation and uninstallation routines for responsive layouts.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function layout_install() {
+  $common_regions = array(
+    'header_a' => 'Header A',
+    'header_b' => 'Header B',
+    'header_c' => 'Header C',
+    'subheader_a' => 'Subheader A',
+    'subheader_b' => 'Subheader B',
+    'subheader_c' => 'Subheader C',
+    'navigation' => 'Navigation',
+    'title' => 'Title',
+    'body' => 'Body',
+    'sidebar_a' => 'Sidebar A',
+    'sidebar_b' => 'Sidebar B',
+    'sidebar_c' => 'Sidebar C',
+    'footer_a' => 'Footer A',
+    'footer_b' => 'Footer B',
+    'footer_c' => 'Footer C',
+  );
+  $weight = 0;
+  foreach ($common_regions as $machine_name => $label) {
+    $region = (object) array(
+      'machine_name' => $machine_name,
+      'label' => $label,
+      'weight' => $weight++,
+      'custom' => 0,
+    );
+    layout_region_save($region);
+  }
+}
+
+/**
+ * Implements hook_schema().
+ */
+function layout_schema() {
+  $schema['layout_regions'] = array(
+    'description' => 'Information about common regions for responsive layouts.',
+    'fields' => array(
+      'machine_name' => array(
+        'description' => 'Machine name for this region.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'label' => array(
+        'description' => 'User visible label for this region.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'weight' => array(
+        'description' => 'Weight of this region in the default setup. Only relevant for non-custom regions.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'custom' => array(
+        'description' => 'Flag indicating whether this region is part of the default setup (0) or custom (1).',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+    ),
+    'primary key' => array('machine_name'),
+  );
+  return $schema;
+}

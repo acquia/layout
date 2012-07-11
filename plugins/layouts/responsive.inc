@@ -25,10 +25,6 @@ $plugin = array(
   'get child' => 'layout_responsive_get_sublayout',
   'get children' => 'layout_responsive_get_sublayouts',
 
-  // Define ajax callbacks.
-  'ajax' => array(
-    'regions' => 'layout_ajax_responsive_edit_regions',
-  ),
 );
 
 /**
@@ -61,10 +57,21 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
   foreach ($region_list as $region_info) {
     $region_info = trim($region_info);
     if (!empty($region_info)) {
-      list($key, $label) = explode(':', trim($region_info));
-      // Ensure key is a machine name. For security.
-      if (!is_numeric($key) && preg_match('!^([a-z0-9_-])+$!', $key)) {
-        $layout_settings['regions'][$key] = $label;
+
+      // Enforce machine name format for security/interoperability.
+      list($machine_name, $label) = explode(':', trim($region_info));
+      if (!is_numeric($machine_name) && preg_match('!^([a-z0-9_-])+$!', $machine_name)) {
+
+        // Save region for this layout.
+        $layout_settings['regions'][$machine_name] = $label;
+
+        // Save region in common regions list in case it is a new layout
+        // that we did not know before or the region label was updated.
+        $region = (object) array(
+          'machine_name' => $machine_name,
+          'label' => $label,
+        );
+        layout_region_save($region);
       }
     }
   }
@@ -141,26 +148,18 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
+    // Initialize default layout options with regions we know about and three
+    // most common breakpoints.
+    $default_regions = layout_region_load_all();
     $settings = array(
-      'regions' => array(
-        'header-a' => 'Header A',
-        'header-b' => 'Header B',
-        'header-c' => 'Header C',
-        'subheader-a' => 'Subheader A',
-        'subheader-b' => 'Subheader B',
-        'subheader-c' => 'Subheader C',
-        'navigation' => 'Navigation',
-        'title' => 'Title',
-        'body' => 'Body',
-        'sidebar-a' => 'Sidebar A',
-        'sidebar-b' => 'Sidebar B',
-        'sidebar-c' => 'Sidebar C',
-        'footer-a' => 'Footer A',
-        'footer-b' => 'Footer B',
-        'footer-c' => 'Footer C'
-      ),
+      'regions' => array(),
       'breakpoints' => array(320 => 'Smartphone', 768 => 'Tablet', 960 => 'Standard'),
     );
+    foreach ($default_regions as $region) {
+      if (!$region->custom) {
+        $settings['regions'][$region->machine_name] = $region->label;
+      }
+    }
 
     // A layout is a region key => grid class map.
     // @todo make nesting possible.
@@ -223,34 +222,12 @@ function theme_layout_responsive_admin($vars) {
   layout_responsive_merge_default_settings($settings, $layout);
 
   drupal_add_js($layout['path'] . '/responsive-admin.js');
-  $ajaxURLs = array(
-    'regions' => url($handler->get_url('layout', 'regions'), array('absolute' => TRUE)),
-  );
-  drupal_add_js(array('responsiveLayout' => array('settings' => $settings, 'ajaxURLs' => $ajaxURLs)), 'setting');
+
+  $default_regions = layout_region_load_all();
+  drupal_add_js(array('responsiveLayout' => array('settings' => $settings, 'defaultRegions' => $default_regions)), 'setting');
+
   drupal_add_library('system', 'ui.sortable');
 
   // This is filled in on the client side.
   return '<div class="panels-responsive-admin"></div>';
-}
-
-/**
- * AJAX responder to store udpated region list.
- */
-function layout_ajax_responsive_edit_regions($handler) {
-  ctools_include('ajax');
-  $settings = &$handler->display->layout_settings;
-  layout_responsive_merge_default_settings($settings, $handler->plugins['layout']);
-
-  $settings['regions'] = array();
-  foreach ($_POST['regions'] as $key => $label) {
-    // Ensure key is a machine name. For security.
-    if (!is_numeric($key) && preg_match('!^([a-z0-9_-])+$!', $key)) {
-      $settings['regions'][$key] = $label;
-    }
-  }
-
-  // Save our new state.
-  panels_edit_cache_set($handler->cache);
-
-  $handler->commands = array('ok');
 }
