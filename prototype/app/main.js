@@ -23,8 +23,23 @@
       })
       .appendTo(this.root);
       // Create a new breakpoint editor.
-      this.breakPointEditor = new RLD.BreakPointEditor({'root': this.root.find('.responsive-layout-designer')});
+      this.breakPointEditor = new RLD.BreakPointEditor({
+        'breakpoints': {
+          '1': {
+            'label': 'small'
+          }
+        },
+        'root': this.root.find('.responsive-layout-designer')
+      });
     };
+    
+    ResponsiveLayoutDesigner.prototype.registerEventHandler = function (event, handler) {
+      
+    }
+    
+    ResponsiveLayoutDesigner.prototype.registerEventListener = function () {
+    
+    }
     
     return ResponsiveLayoutDesigner;
     

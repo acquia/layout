@@ -11,19 +11,13 @@
           'class-layout': 'layouts',
           'class-layout-tabs': 'layouts-list',
           'class-layout-content': 'layouts-content'
-        },
-        'breakpoints': {
-          '1': {
-            'label': 'small'
-          }
         }
       };
       this.$editor = $('<div>', {});
       this.$layouts = $();
       this.$controls = $();
       this.$root = $();
-      this.listeners = {};
-      this.events = {
+      this.listeners = {
         'breakPointAdded': []
       };
       // Setup
@@ -128,7 +122,11 @@
     }
     
     BreakPointEditor.prototype.registerEventListener = function (event, fn) {
-      this.listeners[event] = fn;
+      if (typeof event === 'string' && event in this.listeners && typeof fn === 'function') {
+        this.listeners[event].push({
+          callback: fn
+        });
+      }
     }
     
     return BreakPointEditor;
