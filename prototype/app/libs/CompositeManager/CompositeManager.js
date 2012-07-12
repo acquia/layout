@@ -27,8 +27,13 @@
      * Integrate instantiation options.
      */
     CompositeManager.prototype.init = function (options) {
+      var prop;
       this.options = $.extend({}, this.options, options);
-      // this.stepEditor = new RLD.StepEditor(this.options.breakpoints);
+      for (prop in this.options) {
+        if (this.options.hasOwnProperty(prop)) {
+          this[prop] = this.options[prop];
+        }
+      }
     };
     
     CompositeManager.prototype.build = function () {
@@ -86,10 +91,11 @@
     };
 
     CompositeManager.prototype.addLayout = function (composites) {
-      var item, id, step, label, breakpoint;
+      var item, id, step, label, breakpoint, layout;
       for (item in composites) {
         if (composites.hasOwnProperty(item)) {
           step = composites[item].step;
+          layout = composites[item].layout;
           breakpoint = step.info('breakpoint');
           label = step.info('label');
           id = 'breakpoint-' + breakpoint;
@@ -97,8 +103,9 @@
           .find('.' + this.options.ui['class-layout-content'])
           .append(
             $('<div>', {
-              id: id,
-              text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+              'id': id,
+              'class': 'clearfix',
+              'html': layout.build()
             })
           );
           // Incorporate the new pane into the tabs.

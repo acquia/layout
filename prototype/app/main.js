@@ -4,26 +4,52 @@
     function ResponsiveLayoutDesigner() {
       this.options = {
         'root': 'body',
-        'composites': [{
-          'name': 'default',
-          'machine-name': 'default',
-          'step': {
-            'breakpoint': 0,
-            'label': 'small'
+        'composites': [
+          {
+            'name': 'default',
+            'machine-name': 'default',
+            'step': {
+              'breakpoint': 0,
+              'label': 'small'
+            },
+            'layout': {
+              'regions': [
+                {
+                'name': 'header'
+                },
+                {
+                  'name': 'content'
+                },
+                {
+                  'name': 'footer'
+                }
+              ]
+            },
+            'grid': {}
           },
-          'layout': null,
-          'grid': null
-        },
-        {
-          'name': 'default',
-          'machine-name': 'default',
-          'step': {
-            'breakpoint': 320,
-            'label': 'landscape'
-          },
-          'layout': null,
-          'grid': null
-        }]
+          {
+            'name': 'default',
+            'machine-name': 'default',
+            'step': {
+              'breakpoint': 320,
+              'label': 'landscape'
+            },
+            'layout': {
+              'regions': [
+                {
+                'name': 'header'
+                },
+                {
+                  'name': 'content'
+                },
+                {
+                  'name': 'footer'
+                }
+              ]
+            },
+            'grid': {}
+          }
+        ]
       };
       this.$root = $();
       this.compositeManager = new RLD.CompositeManager();
@@ -41,8 +67,8 @@
     };
     
     ResponsiveLayoutDesigner.prototype.start = function () {
-      var composites = this.options.composites;
-      var i, index, step, layout, grid, $editor;
+      var composites = this.composites;
+      var i, index, step, layout, grid;
       // Create the application root node.
       var $designer = $('<div>', {
         'class': 'responsive-layout-designer'
