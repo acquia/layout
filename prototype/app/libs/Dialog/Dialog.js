@@ -1,14 +1,12 @@
 (function (RLD, $) {
   
-  RLD['Dialog'] = (function () {
+  RLD['BreakPoint'] = (function () {
     
-    var defaults = {};
-    
-    function Dialog() {
+    function BreakPoint() {
       
     }
     
-    return Dialog;
+    return BreakPoint;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

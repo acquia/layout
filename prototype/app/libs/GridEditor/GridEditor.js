@@ -1,20 +1,20 @@
 (function (RLD, $) {
-  RLD['StepEditor'] = (function () {
+  RLD['GridEditor'] = (function () {
     
-    function StepEditor() {
+    function GridEditor() {
       this.$editor = $();
       this.init.apply(this, arguments);
     }
     
-    StepEditor.prototype.init = function () {
+    GridEditor.prototype.init = function () {
       
     };
     
-    StepEditor.prototype.build = function () {
+    GridEditor.prototype.build = function () {
       return this.$editor;
     }
     
-    return StepEditor;
+    return GridEditor;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

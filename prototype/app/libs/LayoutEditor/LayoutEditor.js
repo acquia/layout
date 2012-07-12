@@ -1,20 +1,20 @@
 (function (RLD, $) {
-  RLD['StepEditor'] = (function () {
+  RLD['LayoutEditor'] = (function () {
     
-    function StepEditor() {
+    function LayoutEditor() {
       this.$editor = $();
       this.init.apply(this, arguments);
     }
     
-    StepEditor.prototype.init = function () {
+    LayoutEditor.prototype.init = function () {
       
     };
     
-    StepEditor.prototype.build = function () {
+    LayoutEditor.prototype.build = function () {
       return this.$editor;
     }
     
-    return StepEditor;
+    return LayoutEditor;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

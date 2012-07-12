@@ -1,11 +1,11 @@
 (function (RLD, $) {
   /**
-   * BreakPointEditor editor provides functionality to display, add and remove
+   * CompositeManager editor provides functionality to display, add and remove
    * layout representations across arbitrary, user-defined breakpoint limits.
    */
-  RLD['BreakPointEditor'] = (function build() {
+  RLD['CompositeManager'] = (function build() {
     
-    function BreakPointEditor() {
+    function CompositeManager() {
       this.options = {
         'ui': {
           'class-layout': 'layouts',
@@ -16,24 +16,22 @@
       this.$editor = $('<div>', {});
       this.$layouts = $();
       this.$controls = $();
-      this.$root = $();
       this.listeners = {
         'breakPointAdded': []
       };
+      this.composites = [];
       // Setup
       this.init.apply(this, arguments);
-      this.build.apply(this, arguments);
     }
     /**
      * Integrate instantiation options.
      */
-    BreakPointEditor.prototype.init = function (options) {
+    CompositeManager.prototype.init = function (options) {
       this.options = $.extend({}, this.options, options);
-      this.$root = options.root;
-      this.stepEditor = new RLD.StepEditor(this.options.breakpoints);
+      // this.stepEditor = new RLD.StepEditor(this.options.breakpoints);
     };
     
-    BreakPointEditor.prototype.build = function () {
+    CompositeManager.prototype.build = function () {
       // Set up a basic editor fraemwork.
       this.$editor
       .addClass('breakpoint-editor')
@@ -57,20 +55,19 @@
             'class': this.options.ui['class-layout-content']
           })
         )
-      )
-      .appendTo(this.$root);
+      );
       // Store the important elements of the editor as jQuery references.
       this.$layouts = this.$editor.find('.' + this.options.ui['class-layout']);
       this.$controls = this.$editor.find('.controls');
       // Set up jQuery UI objects.
       this.refreshEditor();
       // Add layouts provided to the constructor.
-      this.addLayout(this.options.breakpoints);
-      // Create a dialog to use for various things.
-      this.dialog = $('#dialog');
+      this.addLayout(this.composites);
+      
+      return this.$editor;
     };
     
-    BreakPointEditor.prototype.refreshEditor = function () {
+    CompositeManager.prototype.refreshEditor = function () {
       // Add layout proxy.
       var fn = $.proxy(this.addLayout, this);
       // Start the jQuery UI elements.
@@ -84,31 +81,48 @@
       });
     };
 
-    BreakPointEditor.prototype.getEditor = function () {
+    CompositeManager.prototype.getEditor = function () {
       return this.$editor;
     };
 
-    BreakPointEditor.prototype.addLayout = function (breakpoints) {
-      var br, id, label;
-      for (br in breakpoints) {
-        if (breakpoints.hasOwnProperty(br)) {
-          id = 'breakpoint-' + br;
+    CompositeManager.prototype.addLayout = function (composites) {
+      var item, id, step, label, breakpoint;
+      for (item in composites) {
+        if (composites.hasOwnProperty(item)) {
+          step = composites[item].step;
+          breakpoint = step.getBreakPoint();
+          label = step.getLabel();
+          id = 'breakpoint-' + breakpoint;
           this.$editor
           .find('.' + this.options.ui['class-layout-content'])
           .append(
             $('<div>', {
-              id: 'breakpoint-' + br,
+              id: id,
               text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
             })
           );
           // Incorporate the new pane into the tabs.
-          label = breakpoints[br].label || 'no label provided';
-          this.$layouts.tabs('add', '#breakpoint-' + br, label);
+          this.$layouts.tabs('add', '#' + id, label);
         }
       }
     };
     
-    BreakPointEditor.prototype.launchStepEditor = function () {
+    CompositeManager.prototype.registerComposite = function (index, Step, Layout, Grid) {
+      this.composites[index] = {
+        step: Step,
+        layout: Layout,
+        grid: Grid
+      };
+    };
+    
+    CompositeManager.prototype.getStep = function (index) {
+      if (index && index in this.steps) {
+        return this.steps[index];
+      }
+      return this.steps;
+    }
+    
+    CompositeManager.prototype.launchStepEditor = function () {
       var $dialog = this.dialog;
       $dialog.append(this.stepEditor.getEditor());
       $dialog.dialog({
@@ -121,7 +135,7 @@
       })
     }
     
-    BreakPointEditor.prototype.registerEventListener = function (event, fn) {
+    CompositeManager.prototype.registerEventListener = function (event, fn) {
       if (typeof event === 'string' && event in this.listeners && typeof fn === 'function') {
         this.listeners[event].push({
           callback: fn
@@ -129,7 +143,7 @@
       }
     }
     
-    return BreakPointEditor;
+    return CompositeManager;
     
   }());
 
