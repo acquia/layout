@@ -31,6 +31,15 @@ $plugin = array(
  * Form callback. Add our form elements for data interchange.
  */
 function layout_responsive_settings_form($display, $layout, $layout_settings) {
+  // We never draw stored responsive layouts in admin mode; they must be edited
+  // from the stored layout UI at that point. This can happen if the layout is
+  // displayed in an admin context, but not to administer the layout per say but
+  // to administer other thigns on top of the layout, such as rearranging panes
+  // when switching layouts or when adding new panes.
+  if (!empty($layout['layout'])) {
+    return;
+  }
+
   $form = array();
   layout_responsive_merge_default_settings($layout_settings, $layout);
   $regions_text = '';

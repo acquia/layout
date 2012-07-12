@@ -43,3 +43,6 @@
   clear: both;
   display: block;
 }
+.panels-dnd .panel-region {
+  margin: 10px 0;
+}
