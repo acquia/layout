@@ -17,7 +17,7 @@
       this.$layouts = $();
       this.$controls = $();
       this.listeners = {
-        'breakPointAdded': []
+        'breakpointAdded': []
       };
       this.composites = [];
       // Setup
@@ -77,7 +77,7 @@
       .once('control', function () {
         $(this)
         .button()
-        .bind('click.breakPointEditor', fn);
+        .bind('click.breakpointEditor', fn);
       });
     };
 
@@ -90,8 +90,8 @@
       for (item in composites) {
         if (composites.hasOwnProperty(item)) {
           step = composites[item].step;
-          breakpoint = step.getBreakPoint();
-          label = step.getLabel();
+          breakpoint = step.info('breakpoint');
+          label = step.info('label');
           id = 'breakpoint-' + breakpoint;
           this.$editor
           .find('.' + this.options.ui['class-layout-content'])

@@ -7,26 +7,36 @@
         'breakpoint': '0',
         'label': 'No label'
       };
-      this.breakpoint;
-      this.label;
+      this.$editor = $(0);
       // Initialize the object.
       this.init.apply(this, arguments);
     }
     
     Step.prototype.init = function (options) {
+      var prop;
       this.options = $.extend({}, this.options, options);
-      this.breakpoint = this.options.breakpoint;
-      this.label = this.options.label;
+      for (prop in this.options) {
+        if (this.options.hasOwnProperty(prop)) {
+          this[prop] = this.options[prop];
+        }
+      }
     };
     
-    Step.prototype.getBreakPoint = function () {
-      return this.breakpoint;
+    Step.prototype.build = function () {
+      return this.$editor;
     };
     
-    Step.prototype.getLabel = function () {
-      return this.label;
+    Step.prototype.info = function (property, value) {      
+      if (property in this) {
+        if (value !== undefined) {
+          this[property] = value;
+          return;
+        }
+        return this[property];
+      }
+      return;
     };
-    
+
     return Step;
     
   }());

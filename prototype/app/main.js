@@ -53,7 +53,7 @@
         step = new RLD.Step(composites[i].step);
         layout = new RLD.Layout(composites[i].layout);
         grid = new RLD.Grid(composites[i].grid);
-        index = step.getBreakPoint();
+        index = step.info('breakpoint');
         // Save the composition elements into a unit.
         this.compositeManager.registerComposite(index, step, layout, grid);
       }
