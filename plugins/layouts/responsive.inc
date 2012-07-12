@@ -48,15 +48,39 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     '#type' => 'fieldset',
     '#title' => t('Add a region'),
   );
-  $form['layout_responsive_add']['label'] = array(
+
+  // Build a list of unused regions to provide to the user.
+  $default_regions = layout_region_load_all();
+  $unused_regions = array();
+  foreach ($default_regions as $region) {
+    if (!isset($layout_settings['regions'][$region->machine_name])) {
+      $unused_regions[$region->machine_name] = $region->label;
+    }
+  }
+
+  $form['layout_responsive_add']['existing_region'] = array(
     '#title' => t('Region label'),
+    '#type' => 'select',
+    '#options' => $unused_regions,
+    '#empty_value' => '',
+    '#empty_option' => t('- New region -'),
+  );
+  $form['layout_responsive_add']['label'] = array(
+    '#title' => t('New region label'),
     '#type' => 'textfield',
     '#size' => 30,
+    '#states' => array(
+      'visible' => array(
+        'select[name="layout_settings[layout_responsive_add][existing_region]"]' => array('value' => ''),
+      ),
+    ),
   );
   $form['layout_responsive_add']['machine_name'] = array(
+    '#title' => t('New region machine name'),
     '#type' => 'machine_name',
     '#maxlength' => 32,
     '#machine_name' => array(
+      'exists' => 'layout_region_load',
       'source' => array('layout_settings', 'layout_responsive_add', 'label'),
     ),
     '#required' => FALSE,

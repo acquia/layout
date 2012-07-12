@@ -32,9 +32,8 @@ Drupal.responsiveLayout.init = function() {
   // Make regular text selection disabled for the items.
   $('.panels-responsive-admin-regions').disableSelection();
 
-  // Add handlers for removing and adding regions.
-  $('.panels-responsive-admin-regions .region .remove-icon').click(Drupal.responsiveLayout.regionRemove);
-  $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAddNew);
+  // Bind click handler for interactive region addition.
+  $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
 }
 
 /**
@@ -79,6 +78,11 @@ Drupal.responsiveLayout.setRegionList = function() {
  * Event handler for region remove icon.
  */
 Drupal.responsiveLayout.regionRemove = function() {
+  // Get machine name and label and add it to the list of regions to add (back).
+  var machineName = $(this).parent().data('region-machine-name');
+  var label = $(this).parent().data('region-label');
+  $('#edit-layout-settings-layout-responsive-add-existing-region').append(new Option(label, machineName));
+
   // Slide up the region when the remove icon is clicked. This will hide it
   // from view and will make it not being saved. Register the saving function
   // for when the region is already hidden.
@@ -91,20 +95,36 @@ Drupal.responsiveLayout.regionRemove = function() {
 /**
  * Add new region to the DOM based on form input and save it in our local list.
  */
-Drupal.responsiveLayout.regionAddNew = function() {
-  // Get the name and label from the input fields.
-  var machineName = $('#edit-layout-settings-layout-responsive-add-machine-name').val();
-  var label = $('#edit-layout-settings-layout-responsive-add-label').val();
+Drupal.responsiveLayout.regionAdd = function() {
+  // Look at the existing regions select list.
+  var regionSelected = $('#edit-layout-settings-layout-responsive-add-existing-region :selected');
+  if ($(regionSelected).attr('value').length) {
+    // An existing region was selected. Get label from there.
+    var label = $(regionSelected).text();
+    var machineName = $(regionSelected).attr('value');
 
-  // Clear label input and trigger change event that will clear out the machine
-  // name too due to the behavior in machine-name.js.
-  $('#edit-layout-settings-layout-responsive-add-label').val('').change();
+    // Remove this region from the region select list, trigger change event.
+    $(regionSelected).remove();
+    $('#edit-layout-settings-layout-responsive-add-existing-region :first').attr('selected', true);
+    $('#edit-layout-settings-layout-responsive-add-existing-region').change();
+  }
+  else {
+    // Get the name and label from the input fields.
+    var machineName = $('#edit-layout-settings-layout-responsive-add-machine-name').val();
+    var label = $('#edit-layout-settings-layout-responsive-add-label').val();
 
-  // Actually add the region to the DOM.
-  Drupal.responsiveLayout.regionAddtoDOM('prepend', machineName, label, true);
+    // Clear label input and trigger change event that will clear out the machine
+    // name too due to the behavior in machine-name.js.
+    $('#edit-layout-settings-layout-responsive-add-label').val('').change();
+  }
 
-  // Save the new region list/order in our local list.
-  Drupal.responsiveLayout.setRegionList();
+  // Add new region if details were provided.
+  if (machineName.length && label.length) {
+    // Actually add the region to the DOM.
+    Drupal.responsiveLayout.regionAddtoDOM('prepend', machineName, label, true);
+    // Save the new region list/order in our local list.
+    Drupal.responsiveLayout.setRegionList();
+  }
 
   // Stop click event from propagating.
   return false;

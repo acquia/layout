@@ -1,11 +1,5 @@
 .panels-responsive-admin {
-  width: 300px;
-}
-.panels-responsive-admin fieldset {
-  padding: 0.8em;
-}
-.panels-responsive-admin fieldset button {
-  display: block;
+  width: 320px;
 }
 .form-item-admin-description, .form-item-category,
 #panels-live-preview, #ctools-export-ui-edit-item-form h2,
@@ -31,7 +25,7 @@
   font-size: 2em;
   margin-right: 1em;
 }
-.panels-responsive-admin-regions .region .close-icon {
+.panels-responsive-admin-regions .region .remove-icon {
   position: absolute;
   right: 5px;
   top: 20px;
@@ -40,4 +34,12 @@
   color: #484848;
   padding: 4px;
   cursor: default;
+}
+.form-item.form-item-layout-settings-layout-responsive-add-existing-region {
+  float: left;
+  margin-right: 30px;
+}
+.fieldset-wrapper .form-submit {
+  clear: both;
+  display: block;
 }
