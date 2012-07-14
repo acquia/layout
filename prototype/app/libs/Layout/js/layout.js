@@ -1,21 +1,24 @@
 $(function() {
 
   function resizeRegion(e) {
-    var oldX = e.data.origin.left;
-    var newX = e.pageX;
-    var oldW = e.data.width;
-    var newW = oldW - deltaX - 5;
-    var deltaX = newX - oldX;
     var siblingTo = e.data.siblings;
     var splitFrom = e.data.side;
+    var initialX = e.data.origin.left;
+    var oldX = (splitFrom == 'left') ? this.position().left : this.position().right;
+    var newX = e.pageX;
+    var oldW = e.data.width;
+    var deltaX = newX - oldX;
+    var newW = oldW - deltaX;
     var gutter = (siblingTo == 'left') ? 'margin-left' : 'margin-right';
+    console.log(oldX);
 
     // Resize current region.
+    var currentW = this.width();
     this.css( {
       gutter: '5px',
-      'width': newW
+      'width': currentW - deltaX
     } );
-    console.log('region width: ' + this.css('width'));
+    console.log('currentW - deltaX: ' + (currentW - deltaX));
     
     // Resize adjacent region.
     var adjacent = (splitFrom == 'left') ? this.prev('.region') : this.next('.region');
@@ -74,7 +77,7 @@ $(function() {
         top: $region.position().top,
         left: $region.position().left
       },
-      width: $region.outerWidth(),
+      // width: $region.outerWidth(),
       siblings: splitterSiblings,
       side: splitterSide
     };
