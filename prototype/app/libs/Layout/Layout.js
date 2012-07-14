@@ -4,6 +4,8 @@
     
     function Layout() {
       this.options = {};
+      this.regions = [];
+      this.grid = {};
       this.$editor = $('<div>', {
         'class': 'layout'
       });
@@ -56,6 +58,11 @@
         return this[property];
       }
       return;
+    };
+    
+    Layout.prototype.inflect = function (regions, Grid) {
+      this.regions = regions;
+      this.grid = Grid;
     };
     
     return Layout;

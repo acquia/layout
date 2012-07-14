@@ -2,99 +2,84 @@
   var RLD = (function(){
     
     function ResponsiveLayoutDesigner() {
-      this.options = {
-        'root': 'body',
-        'composites': [
-          {
-            'name': 'default',
-            'machine-name': 'default',
-            'step': {
-              'breakpoint': 0,
-              'label': 'small'
-            },
-            'layout': {
-              'regions': [
-                {
-                'name': 'header'
-                },
-                {
-                  'name': 'content'
-                },
-                {
-                  'name': 'footer'
-                }
-              ]
-            },
-            'grid': {}
-          },
-          {
-            'name': 'default',
-            'machine-name': 'default',
-            'step': {
-              'breakpoint': 320,
-              'label': 'landscape'
-            },
-            'layout': {
-              'regions': [
-                {
-                'name': 'header'
-                },
-                {
-                  'name': 'content'
-                },
-                {
-                  'name': 'footer'
-                }
-              ]
-            },
-            'grid': {}
-          }
-        ]
-      };
-      this.$root = $();
-      this.compositeManager = new RLD.CompositeManager();
-      this.stepEditor = new RLD.StepEditor();
-      this.layoutEditor = new RLD.LayoutEditor();
-      this.gridEditor = new RLD.GridEditor();
+      this.options = {};
+      this.layouts = {};
+      this.layoutTemplate = {};
+      this.regions = {};
+      this.composites = {};
+      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
     
     ResponsiveLayoutDesigner.prototype.init = function (options) {
+      // Merge in user options.
+      var prop;
       this.options = $.extend({}, this.options, options);
-      this.$root = $(this.options.root);
-      this.composites = this.options.composites;
+      for (prop in this.options) {
+        if (this.options.hasOwnProperty(prop)) {
+          this[prop] = this.options[prop];
+        }
+      }
+      // Define a template for layouts.
+      this.layoutTemplate = {
+        'name': 'Default',
+        'machine_name': 'default',
+        'regions': [],
+        'grid': {}
+      };
+      // Prep the composites.
+      this.compositeLayouts();
+      // Create the application root node.
+      this.$editor = $('<div>', {
+        'class': 'responsive-layout-designer'
+      });
+      // Instansiate Editors.
+      this.compositeManager = new RLD.CompositeManager();
+      this.stepEditor = new RLD.StepEditor();
+      this.layoutEditor = new RLD.LayoutEditor();
+      this.gridEditor = new RLD.GridEditor();
     };
     
     ResponsiveLayoutDesigner.prototype.start = function () {
-      var composites = this.composites;
-      var i, index, step, layout, grid;
-      // Create the application root node.
-      var $designer = $('<div>', {
-        'class': 'responsive-layout-designer'
-      })
-      .appendTo(this.$root);
+      var layouts = this.layouts;
+      var regionSet = new RLD.RegionSet({
+        'regions': this.regions
+      });
+      var i, step, layout, grid;
       // Create obects for each composite.
-      for (i = 0; i < composites.length; i++) {
-        step = new RLD.Step(composites[i].step);
-        layout = new RLD.Layout(composites[i].layout);
-        grid = new RLD.Grid(composites[i].grid);
-        index = step.info('breakpoint');
+      for (i = 0; i < layouts.length; i++) {
+        step = new RLD.Step(layouts[i].step);
+        layout = new RLD.Layout(layouts[i].layout);
+        grid = new RLD.Grid(layouts[i].grid);
         // Save the composition elements into a unit.
-        this.compositeManager.registerComposite(index, step, layout, grid);
+        this.compositeManager.registerComposite(regionSet, step, layout, grid);
       }
       
       // Build the compositeManager and attach it to the DOM.
-      this.compositeManager.build().appendTo($designer);
+      this.compositeManager.build().appendTo(this.$editor);
+    };
+    
+    ResponsiveLayoutDesigner.prototype.build = function () {
+      return this.$editor;
+    };
+    
+    ResponsiveLayoutDesigner.prototype.compositeLayouts = function () {
+      var layout;
+      for (layout in this.layouts) {
+        if (this.layouts.hasOwnProperty(layout)) {
+          
+        }
+      }
     };
     
     ResponsiveLayoutDesigner.prototype.registerEventHandler = function (event, handler) {
       
-    }
+    };
     
     ResponsiveLayoutDesigner.prototype.registerEventListener = function () {
     
-    }
+    };
     
     return ResponsiveLayoutDesigner;
     

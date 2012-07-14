@@ -7,7 +7,7 @@
         'breakpoint': '0',
         'label': 'No label'
       };
-      this.$editor = $(0);
+      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -20,6 +20,8 @@
           this[prop] = this.options[prop];
         }
       }
+      // Breakpoints can be defined in pixels or ems.
+      //this.processBreakpoint();
     };
     
     Step.prototype.build = function () {
@@ -36,6 +38,13 @@
       }
       return;
     };
+    /**
+     * A breakpoint can be defined in pixels or ems. So we store the value
+     * as a set of components that can be calculated on request.
+     */
+    Step.prototype.processBreakpoint = function () {};
+    
+    Step.prototype.getBreakpoint = function (type) {};
 
     return Step;
     

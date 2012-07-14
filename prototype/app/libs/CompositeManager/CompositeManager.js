@@ -20,7 +20,7 @@
       this.listeners = {
         'breakpointAdded': []
       };
-      this.composites = [];
+      this.composites = {};
       // Setup
       this.init.apply(this, arguments);
     }
@@ -119,8 +119,16 @@
       }
     };
     
-    CompositeManager.prototype.registerComposite = function (index, Step, Layout, Grid) {
+    CompositeManager.prototype.registerComposite = function (RegionSet, Step, Layout, Grid) {
+      var regions = RegionSet.info('regionItems');
+      var index;
+      // A layout is the inflection of a region set and a grid. This means that a layout has no meaning
+      // without a list of regions to place and without a grid to define where to place them.
+      Layout.inflect(RegionSet.info('regionItems'), Grid);
+      index = Step.info('breakpoint');
+      // index = Step.info('index');
       this.composites[index] = {
+        regions: RegionSet,
         step: Step,
         layout: Layout,
         grid: Grid
