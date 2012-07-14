@@ -251,8 +251,15 @@ function theme_layout_responsive($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
-  // Just return the regions ordered as configured.
-  $output = join('', $content);
+  // Render the regions ordered as configured with minimal wrappers.
+  $output = '';
+  foreach ($content as $machine_name => $rendered) {
+    if (!empty($rendered)) {
+      $output .= '<div class="layout-responsive-region layout-responsive-region-' . $machine_name .'">';
+      $output .= $rendered;
+      $output .= '</div>';
+    }
+  }
   return '<div class="panel-responsive">' . $output . '</div>';
 }
 
