@@ -1,0 +1,63 @@
+/**
+ * Gridiron: Layout builder.
+ */
+.row, .row-changed {
+  width: 960px;
+  height: 68px;
+  margin: 15px auto;
+  clear: both;
+}
+.row:before, .row:after, .row-changed:before, .row-changed:after {
+  content: "";
+  display: table;
+}
+.row:after, .row-changed:after {
+  clear: both;
+}
+.region {
+  padding: 0;
+  float: left;
+  width: 915px; /* splitter def: 960px */
+  height: 68px;
+  background-color: #555;
+  color: white;
+  z-index: 100;
+}
+.region p {
+  padding: 10px;
+  margin: 0;
+  float: left;
+  z-index: 0;
+}
+.region.created {
+  width: 0;
+  height: 68px;
+  overflow: hidden;
+  border: 1px solid #555;
+}
+.region.empty.new {
+  outline: 1px dashed #31cbff;
+  background-color: white;
+  color: #ccc;
+  height: 68px;
+}
+.region.empty {
+  width: 0; /* outside splitter defs */
+  border: 0;
+}
+.splitter {
+  width: 11px;
+  float: left;
+	cursor: e-resize;	/* in case col-resize isn't supported */
+	cursor: col-resize;
+  height: 68px;
+  z-index: 1;
+  background: #555 url('../images/grippie.png') center center no-repeat;
+  display: block;
+}
+.splitter.splitter-right {
+  float: right;
+}
+.splitter.splitter-active {
+  background: url('../images/grippie-active.png') 0 -1px;
+}
