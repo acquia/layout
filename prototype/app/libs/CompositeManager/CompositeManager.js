@@ -14,6 +14,7 @@
         }
       };
       this.$editor = $('<div>', {});
+      this.$steps = $();
       this.$layouts = $();
       this.$controls = $();
       this.listeners = {
@@ -88,6 +89,10 @@
 
     CompositeManager.prototype.getEditor = function () {
       return this.$editor;
+    };
+    
+    CompositeManager.prototype.listSteps = function (composites) {
+      
     };
 
     CompositeManager.prototype.addLayout = function (composites) {
