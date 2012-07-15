@@ -46,6 +46,14 @@
           .appendTo(this.$editor);
         }
       }
+      // Bind behaviors.
+      this.$editor.sortable({
+        // Make a placeholder visible when dragging.
+        placeholder: "ui-state-highlight",
+        // When the dragging and dropping is done, save updated region
+        // list in our local list.
+        deactivate: function () {}
+      });
       return this.$editor;
     };
     

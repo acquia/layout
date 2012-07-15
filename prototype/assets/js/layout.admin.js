@@ -36,8 +36,38 @@ $(document).ready(function (event) {
         'name': 'default',
         'machine-name': 'default',
         'step': {
-          'breakpoint': '28',
+          'breakpoint': '28em',
           'label': 'landscape'
+        },
+        'layout': {},
+        'grid': {}
+      },
+      {
+        'name': 'default',
+        'machine-name': 'default',
+        'step': {
+          'breakpoint': '41em',
+          'label': 'tablet'
+        },
+        'layout': {},
+        'grid': {}
+      },
+      {
+        'name': 'default',
+        'machine-name': 'default',
+        'step': {
+          'breakpoint': '56em',
+          'label': 'desktop'
+        },
+        'layout': {},
+        'grid': {}
+      },
+      {
+        'name': 'default',
+        'machine-name': 'default',
+        'step': {
+          'breakpoint': '64em',
+          'label': 'large'
         },
         'layout': {},
         'grid': {}

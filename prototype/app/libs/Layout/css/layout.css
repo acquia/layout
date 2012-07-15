@@ -1,10 +1,11 @@
 /**
  * Gridiron: Layout builder.
  */
-.row, .row-changed {
-  width: 960px;
+.row,
+.row-changed {
   height: 68px;
-  margin: 15px auto;
+  margin-bottom: 15px;
+  margin-top: 15px;
   clear: both;
 }
 .row:before, .row:after, .row-changed:before, .row-changed:after {
@@ -17,7 +18,7 @@
 .region {
   padding: 0;
   float: left;
-  width: 915px; /* splitter def: 960px */
+  width: 100%; /* splitter def: 960px */
   height: 68px;
   background-color: #555;
   color: white;
@@ -61,3 +62,26 @@
 .splitter.splitter-active {
   background: url('../images/grippie-active.png') 0 -1px;
 }
+/* @group Sortable */
+
+.ui-sortable .ui-state-highlight {
+  height: 50px;
+  padding: 10px;
+  margin: 1em 0;
+}
+.ui-sortable .region .drag-icon {
+  font-size: 2em;
+  margin-right: 1em;
+}
+.ui-sortable .region .remove-icon {
+  position: absolute;
+  right: 5px;
+  top: 20px;
+  background-color: #cdcdcd;
+  border-radius: 10px;
+  color: #484848;
+  padding: 4px;
+  cursor: default;
+}
+
+/* @end */
