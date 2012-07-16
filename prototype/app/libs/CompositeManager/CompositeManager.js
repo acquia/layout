@@ -13,7 +13,9 @@
           'class-layout-content': 'layouts-content'
         }
       };
+      // Ui components.
       this.$editor = $('<div>', {});
+      this.$stepManager = $();
       this.$steps = $();
       this.$layouts = $();
       this.$controls = $();
@@ -35,10 +37,24 @@
           this[prop] = this.options[prop];
         }
       }
+      // Assemble the editor managers and containers.
+      this.$stepManager = $('<div>', {
+        'class': this.options.ui['class-layout']
+      });
+      this.$steps = $('<ul>', {
+        'class': this.options.ui['class-layout-tabs']
+      });
+      this.$layouts = $('<div>', {
+        'class': this.options.ui['class-layout-content']
+      });
+      // Spin up the managers.
+      this.stepManager = new RLD.StepManager();
     };
-    
+    /**
+     *
+     */
     CompositeManager.prototype.build = function () {
-      // Set up a basic editor fraemwork.
+      // Assemble the editor fraemwork.
       this.$editor
       .addClass('breakpoint-editor')
       .append($('<div>', {
@@ -48,36 +64,26 @@
           text: 'Add new breakpoint'
         }))
       )
-      .append($('<div>', {
-          'class': this.options.ui['class-layout']
-        })
-        .append(
-          $('<ul>', {
-            'class': this.options.ui['class-layout-tabs']
-          })
-        )
-        .append(
-          $('<div>', {
-            'class': this.options.ui['class-layout-content']
-          })
-        )
+      .append(this.$stepManager
+        .append(this.stepManager.build(this.$steps, this.$layouts))
       );
       // Store the important elements of the editor as jQuery references.
       this.$layouts = this.$editor.find('.' + this.options.ui['class-layout']);
       this.$controls = this.$editor.find('.controls');
       // Set up jQuery UI objects.
-      this.refreshEditor();
+      // this.refreshEditor();
       // Add layouts provided to the constructor.
       this.addLayout(this.composites);
       
       return this.$editor;
     };
-    
+    /**
+     *
+     */
     CompositeManager.prototype.refreshEditor = function () {
       // Add layout proxy.
       var fn = $.proxy(this.addLayout, this);
       // Start the jQuery UI elements.
-      this.$layouts.tabs();
       this.$controls
       .find('button')
       .once('control', function () {
@@ -86,15 +92,21 @@
         .bind('click.breakpointEditor', fn);
       });
     };
-
+    /**
+     *
+     */
     CompositeManager.prototype.getEditor = function () {
       return this.$editor;
     };
-    
+    /**
+     *
+     */
     CompositeManager.prototype.listSteps = function (composites) {
       
     };
-
+    /**
+     *
+     */
     CompositeManager.prototype.addLayout = function (composites) {
       var item, id, step, label, breakpoint, layout;
       for (item in composites) {
@@ -105,6 +117,8 @@
           label = step.info('label');
           id = 'breakpoint-' + breakpoint;
           this.$editor
+          .find('.' + this.options.ui['class-layout-tabs'])
+          .end()
           .find('.' + this.options.ui['class-layout-content'])
           .append(
             $('<div>', {
@@ -113,19 +127,25 @@
               'html': layout.build()
             })
           );
-          // Incorporate the new pane into the tabs.
-          this.$layouts.tabs('add', '#' + id, label);
         }
       }
     };
-    
+    /**
+     *
+     */
+    CompositeManager.prototype.loadLayout = function (Layout) {
+      this.$editor.this.options.ui['class-layout-content']
+    }
+    /**
+     *
+     */
     CompositeManager.prototype.registerComposite = function (RegionSet, Step, Layout, Grid) {
       var regions = RegionSet.info('regionItems');
       var index;
       // A layout is the inflection of a region set and a grid. This means that a layout has no meaning
       // without a list of regions to place and without a grid to define where to place them.
       Layout.inflect(RegionSet.info('regionItems'), Grid);
-      index = Step.info('breakpoint');
+      index = Number(Step.info('breakpoint'));
       // index = Step.info('index');
       this.composites[index] = {
         regions: RegionSet,
@@ -133,15 +153,21 @@
         layout: Layout,
         grid: Grid
       };
+      // Update Managers
+      this.stepManager.addStep(this.composites[index]);
     };
-    
+    /**
+     *
+     */
     CompositeManager.prototype.getStep = function (index) {
       if (index && index in this.steps) {
         return this.steps[index];
       }
       return this.steps;
     }
-    
+    /**
+     *
+     */
     CompositeManager.prototype.launchStepEditor = function () {
       var $dialog = this.dialog;
       $dialog.append(this.stepEditor.getEditor());
@@ -153,15 +179,17 @@
           $(this).dialog('destroy').removeAttr('style');
         }
       })
-    }
-    
+    };
+    /**
+     *
+     */
     CompositeManager.prototype.registerEventListener = function (event, fn) {
       if (typeof event === 'string' && event in this.listeners && typeof fn === 'function') {
         this.listeners[event].push({
           callback: fn
         });
       }
-    }
+    };
     
     return CompositeManager;
     
