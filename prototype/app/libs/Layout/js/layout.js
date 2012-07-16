@@ -55,6 +55,8 @@ $(function() {
   $('.region').css('-webkit-user-select', 'none');
 
   $('.splitter').mousedown(function(event) {
+    
+      event.stopPropagation();
     var $region = $(this).closest('.region');
     var fn = $.proxy(createRegion, $region);
 

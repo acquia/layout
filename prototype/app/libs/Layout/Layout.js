@@ -1,7 +1,49 @@
 (function (RLD, $) {
   
   RLD['Layout'] = (function () {
+  
+    // Region manipulation functions.
+    function regionResizeHandler(event) {
+      event.stopPropagation();
+      var $this = $(this);
+      var $region = $(this).closest('.region');
+      var fn = $.proxy(createRegion, $region);
+  
+      // Determine if there are siblings before or after region.
+      var splitterSiblings;
+      // @TODO: Fix the following logic; should 'both' be accounted for?
+      if ($region.prev().length === 1) {
+        splitterSiblings = 'left';
+        if ($region.prev().length === 1 && $region.next().length === 1) {
+          splitterSiblings = 'both';
+        }
+      }
+      else {
+        splitterSiblings = 'right';
+      }
+  
+      // Determine if the splitter is on the left or right side of region.
+      var splitterSide = ($(this).hasClass('splitter-left')) ? 'left' : 'right';
+  
+      var originObject = {
+        origin: {
+          top: $region.position().top,
+          left: $region.position().left
+        },
+        width: $region.outerWidth(),
+        siblings: splitterSiblings,
+        side: splitterSide
+      };
+      $(document).bind('mousedown.regionCreate', originObject, fn);
+      fn = $.proxy(resizeRegion, $region);
+      $(document).bind('mousemove.regionResize', originObject, fn);
+      fn = $.proxy(finishRegionResize, $region);
+      $(document).bind('mouseup.regionResize', originObject, fn);
+      $(document).bind('mouseup.regionResize', originObject, fn);
+      $this.addClass('splitter-active');
+    }
     
+    // Layout Class
     function Layout() {
       this.options = {};
       this.regions = [];
@@ -54,6 +96,10 @@
         // list in our local list.
         deactivate: function () {}
       });
+      // Region resizing behaviors.
+      this.$editor.delegate('.region .splitter', 'mousedown', regionResizeHandler);
+      
+      // Return the editor as a DOM fragment.
       return this.$editor;
     };
     
