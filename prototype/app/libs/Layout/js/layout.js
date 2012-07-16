@@ -4,13 +4,12 @@ $(function() {
     var siblingTo = e.data.siblings;
     var splitFrom = e.data.side;
     var initialX = e.data.origin.left;
-    var oldX = (splitFrom == 'left') ? this.position().left : this.position().right;
     var newX = e.pageX;
     var oldW = e.data.width;
-    var deltaX = newX - oldX;
-    var newW = oldW - deltaX;
+    var newW = this.outerWidth();
+    var oldX = (splitFrom == 'left') ? this.position().left : this.position().left + newW;
+    var deltaX = (splitFrom == 'left') ? newX - oldX : oldX - newX;
     var gutter = (siblingTo == 'left') ? 'margin-left' : 'margin-right';
-    console.log(oldX);
 
     // Resize current region.
     var currentW = this.width();
@@ -18,12 +17,15 @@ $(function() {
       gutter: '5px',
       'width': currentW - deltaX
     } );
-    console.log('currentW - deltaX: ' + (currentW - deltaX));
-    
+    console.log('oldX: ' + oldX + ', newX: ' + newX);
+    console.log('currentW - deltaX: ' + (currentW - deltaX) + ', currentW + deltaX: ' + (currentW + deltaX));
+
     // Resize adjacent region.
     var adjacent = (splitFrom == 'left') ? this.prev('.region') : this.next('.region');
     var adjacentW = parseFloat(adjacent.css('width'));
-    adjacent.css('width', adjacentW + deltaX);
+    adjacent.css( {
+      'width': (splitFrom == 'left') ? adjacentW + deltaX : adjacentW + deltaX
+    } );
     console.log('adjacentW: ' + adjacentW + ', deltaX: ' + deltaX + ', adjacent width: ' + adjacent.css('width'));
   }
 
@@ -77,7 +79,7 @@ $(function() {
         top: $region.position().top,
         left: $region.position().left
       },
-      // width: $region.outerWidth(),
+      width: $region.outerWidth(),
       siblings: splitterSiblings,
       side: splitterSide
     };
