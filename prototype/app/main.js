@@ -1,21 +1,6 @@
 (function (window, $) {
   var RLD = (function(){
     /**
-     * The ResponsiveLayoutDesigner is a facade for a set of sub-systems that manage
-     * the configuration of a responsive layout through a browser.
-     */
-    function ResponsiveLayoutDesigner() {
-      this.options = {};
-      this.layouts = {};
-      this.layoutTemplate = {};
-      this.regions = {};
-      this.composites = {};
-      this.regionSet;
-      this.$editor = $();
-      // Initialize the object.
-      this.init.apply(this, arguments);
-    }
-    /**
      * Create the InitClass object that all other objects will extend.
      */
     var InitClass = (function () {
@@ -33,6 +18,18 @@
           }
         }
       };
+      /**
+       *
+       */
+      InitClass.prototype.init = function () {};
+      /**
+       *
+       */
+      InitClass.prototype.info = function () {};
+      /**
+       *
+       */
+      InitClass.prototype.build = function () {};
       /**
        * Pushes a supplied function into the list of functions.
        */
@@ -65,12 +62,31 @@
       
       return InitClass;
     }());
-    // Extend the RLD with the InitClass.
+    /**
+     * The ResponsiveLayoutDesigner is a facade for a set of sub-systems that manage
+     * the configuration of a responsive layout through a browser.
+     */
+    function ResponsiveLayoutDesigner() {
+      this.options = {};
+      this.layouts = {};
+      this.layoutTemplate = {};
+      this.regions = {};
+      this.composites = {};
+      this.regionSet;
+      this.$editor = $();
+      // Initialize the object.
+      this.init.apply(this, arguments);
+    }
+    /**
+     * Extend the RLD with the InitClass.
+     */
     ResponsiveLayoutDesigner.prototype = new InitClass();
-    // Provide the InitClass for all other Classes to extend.
+    /**
+     * Provide the InitClass for all other Classes to extend.
+     */
     ResponsiveLayoutDesigner.InitClass = InitClass;
     /**
-     *
+     * Implement the init() interface.
      */
     ResponsiveLayoutDesigner.prototype.init = function (options) {
       // Merge in user options.
@@ -100,7 +116,9 @@
       this.layoutEditor = new RLD.LayoutEditor();
       this.gridEditor = new RLD.GridEditor();
     };
-    
+    /**
+     *
+     */
     ResponsiveLayoutDesigner.prototype.start = function () {
       var layouts = this.layouts;
       // this.regions is a simple object. The RegionSet provides methods to
@@ -121,11 +139,15 @@
       // Build the compositeManager and attach it to the DOM.
       this.compositeManager.build().appendTo(this.$editor);
     };
-    
+    /**
+     *
+     */
     ResponsiveLayoutDesigner.prototype.build = function () {
       return this.$editor;
     };
-    
+    /**
+     *
+     */
     ResponsiveLayoutDesigner.prototype.compositeLayouts = function () {
       var layout;
       for (layout in this.layouts) {
