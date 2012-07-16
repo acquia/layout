@@ -4,7 +4,7 @@
   
     // Region manipulation functions.
     function regionResizeHandler(event) {
-      event.stopPropagation();
+      event.stopImmediatePropagation();
       var $this = $(this);
       var $region = $(this).closest('.region');
       var fn = $.proxy(createRegion, $region);
@@ -34,15 +34,62 @@
         siblings: splitterSiblings,
         side: splitterSide
       };
-      $(document).bind('mousedown.regionCreate', originObject, fn);
+      createRegion(originObject, $region);
       fn = $.proxy(resizeRegion, $region);
       $(document).bind('mousemove.regionResize', originObject, fn);
       fn = $.proxy(finishRegionResize, $region);
       $(document).bind('mouseup.regionResize', originObject, fn);
-      $(document).bind('mouseup.regionResize', originObject, fn);
       $this.addClass('splitter-active');
     }
-    
+
+    function resizeRegion(e) {
+      var siblingTo = e.data.siblings;
+      var splitFrom = e.data.side;
+      var initialX = e.data.origin.left;
+      var newX = e.pageX;
+      var oldW = e.data.width;
+      var newW = this.outerWidth();
+      var oldX = (splitFrom == 'left') ? this.position().left : this.position().left + newW;
+      var deltaX = (splitFrom == 'left') ? newX - oldX : oldX - newX;
+      var gutter = (siblingTo == 'left') ? 'margin-left' : 'margin-right';
+
+      // Resize current region.
+      var currentW = this.width();
+      this.css( {
+        gutter: '5px',
+        'width': currentW - deltaX
+      } );
+
+      // Resize adjacent region.
+      var adjacent = (splitFrom == 'left') ? this.prev('.region') : this.next('.region');
+      var adjacentW = parseFloat(adjacent.css('width'));
+      adjacent.css( {
+        'width': (splitFrom == 'left') ? adjacentW + deltaX : adjacentW + deltaX
+      } );
+    }
+
+    function finishRegionResize(e) {
+      resizeRegion.apply(this, arguments);
+      $('.splitter').removeClass('splitter-active');
+      $(document).unbind('.regionResize');
+      this.find('.splitter').unbind('mouseup.regionResize');
+    }
+
+    function createRegion(info, $context) {
+      // Create a region to the left or right of the region in question.
+      var newRegion = $('<div>', {
+        'class': 'region new empty',
+        'html': $('<p>Region X</p>')
+      });
+      if (info.side == 'left' && info.siblings !== 'left') {
+        newRegion.prependTo($context.closest('.row'));
+      }
+      else if (info.side == 'right' && info.siblings !== 'right') {
+        newRegion.appendTo($context.closest('.row'));
+      }
+      $context.find('.splitter').unbind('mousedown.regionCreate');
+    }
+
     // Layout Class
     function Layout() {
       this.options = {};

@@ -1,12 +1,11 @@
-/**
- * Gridiron: Layout builder.
- */
-.row,
-.row-changed {
+/* @group Region and row styles */
+
+.row {
   height: 68px;
   margin-bottom: 15px;
   margin-top: 15px;
   clear: both;
+  -webkit-user-select: none;
 }
 .row:before, .row:after, .row-changed:before, .row-changed:after {
   content: "";
@@ -43,7 +42,7 @@
   height: 68px;
 }
 .region.empty {
-  width: 0; /* outside splitter defs */
+  width: 0;
   border: 0;
 }
 .splitter {
@@ -62,6 +61,7 @@
 .splitter.splitter-active {
   background: url('../images/grippie-active.png') 0 -1px;
 }
+
 /* @group Sortable */
 
 .ui-sortable .ui-state-highlight {
