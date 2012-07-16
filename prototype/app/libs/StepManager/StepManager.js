@@ -10,6 +10,10 @@
       this.init.apply(this, arguments);
     }
     /**
+     * Extend the InitClass Object.
+     */
+    StepManager.prototype = new RLD.InitClass();
+    /**
      *
      */
     StepManager.prototype.init = function (options) {

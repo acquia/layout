@@ -2,7 +2,7 @@
 $(document).ready(function (event) {
 
   /**
-   * Safe loggin function.
+   * Safe logging function.
    */
   function log (message, type) {
     if ('console' in window) {

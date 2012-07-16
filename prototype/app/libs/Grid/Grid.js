@@ -8,6 +8,10 @@
       // Initialize the object.
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    Grid.prototype = new RLD.InitClass();
     
     Grid.prototype.init = function (options) {
       var prop;

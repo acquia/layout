@@ -99,6 +99,10 @@
       // Initialize the object.
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    Layout.prototype = new RLD.InitClass();
     
     Layout.prototype.init = function (options) {
       var prop;

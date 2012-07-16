@@ -5,6 +5,10 @@
       this.$editor = $();
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    LayoutEditor.prototype = new RLD.InitClass();
     
     LayoutEditor.prototype.init = function () {
       

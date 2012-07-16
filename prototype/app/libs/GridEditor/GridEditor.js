@@ -5,6 +5,10 @@
       this.$editor = $();
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    GridEditor.prototype = new RLD.InitClass();
     
     GridEditor.prototype.init = function () {
       

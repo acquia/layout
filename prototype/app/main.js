@@ -15,7 +15,63 @@
       // Initialize the object.
       this.init.apply(this, arguments);
     }
-    
+    /**
+     * Create the InitClass object that all other objects will extend.
+     */
+    var InitClass = (function () {
+      function InitClass() {
+        this.listeners = {};
+      }
+      /**
+       * Safe logging function.
+       */
+      InitClass.prototype.log = function (message, type) {
+        if ('console' in window) {
+          var type = type || 'log';
+          if (type in console) {
+            console[type](message);
+          }
+        }
+      };
+      /**
+       * Pushes a supplied function into the list of functions.
+       */
+      InitClass.prototype.registerEventListener = function (event, handler) {
+        if (event in this.listeners) {
+          this.listeners[event].push(handler);
+          return;
+        }
+        // This is the first time this event has a listener registerd against it.
+        this.listeners[event] = [handler];
+      };    
+      /**
+       * Iterate through the callbacks and invoke them.
+       */
+      InitClass.prototype.triggerEvent = function (event) {
+        var i, listeners, e, args;
+        if (event in this.listeners) {
+          listeners = this.listeners[event];
+          // Create a jQuery Event for consistency and shift it into the arguments.
+          e = $.Event(event);
+          args = Array.prototype.slice.call(arguments);
+          args.shift();
+          args.unshift(e);
+          // Call the listeners.
+          for (i = 0; i < listeners.length; i++) {
+            listeners[i].apply(this, args);
+          } 
+        }
+      };
+      
+      return InitClass;
+    }());
+    // Extend the RLD with the InitClass.
+    ResponsiveLayoutDesigner.prototype = new InitClass();
+    // Provide the InitClass for all other Classes to extend.
+    ResponsiveLayoutDesigner.InitClass = InitClass;
+    /**
+     *
+     */
     ResponsiveLayoutDesigner.prototype.init = function (options) {
       // Merge in user options.
       var prop;
@@ -79,6 +135,8 @@
       }
     };
     /**
+     * Override the InitClass registerEventListener function.
+     *
      * Push event listeners to the appropriate object to handle the callbacks.
      *
      * The ResponsiveLayoutDesigner is a facade for these sub-systems.

@@ -5,11 +5,14 @@
     function RegionSet() {
       this.options = {};
       this.regionItems = [];
-      this.listeners = {};
       this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    RegionSet.prototype = new RLD.InitClass();
     /**
      *
      */
@@ -65,36 +68,7 @@
      */
     RegionSet.prototype.update = function (regionSet) {
       this.regionItems = regionSet;
-      this.callListeners('regionOrderUpdated', this);
-    };
-    /**
-     *
-     */
-    RegionSet.prototype.registerEventListener = function (event, handler) {
-      if (event in this.listeners) {
-        this.listeners[event].push(handler);
-        return;
-      }
-      // This is the first time this event has a listener registerd against it.
-      this.listeners[event] = [handler];
-    };
-    /**
-     * Invoke registered listeners.
-     */
-    RegionSet.prototype.callListeners = function (event) {
-      var i, listeners, e, args;
-      if (event in this.listeners) {
-        listeners = this.listeners[event];
-        // Create a jQuery Event for consistency and shift it into the arguments.
-        e = $.Event(event);
-        args = Array.prototype.slice.call(arguments);
-        args.shift();
-        args.unshift(e);
-        // Call the listeners.
-        for (i = 0; i < listeners.length; i++) {
-          listeners[i].apply(this, args);
-        } 
-      }
+      this.triggerEvent('regionOrderUpdated', this);
     };
 
     return RegionSet;

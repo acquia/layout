@@ -11,6 +11,10 @@
       // Initialize the object.
       this.init.apply(this, arguments);
     }
+    /**
+     * Extend the InitClass Object.
+     */
+    Step.prototype = new RLD.InitClass();
     
     Step.prototype.init = function (options) {
       var prop;

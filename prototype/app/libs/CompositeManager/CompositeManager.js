@@ -27,6 +27,10 @@
       this.init.apply(this, arguments);
     }
     /**
+     * Extend the InitClass Object.
+     */
+    CompositeManager.prototype = new RLD.InitClass();
+    /**
      * Integrate instantiation options.
      */
     CompositeManager.prototype.init = function (options) {
