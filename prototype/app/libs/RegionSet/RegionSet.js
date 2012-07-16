@@ -5,6 +5,7 @@
     function RegionSet() {
       this.options = {};
       this.regionItems = [];
+      this.listeners = [];
       this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -42,15 +43,28 @@
       var region;
       for (region in regions) {
         if (regions.hasOwnProperty(region)) {
-          this.regionItems.push({
+          this.regionItems.push(new RLD.Region({
             'name': regions[region],
             'machine_name': region,
             'weight': index
-          });
+          }));
           index += 1;
         }
       }
     };
+    
+    RegionSet.prototype.update = function (regionSet) {
+      this.regionItems = regionSet;
+      this.callListeners('regionOrderUpdated', this);
+    };
+    
+    RegionSet.prototype.callListeners = function (type) {
+      var i;
+      for (i = 0; i < this.listeners.length; i++) {
+        this.listeners[i].apply(this, Array.prototype.shift.call(arguments));
+      } 
+      
+    }
 
     return RegionSet;
     

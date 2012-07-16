@@ -86,7 +86,7 @@
       var index;
       // A layout is the inflection of a region set and a grid. This means that a layout has no meaning
       // without a list of regions to place and without a grid to define where to place them.
-      Layout.inflect(RegionSet.info('regionItems'), Grid);
+      Layout.inflect(RegionSet, Grid);
       index = Number(Step.info('breakpoint'));
       // index = Step.info('index');
       this.composites[index] = {

@@ -50,8 +50,8 @@
             'href': '#' + id,
             'text': label
           })
-          .data('RLD/step', step)
-          .data('RLD/layout', layout)
+          .data('RLD/Step', step)
+          .data('RLD/Layout', layout)
         }));
         // Activate the layout for the active step.
         if (i === activeStep) {
@@ -120,7 +120,7 @@
     StepManager.prototype.activateStep = function (event) {
       event.preventDefault();
       var $this = $(this);
-      var layout = $this.data('RLD/layout');
+      var layout = $this.data('RLD/Layout');
       event.data.manager.loadLayout(layout);
     };
     /**

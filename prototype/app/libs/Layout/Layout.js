@@ -46,11 +46,9 @@
     // Layout Class
     function Layout() {
       this.options = {};
-      this.regions = [];
-      this.grid = {};
-      this.$editor = $('<div>', {
-        'class': 'layout'
-      });
+      this.regions = {}; // RegionSet
+      this.grid = {}; // Grid 
+      this.$editor;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -66,35 +64,28 @@
     };
     
     Layout.prototype.build = function () {
+      var regions = this.regions.info('regionItems');
+      this.$editor = $('<div>', {
+        'class': 'layout'
+      });
       var i;
-      if ('regions' in this) {
-        for (i = 0; i < this.regions.length; i++) {
+      if (regions.length > 0) {
+        for (i = 0; i < regions.length; i++) {
           $('<div>', {
             'class': 'row',
-            'html': $('<div>', {
-              'id': 'region-' + this.regions[i].name,
-              'class': 'region',
-              'html': $('<p>', {
-                'text': 'Region ' + this.regions[i].name
-              })
-            })
-            .prepend($('<div>', {
-              'class': 'splitter splitter-left'
-            }))
-            .append($('<div>', {
-              'class': 'splitter splitter-right'
-            }))
+            'html': regions[i].build()
           })
           .appendTo(this.$editor);
         }
       }
       // Bind behaviors.
+      fn = $.proxy(this.processSort, this);
       this.$editor.sortable({
         // Make a placeholder visible when dragging.
         placeholder: "ui-state-highlight",
         // When the dragging and dropping is done, save updated region
         // list in our local list.
-        deactivate: function () {}
+        deactivate: fn
       });
       // Region resizing behaviors.
       this.$editor.delegate('.region .splitter', 'mousedown', regionResizeHandler);
@@ -114,9 +105,20 @@
       return;
     };
     
-    Layout.prototype.inflect = function (regions, Grid) {
-      this.regions = regions;
+    Layout.prototype.inflect = function (RegionSet, Grid) {
+      this.regions = RegionSet;
       this.grid = Grid;
+    };
+    
+    Layout.prototype.processSort = function(event, ui) {
+      var regionSet = [];
+      var i;
+      // Get the region objects in their new order.
+      var $regions = ui.sender.find('.region');
+      for (i = 0; i < $regions.length; i++) {
+        regionSet.push($($regions[i]).data('RLD/Region'));
+      }
+      this.regions.update(regionSet);
     };
     
     return Layout;
