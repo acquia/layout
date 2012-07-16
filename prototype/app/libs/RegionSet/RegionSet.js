@@ -5,12 +5,14 @@
     function RegionSet() {
       this.options = {};
       this.regionItems = [];
-      this.listeners = [];
+      this.listeners = {};
       this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
-    
+    /**
+     *
+     */
     RegionSet.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
@@ -22,11 +24,15 @@
       // Format the regions.
       this.processRegionList(this.regions);
     };
-    
+    /**
+     *
+     */
     RegionSet.prototype.build = function () {
       return this.$editor;
     };
-    
+    /**
+     *
+     */
     RegionSet.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
@@ -37,7 +43,9 @@
       }
       return;
     };
-    
+    /**
+     *
+     */
      RegionSet.prototype.processRegionList = function (regions) {
       var index = 0;
       var region;
@@ -52,19 +60,42 @@
         }
       }
     };
-    
+    /**
+     *
+     */
     RegionSet.prototype.update = function (regionSet) {
       this.regionItems = regionSet;
       this.callListeners('regionOrderUpdated', this);
     };
-    
-    RegionSet.prototype.callListeners = function (type) {
-      var i;
-      for (i = 0; i < this.listeners.length; i++) {
-        this.listeners[i].apply(this, Array.prototype.shift.call(arguments));
-      } 
-      
-    }
+    /**
+     *
+     */
+    RegionSet.prototype.registerEventListener = function (event, handler) {
+      if (event in this.listeners) {
+        this.listeners[event].push(handler);
+        return;
+      }
+      // This is the first time this event has a listener registerd against it.
+      this.listeners[event] = [handler];
+    };
+    /**
+     * Invoke registered listeners.
+     */
+    RegionSet.prototype.callListeners = function (event) {
+      var i, listeners, e, args;
+      if (event in this.listeners) {
+        listeners = this.listeners[event];
+        // Create a jQuery Event for consistency and shift it into the arguments.
+        e = $.Event(event);
+        args = Array.prototype.slice.call(arguments);
+        args.shift();
+        args.unshift(e);
+        // Call the listeners.
+        for (i = 0; i < listeners.length; i++) {
+          listeners[i].apply(this, args);
+        } 
+      }
+    };
 
     return RegionSet;
     

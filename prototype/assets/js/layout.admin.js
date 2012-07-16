@@ -1,5 +1,25 @@
 // Set up the application once the DOM is ready.
 $(document).ready(function (event) {
+
+  /**
+   * Safe loggin function.
+   */
+  function log (message, type) {
+    if ('console' in window) {
+      var type = type || 'log';
+      if (type in console) {
+        console[type](message);
+      }
+    }
+  }
+  /**
+   * Respond to Region List updates.
+   */
+  function updateRegionList (event, RegionSet) {
+    log(event, 'dir');
+    log(RegionSet, 'dir');
+  }
+
   // Attach a BreakPoint editor
   var editor = new ResponsiveLayoutDesigner({
     'regions': {
@@ -74,8 +94,12 @@ $(document).ready(function (event) {
       }
     ]
   });
-  // Insert the editor in the DOM.
-  editor.build().appendTo('#responsive-layout-designer');
   // Start the responsive layout editor.
   editor.start();
+  // Register event listeners.
+  editor.registerEventListener({
+    'regionOrderUpdated': updateRegionList
+  });
+  // Insert the editor in the DOM.
+  editor.build().appendTo('#responsive-layout-designer');
 });
