@@ -19,6 +19,7 @@ $(document).ready(function (event) {
       'subheader_c': "Subheader C",
       'title': "Title"
     },
+    /* A layout is a series of overrides on a basic RegionSet. */
     'layouts': [
       {
         'name': 'Default',
@@ -28,7 +29,6 @@ $(document).ready(function (event) {
           'label': 'small'
         },
         'layout': {
-          /* A layout is a series of overrides on a basic RegionSet. */
         },
         'grid': {}
       },

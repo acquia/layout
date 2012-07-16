@@ -61,7 +61,7 @@
           'class': 'rld-controls'
         })
         .append($('<button>', {
-          text: 'Add new breakpoint'
+          text: 'Configure breakpoints'
         }))
       )
       .append(this.$stepManager
