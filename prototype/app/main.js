@@ -32,7 +32,7 @@
       this.compositeLayouts();
       // Create the application root node.
       this.$editor = $('<div>', {
-        'class': 'responsive-layout-designer'
+        'class': 'rld-wrapper'
       });
       // Instansiate Editors.
       this.compositeManager = new RLD.CompositeManager();

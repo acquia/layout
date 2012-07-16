@@ -8,9 +8,9 @@
     function CompositeManager() {
       this.options = {
         'ui': {
-          'class-layout': 'layouts',
-          'class-layout-tabs': 'layouts-list',
-          'class-layout-content': 'layouts-content'
+          'class-layout': 'rld-stepmanager',
+          'class-layout-tabs': 'rld-steps',
+          'class-layout-content': 'rld-layouts'
         }
       };
       // Ui components.
@@ -56,9 +56,9 @@
     CompositeManager.prototype.build = function () {
       // Assemble the editor fraemwork.
       this.$editor
-      .addClass('breakpoint-editor')
+      .addClass('rld-breakpointeditor')
       .append($('<div>', {
-          'class': 'controls'
+          'class': 'rld-controls'
         })
         .append($('<button>', {
           text: 'Add new breakpoint'
@@ -68,29 +68,9 @@
         .append(this.stepManager.build(this.$steps, this.$layouts))
       );
       // Store the important elements of the editor as jQuery references.
-      this.$layouts = this.$editor.find('.' + this.options.ui['class-layout']);
       this.$controls = this.$editor.find('.controls');
-      // Set up jQuery UI objects.
-      // this.refreshEditor();
-      // Add layouts provided to the constructor.
-      this.addLayout(this.composites);
-      
+      // The editor is built and ready to be attached.
       return this.$editor;
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.refreshEditor = function () {
-      // Add layout proxy.
-      var fn = $.proxy(this.addLayout, this);
-      // Start the jQuery UI elements.
-      this.$controls
-      .find('button')
-      .once('control', function () {
-        $(this)
-        .button()
-        .bind('click.breakpointEditor', fn);
-      });
     };
     /**
      *
@@ -98,44 +78,6 @@
     CompositeManager.prototype.getEditor = function () {
       return this.$editor;
     };
-    /**
-     *
-     */
-    CompositeManager.prototype.listSteps = function (composites) {
-      
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.addLayout = function (composites) {
-      var item, id, step, label, breakpoint, layout;
-      for (item in composites) {
-        if (composites.hasOwnProperty(item)) {
-          step = composites[item].step;
-          layout = composites[item].layout;
-          breakpoint = step.info('breakpoint');
-          label = step.info('label');
-          id = 'breakpoint-' + breakpoint;
-          this.$editor
-          .find('.' + this.options.ui['class-layout-tabs'])
-          .end()
-          .find('.' + this.options.ui['class-layout-content'])
-          .append(
-            $('<div>', {
-              'id': id,
-              'class': 'clearfix',
-              'html': layout.build()
-            })
-          );
-        }
-      }
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.loadLayout = function (Layout) {
-      this.$editor.this.options.ui['class-layout-content']
-    }
     /**
      *
      */
@@ -156,15 +98,6 @@
       // Update Managers
       this.stepManager.addStep(this.composites[index]);
     };
-    /**
-     *
-     */
-    CompositeManager.prototype.getStep = function (index) {
-      if (index && index in this.steps) {
-        return this.steps[index];
-      }
-      return this.steps;
-    }
     /**
      *
      */

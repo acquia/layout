@@ -66,3 +66,29 @@ body {
   visibility: hidden;
   width: 100%;
 }
+/* @group Responsive Layout Designer */
+
+#responsive-layout-designer {
+  padding: 1em;
+}
+
+/* @group Step Manager */
+
+.rld-steps {
+  list-style: none;
+  text-align: center;
+}
+.rld-steps li {
+  display: inline-block;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.rld-layouts {
+  border: 1px solid #d0d0d1;
+  padding: 1em;
+}
+
+/* @end */
+
+/* @end */

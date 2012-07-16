@@ -5,6 +5,7 @@
     function StepManager() {
       this.options = {};
       this.steps = [];
+      this.activeStep;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -28,6 +29,7 @@
      *
      */
     StepManager.prototype.build = function ($stepContainer, $layoutContainer) {
+      var activeStep = (this.activeStep) ? this.activeStep : 0;
       var fn;
       this.$stepContainer = ($stepContainer.length > 0) ? $stepContainer : this.$stepContainer;
       this.$layoutContainer = ($layoutContainer.length > 0) ? $layoutContainer : this.$layoutContainer;
@@ -35,7 +37,7 @@
       // Clear the UI.
       this.$stepContainer.children().remove();
       this.$layoutContainer.children().remove();
-      // Repopulate the UI.
+      // Build the list of steps.
       for (i = 0; i < this.steps.length; i++) {
         step = this.steps[i].step;
         layout = this.steps[i].layout;
@@ -49,10 +51,22 @@
             'text': label
           })
           .data('RLD/step', step)
-        }))
+          .data('RLD/layout', layout)
+        }));
+        // Activate the layout for the active step.
+        if (i === activeStep) {
+          this.$layoutContainer
+          .append(
+            $('<div>', {
+              'id': id,
+              'class': 'clearfix',
+              'html': layout.build()
+            })
+          );
+        }
       }
       // Attach behaviors.
-      this.$stepContainer.delegate('a', 'click.RLD.StepManager', this.activateStep);
+      this.$stepContainer.delegate('a', 'click.RLD.StepManager', {'manager': this}, this.activateStep);
       // Attach the steps and layouts to the $editor and return it.
       return this.$editor
       .append(this.$stepContainer)
@@ -105,7 +119,18 @@
      */
     StepManager.prototype.activateStep = function (event) {
       event.preventDefault();
-      
+      var $this = $(this);
+      var layout = $this.data('RLD/layout');
+      event.data.manager.loadLayout(layout);
+    };
+    /**
+     *
+     */
+    StepManager.prototype.loadLayout = function (layout) {
+      // Clear the current layout.
+      this.$layoutContainer.children().remove();
+      // Build the active layout and attach it.
+      this.$layoutContainer.append(layout.build()).hide().fadeIn();
     };
     
     return StepManager;
