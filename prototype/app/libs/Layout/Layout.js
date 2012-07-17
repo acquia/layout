@@ -46,14 +46,14 @@
       $this.addClass('splitter-active');
     }
 
-    function resizeRegion(e) {
+    function resizeRegion(event) {
       event.stopPropagation();
       event.stopImmediatePropagation();
-      var siblingTo = e.data.siblings;
-      var splitFrom = e.data.side;
-      var initialX = e.data.origin.left;
-      var newX = e.pageX;
-      var oldW = e.data.width;
+      var siblingTo = event.data.siblings;
+      var splitFrom = event.data.side;
+      var initialX = event.data.origin.left;
+      var newX = event.pageX;
+      var oldW = event.data.width;
       var newW = this.outerWidth();
       var oldX = (splitFrom == 'left') ? this.position().left : this.position().left + newW;
       var deltaX = (splitFrom == 'left') ? newX - oldX : oldX - newX;

@@ -190,6 +190,7 @@
         if (listeners.hasOwnProperty(e)) {
           switch (e) {
           case 'regionOrderUpdated':
+          case 'regionCloseHandler':
             this.regionSet.registerEventListener(e, listeners[e]);
             break;
           default:

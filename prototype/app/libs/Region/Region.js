@@ -7,6 +7,7 @@
       this.name = '';
       this.machine_name = '';
       this.weight;
+      this.visibility;
       this.$editor;
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -55,7 +56,7 @@
       }))
       .data('RLD/Region', this);
 
-      this.$editor.delegate('.region .region-close', 'mousedown', regionCloseHandler);
+      this.$editor.delegate('.region-close', 'mousedown', regionCloseHandler);
     
       return this.$editor;
     };
