@@ -102,6 +102,7 @@
      */
     ResponsiveLayoutDesigner.prototype.init = function (options) {
       // Merge in user options.
+      var arg = arguments;
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -190,7 +191,7 @@
         if (listeners.hasOwnProperty(e)) {
           switch (e) {
           case 'regionOrderUpdated':
-          case 'regionCloseHandler':
+          case 'regionClosed':
             this.regionSet.registerEventListener(e, listeners[e]);
             break;
           default:

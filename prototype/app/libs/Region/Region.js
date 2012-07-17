@@ -13,7 +13,7 @@
       this.init.apply(this, arguments);
     }
 
-    function regionCloseHandler(event) {
+    function regionClosed(event) {
       event.stopPropagation();
       var $region = $(this).closest('.region');
       // If region has no siblings, hide row. Otherwise, hide region.
@@ -56,7 +56,7 @@
       }))
       .data('RLD/Region', this);
 
-      this.$editor.delegate('.region-close', 'mousedown', regionCloseHandler);
+      this.$editor.delegate('.region-close', 'mousedown', regionClosed);
     
       return this.$editor;
     };

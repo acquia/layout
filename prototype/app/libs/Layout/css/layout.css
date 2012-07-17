@@ -1,10 +1,10 @@
 /* @group Region and row styles */
 
 .row {
+  clear: both;
   height: 68px;
   margin-bottom: 15px;
   margin-top: 15px;
-  clear: both;
   -webkit-user-select: none;
 }
 .row:before, .row:after, .row-changed:before, .row-changed:after {
@@ -15,8 +15,8 @@
   clear: both;
 }
 .region {
-  padding: 0;
   float: left;
+  padding: 0;
   width: 100%; /* splitter def: 960px */
   height: 68px;
   background-color: #555;

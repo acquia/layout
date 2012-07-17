@@ -19,6 +19,13 @@ $(document).ready(function (event) {
     log(event, 'dir');
     log(RegionSet, 'dir');
   }
+  /**
+   * Respond to Close Region action.
+   */
+  function closeRegion (event, Region) {
+    log(event, 'dir');
+    log(Region, 'dir');
+  }
 
   // Attach a BreakPoint editor
   var editor = new ResponsiveLayoutDesigner({
@@ -98,7 +105,8 @@ $(document).ready(function (event) {
   editor.start();
   // Register event listeners.
   editor.registerEventListener({
-    'regionOrderUpdated': updateRegionList
+    'regionOrderUpdated': updateRegionList,
+    'regionClosed': closeRegion
   });
   // Insert the editor in the DOM.
   editor.build().appendTo('#responsive-layout-designer');
