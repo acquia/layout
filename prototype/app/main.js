@@ -1,6 +1,18 @@
 (function (window, $) {
   var RLD = (function(){
     /**
+     * Extend jQuery to smooth out version differences.
+     */
+    $.Event.prototype.getDelegator = function () {
+      if ('delegateTarget' in this) {
+        return this.delegateTarget;
+      }
+      if ('liveFired' in this) {
+        return this.liveFired;
+      }
+      return null;
+    };
+    /**
      * Create the InitClass object that all other objects will extend.
      */
     var InitClass = (function () {

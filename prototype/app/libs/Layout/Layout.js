@@ -5,6 +5,9 @@
     // Region manipulation functions.
     function regionResizeHandler(event) {
       event.stopImmediatePropagation();
+      // Disable sortable while resize is active.
+      var $delegator = $(event.getDelegator());
+      $delegator.sortable('disable');
       var $this = $(this);
       var $region = $(this).closest('.region');
       var fn = $.proxy(createRegion, $region);
@@ -25,24 +28,27 @@
       // Determine if the splitter is on the left or right side of region.
       var splitterSide = ($(this).hasClass('splitter-left')) ? 'left' : 'right';
   
-      var originObject = {
+      var data = {
         origin: {
           top: $region.position().top,
           left: $region.position().left
         },
         width: $region.outerWidth(),
         siblings: splitterSiblings,
-        side: splitterSide
+        side: splitterSide,
+        '$delegator': $delegator
       };
-      createRegion(originObject, $region);
+      createRegion(data, $region);
       fn = $.proxy(resizeRegion, $region);
-      $(document).bind('mousemove.regionResize', originObject, fn);
+      $(document).bind('mousemove.regionResize', data, fn);
       fn = $.proxy(finishRegionResize, $region);
-      $(document).bind('mouseup.regionResize', originObject, fn);
+      $(document).bind('mouseup.regionResize', data, fn);
       $this.addClass('splitter-active');
     }
 
     function resizeRegion(e) {
+      event.stopPropagation();
+      event.stopImmediatePropagation();
       var siblingTo = e.data.siblings;
       var splitFrom = e.data.side;
       var initialX = e.data.origin.left;
@@ -68,11 +74,14 @@
       } );
     }
 
-    function finishRegionResize(e) {
+    function finishRegionResize(event) {
+      // Perform a final resize.
       resizeRegion.apply(this, arguments);
-      $('.splitter').removeClass('splitter-active');
+      // Clean up the DOM.
+      $(this).find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
-      this.find('.splitter').unbind('mouseup.regionResize');
+      // Reenable sorting
+      event.data.$delegator.sortable('enable');
     }
 
     function createRegion(info, $context) {
@@ -129,6 +138,8 @@
           .appendTo(this.$editor);
         }
       }
+      // Region resizing behaviors.
+      this.$editor.delegate('.region .splitter', 'mousedown', regionResizeHandler);
       // Bind behaviors.
       fn = $.proxy(this.processSort, this);
       this.$editor.sortable({
@@ -138,8 +149,6 @@
         // list in our local list.
         deactivate: fn
       });
-      // Region resizing behaviors.
-      this.$editor.delegate('.region .splitter', 'mousedown', regionResizeHandler);
       
       // Return the editor as a DOM fragment.
       return this.$editor;
