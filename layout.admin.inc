@@ -148,16 +148,30 @@ function layout_admin_region_delete_form_submit($form, &$form_state) {
 // == Region editing and addition =============================================
 
 /**
+ * Page callback for region addition and editing.
+ */
+function layout_admin_region_edit($region = NULL) {
+  if (empty($region)) {
+    drupal_set_title(t('Add region'));
+    $region = (object) array('label' => '', 'machine_name' => '', 'weight' => 0, 'custom' => 1);
+  }
+  else {
+    drupal_set_title(t('Edit region @region', array('@region' => $region->label)));
+  }
+  return drupal_get_form('layout_admin_region_edit_form', $region);
+}
+
+/**
  * Region editing and addition form.
  *
  * @see layout_admin_region_edit_form_submit()
  */
-function layout_admin_region_edit_form($form, $form_state, $region = NULL) {
+function layout_admin_region_edit_form($form, $form_state, $region) {
   $form['label'] = array(
     '#title' => t('Region label'),
     '#description' => t('Name of the region visible in the layout editor.'),
     '#type' => 'textfield',
-    '#default_value' => isset($region->label) ? $region->label : '',
+    '#default_value' => $region->label,
     '#required' => TRUE,
   );
   $form['machine_name'] = array(
@@ -168,13 +182,14 @@ function layout_admin_region_edit_form($form, $form_state, $region = NULL) {
       'exists' => 'layout_region_load',
       'source' => array('label'),
     ),
-    '#default_value' => isset($region->machine_name) ? $region->machine_name : '',
+    '#default_value' => $region->machine_name,
+    '#description' => t('The region machine name is used to identify the region in layouts, when assigning panes and to apply CSS classes to the region.'),
   );
   $form['default'] = array(
     '#title' => t('In default layout'),
     '#description' => t('If checked, the region will appear in the default layout when editing new layouts. This setting will not affect existing layouts.'),
     '#type' => 'checkbox',
-    '#default_value' => isset($region->custom) ? !$region->custom : 0,
+    '#default_value' => !$region->custom,
   );
 
   $form['submit'] = array(

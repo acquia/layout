@@ -25,16 +25,15 @@ function layout_menu() {
   );
   $items['admin/appearance/layouts/regions/add'] = array(
     'title' => 'Add region',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('layout_admin_region_edit_form'),
+    'page callback' => 'layout_admin_region_edit',
     'access arguments' => array('administer layouts'),
     'type' => MENU_LOCAL_ACTION,
     'file' => 'layout.admin.inc',
   );
   $items['admin/appearance/layouts/regions/%layout_region/edit'] = array(
     'title' => 'Edit region',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('layout_admin_region_edit_form', 4),
+    'page callback' => 'layout_admin_region_edit',
+    'page arguments' => array(4),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
     'file' => 'layout.admin.inc',
