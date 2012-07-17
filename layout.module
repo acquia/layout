@@ -6,7 +6,76 @@
  */
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_menu().
+ */
+function layout_menu() {
+  $items = array();
+  $items['admin/appearance/layouts'] = array(
+    'title' => 'Responsive layouts',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'layout_admin_region_list',
+    'access arguments' => array('administer layouts'),
+    'weight' => 200,
+    'file' => 'layout.admin.inc',
+  );
+  $items['admin/appearance/layouts/regions'] = array(
+    'title' => 'Common regions',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -20,
+  );
+  $items['admin/appearance/layouts/regions/add'] = array(
+    'title' => 'Add region',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('layout_admin_region_edit_form'),
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'layout.admin.inc',
+  );
+  $items['admin/appearance/layouts/regions/%layout_region/edit'] = array(
+    'title' => 'Edit region',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('layout_admin_region_edit_form', 4),
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_CALLBACK,
+    'file' => 'layout.admin.inc',
+  );
+  $items['admin/appearance/layouts/regions/%layout_region/delete'] = array(
+    'title' => 'Delete region',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('layout_admin_region_delete_form', 4),
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_CALLBACK,
+    'file' => 'layout.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function layout_permission() {
+  return array(
+    'administer layouts' => array(
+      'title' => t('Administer responsive layouts'),
+      'description' => t('Administer backend settings for responsive layouts.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function layout_theme() {
+  return array(
+    'layout_admin_region_list_form' => array(
+      'render element' => 'form',
+      'file' => 'layout.admin.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
  */
 function layout_ctools_plugin_directory($owner, $plugin_type) {
   if ($owner == 'panels' && $plugin_type == 'layouts') {
@@ -65,5 +134,13 @@ function layout_region_load($machine_name) {
     ->condition('machine_name', $machine_name)
     ->execute()
     ->fetchObject();
+}
 
+/**
+ * Delete one layout based on its machine name.
+ */
+function layout_region_delete($machine_name) {
+  return db_delete('layout_regions')
+    ->condition('machine_name', $machine_name)
+    ->execute();
 }
