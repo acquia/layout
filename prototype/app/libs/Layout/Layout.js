@@ -8,70 +8,72 @@
       // Disable sortable while resize is active.
       var $delegator = $(event.getDelegator());
       $delegator.sortable('disable');
-      var $this = $(this);
-      var $region = $(this).closest('.region');
-      var fn = $.proxy(createRegion, $region);
-  
-      // Determine if there are siblings before or after region.
-      var splitterSiblings;
-      // @TODO: Fix the following logic; should 'both' be accounted for?
-      if ($region.prev().length === 1) {
-        splitterSiblings = 'left';
-        if ($region.prev().length === 1 && $region.next().length === 1) {
-          splitterSiblings = 'both';
-        }
-      }
-      else {
-        splitterSiblings = 'right';
-      }
-  
+      var $splitter = $(this);
+      var $region = $splitter.closest('.region');
+      var $row = $region.closest('.row');
+      // Since the resize function will be called on mousemove, we don't want
+      // to calculate the state of the row's region more than once. So we
+      // pass this information into the handlers.
+      var data = {};
       // Determine if the splitter is on the left or right side of region.
-      var splitterSide = ($(this).hasClass('splitter-left')) ? 'left' : 'right';
-  
-      var data = {
-        origin: {
-          top: $region.position().top,
-          left: $region.position().left
-        },
-        width: $region.outerWidth(),
-        siblings: splitterSiblings,
-        side: splitterSide,
-        '$delegator': $delegator
+      data.side = ($splitter.hasClass('splitter-left')) ? 'left' : 'right';
+      data.width = $region.outerWidth();
+      data.siblings = {
+        '$left': $region.prevAll(),
+        '$right': $region.nextAll()
       };
-      createRegion(data, $region);
+      // Calculate the X origin. This is either the left or right edge of the active
+      // region, depending on which splitter is clicked.
+      data.regionX = 0;
+      data.siblings.$left.each(function () {
+        var $this = $(this);
+        data.regionX += $this.outerWidth();
+      });
+      data.regionX += (data.side === 'right') ? data.width : 0;
+      data.mouseX = event.pageX;
+      data.bounds = {};
+      data.bounds.width = $row.width();
+      data.bounds.left = $row.position().left;
+      data.bounds.right = $row.position().left + data.bounds.width;
+      data.$delegator = $delegator;
+      // Mark the splitter active.
+      $splitter.addClass('splitter-active');
+      // Add behaviors.
       fn = $.proxy(resizeRegion, $region);
       $(document).bind('mousemove.regionResize', data, fn);
       fn = $.proxy(finishRegionResize, $region);
       $(document).bind('mouseup.regionResize', data, fn);
-      $this.addClass('splitter-active');
     }
 
     function resizeRegion(event) {
-      event.stopPropagation();
       event.stopImmediatePropagation();
-      var siblingTo = event.data.siblings;
-      var splitFrom = event.data.side;
-      var initialX = event.data.origin.left;
-      var newX = event.pageX;
-      var oldW = event.data.width;
-      var newW = this.outerWidth();
-      var oldX = (splitFrom == 'left') ? this.position().left : this.position().left + newW;
-      var deltaX = (splitFrom == 'left') ? newX - oldX : oldX - newX;
-      var gutter = (siblingTo == 'left') ? 'margin-left' : 'margin-right';
-
-      // Resize current region.
-      var currentW = this.width();
-      this.css( {
-        gutter: '5px',
-        'width': currentW - deltaX
-      } );
-
-      // Resize adjacent region.
-      var adjacent = (splitFrom == 'left') ? this.prev('.region') : this.next('.region');
-      var adjacentW = parseFloat(adjacent.css('width'));
-      adjacent.css( {
-        'width': (splitFrom == 'left') ? adjacentW + deltaX : adjacentW + deltaX
-      } );
+      if (event.pageX <= event.data.bounds.left || event.pageX >= event.data.bounds.right) {
+        return false;
+      }
+      var $region = this;
+      var side = event.data.side;
+      var deltaX = event.pageX - event.data.mouseX;
+      
+      if (event.data.side === 'left') {
+        // Resize the region.
+        $region.css({
+          'width': event.data.width - deltaX
+        });
+        // Resize the left siblings.
+        event.data.siblings.$left.css({
+          'width': event.data.regionX + deltaX
+        });
+      }
+      if (event.data.side === 'right') {
+        // Resize the region.
+        $region.css({
+          'width': event.data.width + deltaX
+        });
+        // Resize the left siblings.
+        event.data.siblings.$right.css({
+          'width': event.data.bounds.width - (event.data.regionX + deltaX)
+        }); 
+      }
     }
 
     function finishRegionResize(event) {
@@ -82,21 +84,6 @@
       $(document).unbind('.regionResize');
       // Reenable sorting
       event.data.$delegator.sortable('enable');
-    }
-
-    function createRegion(info, $context) {
-      // Create a region to the left or right of the region in question.
-      var newRegion = $('<div>', {
-        'class': 'region new empty',
-        'html': $('<p>Region X</p>')
-      });
-      if (info.side == 'left' && info.siblings !== 'left') {
-        newRegion.prependTo($context.closest('.row'));
-      }
-      else if (info.side == 'right' && info.siblings !== 'right') {
-        newRegion.appendTo($context.closest('.row'));
-      }
-      $context.find('.splitter').unbind('mousedown.regionCreate');
     }
 
     // Layout Class
@@ -132,9 +119,17 @@
       if (regions.length > 0) {
         for (i = 0; i < regions.length; i++) {
           $('<div>', {
-            'class': 'row',
-            'html': regions[i].build()
+            'class': 'row clearfix'
           })
+          .append(regions[i].build({
+            'classes': ['unit']
+          }))
+          .prepend($('<div>', {
+            'class': 'placeholder unit'
+          }))
+          .append($('<div>', {
+            'class': 'placeholder unit'
+          }))
           .appendTo(this.$editor);
         }
       }

@@ -35,10 +35,15 @@
       }
     };
     
-    Region.prototype.build = function () {
+    Region.prototype.build = function (options) {
+      // @todo this classes stuff needs to be generalized.
+      var classes = ['region'];
+      if ('classes' in options && 'length' in options.classes && options.classes.length > 0) {
+        classes = classes.concat(options.classes).join(' ');
+      }
       this.$editor = $('<div>', {
-        'id': 'region-' + this.name,
-        'class': 'region',
+        'id': 'region-' + this.name.split(' ').join('_'),
+        'class': classes,
         'html': $('<p>', {
           'text': 'Region ' + this.name
         })

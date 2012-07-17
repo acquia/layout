@@ -41,7 +41,7 @@
       /**
        *
        */
-      InitClass.prototype.build = function () {};
+      InitClass.prototype.build = function (options) {};
       /**
        * Pushes a supplied function into the list of functions.
        */
@@ -121,7 +121,7 @@
       this.compositeLayouts();
       // Create the application root node.
       this.$editor = $('<div>', {
-        'class': 'rld-wrapper'
+        'class': 'rld-application'
       });
       // Instansiate Editors.
       this.compositeManager = new RLD.CompositeManager();

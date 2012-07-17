@@ -48,16 +48,11 @@
     font-weight: bold;
     font-style: italic;
 }
-
-/**
- * Base elements.
- */
 body {
   font: 0.75em/1.6em 'Open Sans', 'Lucida Grande', 'Lucida Sans Unicode', Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
 }
-
 .clearfix::after {
   clear: both;
   content: ' ';
@@ -87,6 +82,20 @@ body {
 .rld-layouts {
   border: 1px solid #d0d0d1;
   padding: 1em;
+}
+
+/* @end */
+
+/* @group Layouts */
+
+.rld-layouts .region {
+  background-color: #555;
+  color: white;
+}
+.rld-layouts .placeholder {
+  outline: 1px dashed #31cbff;
+  background-color: white;
+  color: #ccc;
 }
 
 /* @end */
