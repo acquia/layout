@@ -16,7 +16,7 @@ function layout_menu() {
     'page callback' => 'layout_admin_region_list',
     'access arguments' => array('administer layouts'),
     'weight' => 200,
-    'file' => 'layout.admin.inc',
+    'file' => 'layout.admin.regions.inc',
   );
   $items['admin/appearance/layouts/regions'] = array(
     'title' => 'Common regions',
@@ -28,7 +28,7 @@ function layout_menu() {
     'page callback' => 'layout_admin_region_edit',
     'access arguments' => array('administer layouts'),
     'type' => MENU_LOCAL_ACTION,
-    'file' => 'layout.admin.inc',
+    'file' => 'layout.admin.regions.inc',
   );
   $items['admin/appearance/layouts/regions/%layout_region/edit'] = array(
     'title' => 'Edit region',
@@ -36,7 +36,7 @@ function layout_menu() {
     'page arguments' => array(4),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
-    'file' => 'layout.admin.inc',
+    'file' => 'layout.admin.regions.inc',
   );
   $items['admin/appearance/layouts/regions/%layout_region/delete'] = array(
     'title' => 'Delete region',
@@ -44,7 +44,7 @@ function layout_menu() {
     'page arguments' => array(4),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
-    'file' => 'layout.admin.inc',
+    'file' => 'layout.admin.regions.inc',
   );
   return $items;
 }
@@ -68,7 +68,7 @@ function layout_theme() {
   return array(
     'layout_admin_region_list_form' => array(
       'render element' => 'form',
-      'file' => 'layout.admin.inc',
+      'file' => 'layout.admin.regions.inc',
     ),
   );
 }
