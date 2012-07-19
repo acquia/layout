@@ -240,6 +240,9 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
 
 /**
  * Draw the responsive layout.
+ *
+ * @todo
+ *   Embeddig the grid CSS inline is evil. Fix it.
  */
 function theme_layout_responsive($vars) {
   $css_id = $vars['css_id'];
@@ -260,7 +263,11 @@ function theme_layout_responsive($vars) {
       $output .= '</div>';
     }
   }
-  return '<div class="panel-responsive">' . $output . '</div>';
+
+  // Embed the grid css inline for now. Yeah, I know this is evil.
+  // It is just a prototype for now, ok? I know it is evil. Yes.
+  $grid_css = layout_get_grid_css();
+  return '<div class="panel-responsive"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
 }
 
 /**

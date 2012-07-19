@@ -10,6 +10,8 @@
  */
 function layout_menu() {
   $items = array();
+
+  // Regions.
   $items['admin/structure/panels/layouts/regions'] = array(
     'title' => 'Responsive regions',
     'type' => MENU_LOCAL_TASK,
@@ -40,6 +42,16 @@ function layout_menu() {
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
     'file' => 'layout.admin.regions.inc',
+  );
+
+  // Grids.
+  $items['admin/structure/panels/layouts/grids'] = array(
+    'title' => 'Responsive grids',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'layout_admin_grids',
+    'access arguments' => array('administer layouts'),
+    'weight' => 10,
+    'file' => 'layout.admin.grids.inc',
   );
   return $items;
 }
@@ -166,4 +178,56 @@ function layout_get_layouts_using_region($machine_name) {
     }
   }
   return $layouts_using_region;
+}
+
+/**
+ * API function to get all responsive grids on the site.
+ */
+function layout_get_grids() {
+  return variable_get('layout_grids', array());
+}
+
+/**
+ * API function to set all responsive grids on the site.
+ */
+function layout_set_grids($grids) {
+  return variable_set('layout_grids', $grids);
+}
+
+/**
+ * Build CSS for the grids with media queries.
+ *
+ * @todo
+ *   Figure out a good way to avoid equal max/min-weights in subsequent
+ *   grids.
+ */
+function layout_get_grid_css() {
+  $grids = layout_get_grids();
+
+  $grid_css = array();
+  $min_width = 0;
+
+  foreach ($grids as $index => $grid) {
+    $first_grid = empty($min_width);
+    $last_grid = ($index == count($grids) -1);
+
+    // Build the media query for this grid. The first item should not have a
+    // min-width (open ended to 0), and the last item should have no max-width
+    // (open-ended to infinity). Mid-items should both have a min-width and a
+    // max-width.
+    $grid_css[] =
+      '@media screen and (' .
+      ($first_grid ? '' : 'min-width:' . $min_width) .
+      ((!$first_grid && !$last_grid) ? ') and (' : '') .
+      ($last_grid ? '' : 'max-width:' . $grid['width']) .
+      ') {';
+    $grid_css[] = $grid['css'];
+    $grid_css[] = '}';
+
+    // Remember min-width for next grid if applicable. The grids are in
+    // ascending width order, so we can rely on this sequence.
+    $min_width = $grid['width'];
+  }
+
+  return join("\n", $grid_css);
 }

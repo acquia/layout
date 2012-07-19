@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Responsive layout builder tool administration interface.
+ * Responsive layout builder tool administration interface for regions.
  */
 
 // == Region list management ==================================================
@@ -11,7 +11,7 @@
  * Administration page for the region list.
  */
 function layout_admin_region_list() {
-  drupal_set_title(t('Responsive layouts'));
+  drupal_set_title(t('Responsive regions'));
   $regions = layout_region_load_all();
   return drupal_get_form('layout_admin_region_list_form', $regions);
 }
