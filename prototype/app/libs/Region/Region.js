@@ -1,17 +1,6 @@
 (function (RLD, $) {
 
   RLD['Region'] = (function () {
-    
-    function Region() {
-      this.options = {};
-      this.name = '';
-      this.machine_name = '';
-      this.weight;
-      this.visibility;
-      this.$editor;
-      // Initialize the object.
-      this.init.apply(this, arguments);
-    }
 
     function regionClosed(event) {
       event.stopPropagation();
@@ -23,6 +12,17 @@
       else {
         $region.remove();
       }
+    }
+    
+    function Region() {
+      this.options = {};
+      this.name = '';
+      this.machine_name = '';
+      this.weight;
+      this.visibility;
+      this.$editor;
+      // Initialize the object.
+      this.init.apply(this, arguments);
     }
     
     Region.prototype.init = function (options) {
