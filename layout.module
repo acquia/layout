@@ -10,38 +10,33 @@
  */
 function layout_menu() {
   $items = array();
-  $items['admin/appearance/layouts'] = array(
-    'title' => 'Responsive layouts',
+  $items['admin/structure/panels/layouts/regions'] = array(
+    'title' => 'Responsive regions',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'layout_admin_region_list',
     'access arguments' => array('administer layouts'),
-    'weight' => 200,
+    'weight' => 0,
     'file' => 'layout.admin.regions.inc',
   );
-  $items['admin/appearance/layouts/regions'] = array(
-    'title' => 'Common regions',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => -20,
-  );
-  $items['admin/appearance/layouts/regions/add'] = array(
+  $items['admin/structure/panels/layouts/regions/add'] = array(
     'title' => 'Add region',
     'page callback' => 'layout_admin_region_edit',
     'access arguments' => array('administer layouts'),
     'type' => MENU_LOCAL_ACTION,
     'file' => 'layout.admin.regions.inc',
   );
-  $items['admin/appearance/layouts/regions/%layout_region/edit'] = array(
+  $items['admin/structure/panels/layouts/regions/%layout_region/edit'] = array(
     'title' => 'Edit region',
     'page callback' => 'layout_admin_region_edit',
-    'page arguments' => array(4),
+    'page arguments' => array(5),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
     'file' => 'layout.admin.regions.inc',
   );
-  $items['admin/appearance/layouts/regions/%layout_region/delete'] = array(
+  $items['admin/structure/panels/layouts/regions/%layout_region/delete'] = array(
     'title' => 'Delete region',
     'page callback' => 'layout_admin_region_delete',
-    'page arguments' => array(4),
+    'page arguments' => array(5),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
     'file' => 'layout.admin.regions.inc',

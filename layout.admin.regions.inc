@@ -118,8 +118,8 @@ function theme_layout_admin_region_list_form($vars) {
       drupal_render($form['regions'][$machine_name]['default']),
       drupal_render($form['regions'][$machine_name]['weight']),
       drupal_render($form['regions'][$machine_name]['in_use_in_layouts']),
-      l(t('edit'), 'admin/appearance/layouts/regions/' . $machine_name . '/edit'),
-      l(t('delete'), 'admin/appearance/layouts/regions/' . $machine_name . '/delete'),
+      l(t('edit'), 'admin/structure/panels/layouts/regions/' . $machine_name . '/edit'),
+      l(t('delete'), 'admin/structure/panels/layouts/regions/' . $machine_name . '/delete'),
     );
     $rows[] = array(
       'data' => $row,
@@ -173,7 +173,7 @@ function layout_admin_region_delete_form($form, $form_state, $region) {
   return confirm_form(
     $form,
     t('Are you sure you want to delete the %region region?', array('%region' => $region->label)),
-    'admin/appearance/layouts',
+    'admin/structure/panels/layouts/regions',
     t('Deleting a region will make it unavailable for future layouts.'),
     t('Delete'),
     t('Cancel')
@@ -188,7 +188,7 @@ function layout_admin_region_delete_form($form, $form_state, $region) {
 function layout_admin_region_delete_form_submit($form, &$form_state) {
   layout_region_delete($form_state['values']['region']->machine_name);
   drupal_set_message(t('Region %region deleted.', array('%region' => $form_state['values']['region']->label)));
-  $form_state['redirect'] = 'admin/appearance/layouts';
+  $form_state['redirect'] = 'admin/structure/panels/layouts/regions';
 }
 
 // == Region editing and addition =============================================
@@ -258,5 +258,5 @@ function layout_admin_region_edit_form_submit($form, &$form_state) {
   );
   layout_region_save($region);
   drupal_set_message(t('Region %region saved.', array('%region' => $form_state['values']['label'])));
-  $form_state['redirect'] = 'admin/appearance/layouts';
+  $form_state['redirect'] = 'admin/structure/panels/layouts/regions';
 }
