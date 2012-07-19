@@ -40,8 +40,8 @@ function layout_menu() {
   );
   $items['admin/appearance/layouts/regions/%layout_region/delete'] = array(
     'title' => 'Delete region',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('layout_admin_region_delete_form', 4),
+    'page callback' => 'layout_admin_region_delete',
+    'page arguments' => array(4),
     'access arguments' => array('administer layouts'),
     'type' => MENU_CALLBACK,
     'file' => 'layout.admin.inc',
@@ -142,4 +142,33 @@ function layout_region_delete($machine_name) {
   return db_delete('layout_regions')
     ->condition('machine_name', $machine_name)
     ->execute();
+}
+
+/**
+ * Get all responsive layout info arrays from panels.
+ */
+function layout_get_responsive_layouts() {
+  ctools_include('plugins', 'panels');
+  $all_layouts = panels_get_layouts();
+  $responsive_layouts = array();
+  foreach ($all_layouts as $name => $data) {
+    if (empty($data['builder']) && isset($data['layout']->plugin) && ($data['layout']->plugin == 'responsive')) {
+      $responsive_layouts[$name] = $data;
+    }
+  }
+  return $responsive_layouts;
+}
+
+/**
+ * Get a list of layout names using the given region machine name.
+ */
+function layout_get_layouts_using_region($machine_name) {
+  $layouts = layout_get_responsive_layouts();
+  $layouts_using_region = array();
+  foreach ($layouts as $name => $data) {
+    if (isset($data['layout']->settings['regions']) && is_array($data['layout']->settings['regions']) && isset($data['layout']->settings['regions'][$machine_name])) {
+      $layouts_using_region[$data['layout']->name] = $data['title'];
+    }
+  }
+  return $layouts_using_region;
 }

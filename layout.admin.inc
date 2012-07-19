@@ -27,6 +27,23 @@ function layout_admin_region_list_form($form, $form_state, $regions) {
     '#tree' => TRUE,
   );
   foreach ($regions as $region) {
+
+    // Build friendly list of layouts this region is used in.
+    $in_use_in_layouts = array_values(layout_get_layouts_using_region($region->machine_name));
+    $layout_count = count($in_use_in_layouts);
+    if ($layout_count > 4) {
+      // If over 4 layouts use this region, cut the list on the third and
+      // mention the rest by number.
+      $in_use_in_layouts = t('@list_of_layouts and @count more', array('@list_of_layouts' => join(', ', array_slice($in_use_in_layouts, 0, 3)), '@count' => $layout_count - 3));
+    }
+    elseif ($layout_count == 0) {
+      $in_use_in_layouts = t('- None -');
+    }
+    else {
+      // Otherwise list all layouts.
+      $in_use_in_layouts = check_plain(join(', ', $in_use_in_layouts));
+    }
+
     $form['regions'][$region->machine_name] = array(
       'label' => array(
         '#type' => 'markup',
@@ -35,6 +52,10 @@ function layout_admin_region_list_form($form, $form_state, $regions) {
       'machine_name' => array(
         '#type' => 'markup',
         '#markup' => check_plain($region->machine_name),
+      ),
+      'in_use_in_layouts' => array(
+        '#type' => 'markup',
+        '#markup' => $in_use_in_layouts,
       ),
       'weight' => array(
         '#type' => 'weight',
@@ -86,6 +107,7 @@ function theme_layout_admin_region_list_form($vars) {
     t('Region'),
     t('In default layout'),
     t('Weight'),
+    t('In use in'),
     array('colspan' => 2, 'data' => t('Operations')),
   );
 
@@ -95,6 +117,7 @@ function theme_layout_admin_region_list_form($vars) {
       drupal_render($form['regions'][$machine_name]['label']) . ' (' . drupal_render($form['regions'][$machine_name]['machine_name']) . ')',
       drupal_render($form['regions'][$machine_name]['default']),
       drupal_render($form['regions'][$machine_name]['weight']),
+      drupal_render($form['regions'][$machine_name]['in_use_in_layouts']),
       l(t('edit'), 'admin/appearance/layouts/regions/' . $machine_name . '/edit'),
       l(t('delete'), 'admin/appearance/layouts/regions/' . $machine_name . '/delete'),
     );
@@ -115,6 +138,29 @@ function theme_layout_admin_region_list_form($vars) {
 // == Region deletion =========================================================
 
 /**
+ * Page callback for region deletion.
+ */
+function layout_admin_region_delete($region) {
+  // Set nice page title.
+  drupal_set_title(t('Delete region @region', array('@region' => $region->label)));
+
+  // Check if the region is used in any of our responsive layouts.
+  $layouts = layout_get_layouts_using_region($region->machine_name);
+  if (count($layouts)) {
+    // If any layouts use this region, inform the user.
+    $layout_list = array();
+    foreach ($layouts as $name => $title) {
+      $layout_list[] = l($title, 'admin/structure/panels/layouts/list/'. $name . '/edit');
+    }
+    drupal_set_message(t('<p>The region %region cannot be deleted because it is in use in the following layouts:</p>!layouts<p>To enable deletion of the region, either remove it from the layouts where it appears or delete them.</p>', array('%region' => $region->label, '!layouts' => theme('item_list', array('items' => $layout_list)))), 'warning');
+    return '';
+  }
+  else {
+    return drupal_get_form('layout_admin_region_delete_form', $region);
+  }
+}
+
+/**
  * Form to delete a region from the common region list.
  *
  * @see layout_admin_region_delete_form_submit()
@@ -128,7 +174,7 @@ function layout_admin_region_delete_form($form, $form_state, $region) {
     $form,
     t('Are you sure you want to delete the %region region?', array('%region' => $region->label)),
     'admin/appearance/layouts',
-    t('Deleting a region will remove it from future layouts. Existing layouts where the region appears might add the region back when edited.'),
+    t('Deleting a region will make it unavailable for future layouts.'),
     t('Delete'),
     t('Cancel')
   );
