@@ -49,7 +49,7 @@
     /**
      *
      */
-     LayoutList.prototype.processList = function (items) {
+    LayoutList.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
@@ -59,6 +59,27 @@
           }));
         }
       }
+    };
+    /**
+     *
+     */
+    LayoutList.prototype.addItem = function (item) {
+      this.items.push(item);
+    };
+    /**
+     *
+     */
+    LayoutList.prototype.getItem = function (index) {
+      var i;
+      for (i = 0; i < this.items.length; i++) {
+        for (property in this.items[i]) {
+          if ('machine_name' in this.items[i] && this.items[i]['machine_name'] === index) {
+              return this.items[i];
+          }
+        }
+      }
+      log('[RLD | LayoutList] Item not found in this set.', 'info');
+      return;
     };
     /**
      *

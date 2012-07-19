@@ -101,7 +101,7 @@
       this.options = {};
       this.regions = {};
       this.composites = {};
-      this.regionSet;
+      this.regionList;
       this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -135,7 +135,7 @@
       this.compositeManager = new RLD.LayoutManager();
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
-      this.regionSet = new RLD.RegionList({
+      this.regionList = new RLD.RegionList({
         'regions': this.regions
       });
       this.stepSet = new RLD.StepList({
@@ -148,7 +148,7 @@
       // Create obects for each composite.
       for (i = 0; i < steps.length; i++) {
         // Save the composition elements into a unit.
-        this.compositeManager.registerLayout(steps[i], this.regionSet, this.gridSet);
+        this.compositeManager.registerLayout(steps[i], this.regionList, this.gridSet);
       }
     };
     /**
@@ -184,7 +184,7 @@
           switch (e) {
           case 'regionOrderUpdated':
           case 'regionClosed':
-            this.regionSet.registerEventListener(e, listeners[e]);
+            this.regionList.registerEventListener(e, listeners[e]);
             break;
           default:
             break;

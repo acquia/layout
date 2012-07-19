@@ -13,18 +13,18 @@ $(document).ready(function (event) {
     }
   }
   /**
-   * Respond to Region List updates.
+   * Respond to app updates.  This is generic so we don't have to 
+   * a callback for each event we'd like to track during prototyping.
    */
-  function updateRegionList (event, RegionList) {
-    log(event, 'dir');
-    log(RegionList, 'dir');
-  }
-  /**
-   * Respond to Close Region action.
-   */
-  function closeRegion (event, Region) {
-    log(event, 'dir');
-    log(Region, 'dir');
+  function ResponsiveLayoutDesignerEventHandler (event) {
+    var i;
+    // Log the event type.
+    log(event.type, 'info');
+    var args = Array.prototype.slice.call(arguments);
+    // Print the args as well.
+    for (i = 0; i < args.length; i++) {
+      log(args[i], 'dir');
+    }
   }
 
   // Attach a BreakPoint editor
@@ -120,8 +120,9 @@ $(document).ready(function (event) {
   });
   // Register event listeners.
   editor.registerEventListener({
-    'regionOrderUpdated': updateRegionList,
-    'regionClosed': closeRegion
+    'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
+    'regionClosed': ResponsiveLayoutDesignerEventHandler,
+    'layoutSaved': ResponsiveLayoutDesignerEventHandler
   });
   // Insert the editor in the DOM.
   editor.build().appendTo('#responsive-layout-designer');

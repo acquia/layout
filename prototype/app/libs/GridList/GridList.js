@@ -53,6 +53,7 @@
         }
       }
       log('[RLD | GridList] Item not found in this set.', 'info');
+      return;
     }
     /**
      *

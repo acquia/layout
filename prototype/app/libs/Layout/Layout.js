@@ -111,7 +111,7 @@
     };
     
     Layout.prototype.build = function () {
-      var regions = this.regionSet.info('items');
+      var regions = this.regionList.info('items');
       this.$editor = $('<div>', {
         'class': 'layout'
       });
@@ -134,7 +134,8 @@
         }
       }
       // Region resizing behaviors.
-      this.$editor.delegate('.region .splitter', 'mousedown', regionResizeHandler);
+      this.$editor
+      .delegate('.region .splitter', 'mousedown.ResponsiveLayoutDesigner', regionResizeHandler);
       // Bind behaviors.
       fn = $.proxy(this.processSort, this);
       this.$editor.sortable({
@@ -166,14 +167,14 @@
     };
     
     Layout.prototype.processSort = function(event, ui) {
-      var regionSet = [];
+      var regionList = [];
       var i;
       // Get the region objects in their new order.
       var $regions = ui.sender.find('.region');
       for (i = 0; i < $regions.length; i++) {
-        regionSet.push($($regions[i]).data('RLD/Region'));
+        regionList.push($($regions[i]).data('RLD/Region'));
       }
-      this.regions.update(regionSet);
+      this.regionList.update(regionList);
     };
     
     return Layout;

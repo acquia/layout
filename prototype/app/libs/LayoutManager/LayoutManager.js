@@ -18,7 +18,6 @@
       this.$stepSelector = $();
       this.$steps = $();
       this.$layouts = $();
-      this.$controls = $();
       this.listeners = {
         'breakpointAdded': []
       };
@@ -42,6 +41,7 @@
         }
       }
       this.stepManager = new RLD.StepManager();
+      this.layouts = new RLD.LayoutList();
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.options.ui['class-layout']
@@ -58,14 +58,19 @@
      */
     LayoutManager.prototype.build = function () {
       // Assemble the editor fraemwork.
-      
-      this.$editor = $('<div>', {})
-      .append($('<div>', {
+      this.$editor = $('<div>', {
+        'class': 'rld-layout-manager'
+      })
+      .append(
+        $('<div>', {
           'class': 'rld-controls'
         })
-        .append($('<button>', {
-          text: 'Configure breakpoints'
-        }))
+        .append(
+          $('<button>', {
+            'class': 'save',
+            'text': 'Save layouts'
+          })
+        )
       )
       .append(
         this.$stepSelector
@@ -73,23 +78,23 @@
           this.stepManager.build(this.$steps, this.$layouts)
         )
       );
-      // Store the important elements of the editor as jQuery references.
-      this.$controls = this.$editor.find('.controls');
+      /*this.$editor
+      .delegate('button.save', 'click.ResponsiveLayoutDesigner', {'type': 'save'}, this.update); */
       // The editor is built and ready to be attached.
-      return this.$editor.contents();
+      return this.$editor;
     };
     /**
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    LayoutManager.prototype.registerLayout = function (step, regionSet, gridSet) {
+    LayoutManager.prototype.registerLayout = function (step, regionList, gridSet) {
       var index;
       var grid = gridSet.getItem(step.grid);
       var layout = new RLD.Layout({
         'step': step, 
-        'regionSet': regionSet,
+        'regionList': regionList,
         'grid': grid
       });
-      this.layouts[index] = layout;
+      this.layouts.addItem(layout);
       // Update Managers
       this.stepManager.addStep({'step': step, 'layout': layout});
     };

@@ -63,8 +63,8 @@
     /**
      *
      */
-    RegionList.prototype.update = function (regionSet) {
-      this.regionItems = regionSet;
+    RegionList.prototype.update = function (regionList) {
+      this.regionItems = regionList;
       this.triggerEvent('regionOrderUpdated', this);
     };
 
