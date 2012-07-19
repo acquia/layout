@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['RegionSet'] = (function () {
+  RLD['StepSet'] = (function () {
 
-    function RegionSet() {
+    function StepSet() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,11 +12,11 @@
     /**
      * Extend the InitClass Object.
      */
-    RegionSet.prototype = new RLD.InitClass();
+    StepSet.prototype = new RLD.InitClass();
     /**
      *
      */
-    RegionSet.prototype.init = function (options) {
+    StepSet.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -24,19 +24,19 @@
           this[prop] = this.options[prop];
         }
       }
-      // Format the regions.
-      this.processList(this.regions);
+      // Format the steps.
+      this.processList(this.steps);
     };
     /**
      *
      */
-    RegionSet.prototype.build = function () {
+    StepSet.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    RegionSet.prototype.info = function (property, value) {      
+    StepSet.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
           this[property] = value;
@@ -49,13 +49,16 @@
     /**
      *
      */
-     RegionSet.prototype.processList = function (items) {
+     StepSet.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Region({
-            'name': items[item],
-            'machine_name': item
+          this.items.push(new RLD.Step({
+            'name': items[item].name,
+            'machine_name': item,
+            'breakpoint': items[item].breakpoint,
+            'regions': items[item].regions,
+            'grid': items[item].grid
           }));
         }
       }
@@ -63,12 +66,12 @@
     /**
      *
      */
-    RegionSet.prototype.update = function (regionSet) {
-      this.regionItems = regionSet;
-      this.triggerEvent('regionOrderUpdated', this);
+    StepSet.prototype.update = function (stepSet) {
+      this.stepItems = stepSet;
+      this.triggerEvent('stepOrderUpdated', this);
     };
 
-    return RegionSet;
+    return StepSet;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

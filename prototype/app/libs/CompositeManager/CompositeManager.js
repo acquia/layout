@@ -14,15 +14,15 @@
         }
       };
       // Ui components.
-      this.$editor = $('<div>', {});
-      this.$stepManager = $();
+      this.$editor = $();
+      this.$stepSelector = $();
       this.$steps = $();
       this.$layouts = $();
       this.$controls = $();
       this.listeners = {
         'breakpointAdded': []
       };
-      this.composites = {};
+      this.layouts = {};
       // Setup
       this.init.apply(this, arguments);
     }
@@ -41,8 +41,9 @@
           this[prop] = this.options[prop];
         }
       }
+      this.stepManager = new RLD.StepManager();
       // Assemble the editor managers and containers.
-      this.$stepManager = $('<div>', {
+      this.$stepSelector = $('<div>', {
         'class': this.options.ui['class-layout']
       });
       this.$steps = $('<ul>', {
@@ -51,16 +52,14 @@
       this.$layouts = $('<div>', {
         'class': this.options.ui['class-layout-content']
       });
-      // Spin up the managers.
-      this.stepManager = new RLD.StepManager();
     };
     /**
      *
      */
     CompositeManager.prototype.build = function () {
       // Assemble the editor fraemwork.
-      this.$editor
-      .addClass('rld-breakpointeditor')
+      
+      this.$editor = $('<div>', {})
       .append($('<div>', {
           'class': 'rld-controls'
         })
@@ -68,64 +67,31 @@
           text: 'Configure breakpoints'
         }))
       )
-      .append(this.$stepManager
-        .append(this.stepManager.build(this.$steps, this.$layouts))
+      .append(
+        this.$stepSelector
+        .append(
+          this.stepManager.build(this.$steps, this.$layouts)
+        )
       );
       // Store the important elements of the editor as jQuery references.
       this.$controls = this.$editor.find('.controls');
       // The editor is built and ready to be attached.
-      return this.$editor;
+      return this.$editor.contents();
     };
     /**
-     *
+     * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    CompositeManager.prototype.getEditor = function () {
-      return this.$editor;
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.registerComposite = function (RegionSet, Step, Layout, Grid) {
-      var regions = RegionSet.info('regionItems');
+    CompositeManager.prototype.registerLayout = function (step, regionSet, gridSet) {
       var index;
-      // A layout is the inflection of a region set and a grid. This means that a layout has no meaning
-      // without a list of regions to place and without a grid to define where to place them.
-      Layout.inflect(RegionSet, Grid);
-      index = Number(Step.info('breakpoint'));
-      // index = Step.info('index');
-      this.composites[index] = {
-        regions: RegionSet,
-        step: Step,
-        layout: Layout,
-        grid: Grid
-      };
+      var grid = gridSet.getItem(step.grid);
+      var layout = new RLD.Layout({
+        'step': step, 
+        'regionSet': regionSet,
+        'grid': grid
+      });
+      this.layouts[index] = layout;
       // Update Managers
-      this.stepManager.addStep(this.composites[index]);
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.launchStepEditor = function () {
-      var $dialog = this.dialog;
-      $dialog.append(this.stepEditor.getEditor());
-      $dialog.dialog({
-        autoOpen: false,
-        modal: true,
-        open: function() {},
-        close: function() {
-          $(this).dialog('destroy').removeAttr('style');
-        }
-      })
-    };
-    /**
-     *
-     */
-    CompositeManager.prototype.registerEventListener = function (event, fn) {
-      if (typeof event === 'string' && event in this.listeners && typeof fn === 'function') {
-        this.listeners[event].push({
-          callback: fn
-        });
-      }
+      this.stepManager.addStep({'step': step, 'layout': layout});
     };
     
     return CompositeManager;

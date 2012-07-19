@@ -4,8 +4,7 @@
 
     function Step() {
       this.options = {
-        'breakpoint': '0',
-        'label': 'No label'
+        'breakpoint': '0'
       };
       this.$editor = $();
       // Initialize the object.

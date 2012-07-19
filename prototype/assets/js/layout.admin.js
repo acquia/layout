@@ -47,62 +47,77 @@ $(document).ready(function (event) {
       'title': "Title"
     },
     /* A layout is a series of overrides on a basic RegionSet. */
-    'layouts': [
-      {
-        'name': 'Default',
-        'machine-name': 'default',
-        'step': {
-          'breakpoint': '0',
-          'label': 'small'
-        },
-        'layout': {
-        },
-        'grid': {}
+    'steps': {
+      'small': {
+        'name': 'Phone Portrait',
+        'breakpoint': '0',
+        'grid': '2',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4,
+            'push': 2
+          }
+        ]
       },
-      {
-        'name': 'default',
-        'machine-name': 'default',
-        'step': {
-          'breakpoint': '28em',
-          'label': 'landscape'
-        },
-        'layout': {},
-        'grid': {}
+      'landscape': {
+        'name': 'Phone Landscape',
+        'breakpoint': '320',
+        'grid': '2',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4,
+            'push': 2
+          }
+        ]
       },
-      {
-        'name': 'default',
-        'machine-name': 'default',
-        'step': {
-          'breakpoint': '41em',
-          'label': 'tablet'
-        },
-        'layout': {},
-        'grid': {}
+      'tablet': {
+        'name': 'Tablet',
+        'breakpoint': '480',
+        'grid': '2',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4,
+            'push': 2
+          }
+        ]
       },
-      {
-        'name': 'default',
-        'machine-name': 'default',
-        'step': {
-          'breakpoint': '56em',
-          'label': 'desktop'
-        },
-        'layout': {},
-        'grid': {}
-      },
-      {
-        'name': 'default',
-        'machine-name': 'default',
-        'step': {
-          'breakpoint': '64em',
-          'label': 'large'
-        },
-        'layout': {},
-        'grid': {}
+      'desktop': {
+        'name': 'Desktop',
+        'breakpoint': '800',
+        'grid': '2',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4,
+            'push': 2
+          }
+        ]
       }
-    ]
+    },
+    'grids': {
+      '1': {
+        'scope': 'columns-1'
+      },
+      '2': {
+        'scope': 'columns-2'
+      },
+      '8': {
+        'scope': 'columns-8'
+      },
+      '12': {
+        'scope': 'columns-12'
+      },
+      '16': {
+        'scope': 'columns-18'
+      },
+      '24': {
+        'scope': 'columns-24'
+      }
+    }
   });
-  // Start the responsive layout editor.
-  editor.start();
   // Register event listeners.
   editor.registerEventListener({
     'regionOrderUpdated': updateRegionList,

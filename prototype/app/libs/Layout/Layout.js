@@ -111,7 +111,7 @@
     };
     
     Layout.prototype.build = function () {
-      var regions = this.regions.info('regionItems');
+      var regions = this.regionSet.info('items');
       this.$editor = $('<div>', {
         'class': 'layout'
       });

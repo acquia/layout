@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['RegionSet'] = (function () {
+  RLD['LayoutSet'] = (function () {
 
-    function RegionSet() {
+    function LayoutSet() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,11 +12,11 @@
     /**
      * Extend the InitClass Object.
      */
-    RegionSet.prototype = new RLD.InitClass();
+    LayoutSet.prototype = new RLD.InitClass();
     /**
      *
      */
-    RegionSet.prototype.init = function (options) {
+    LayoutSet.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -24,19 +24,19 @@
           this[prop] = this.options[prop];
         }
       }
-      // Format the regions.
-      this.processList(this.regions);
+      // Format the layouts.
+      this.processList(this.layouts);
     };
     /**
      *
      */
-    RegionSet.prototype.build = function () {
+    LayoutSet.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    RegionSet.prototype.info = function (property, value) {      
+    LayoutSet.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
           this[property] = value;
@@ -49,11 +49,11 @@
     /**
      *
      */
-     RegionSet.prototype.processList = function (items) {
+     LayoutSet.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Region({
+          this.items.push(new RLD.Layout({
             'name': items[item],
             'machine_name': item
           }));
@@ -63,12 +63,11 @@
     /**
      *
      */
-    RegionSet.prototype.update = function (regionSet) {
-      this.regionItems = regionSet;
-      this.triggerEvent('regionOrderUpdated', this);
+    LayoutSet.prototype.update = function (layoutSet) {
+      this.layoutItems = layoutSet;
     };
 
-    return RegionSet;
+    return LayoutSet;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

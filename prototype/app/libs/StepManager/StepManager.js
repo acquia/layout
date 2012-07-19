@@ -46,7 +46,7 @@
         step = this.steps[i].step;
         layout = this.steps[i].layout;
         breakpoint = step.info('breakpoint');
-        label = step.info('label');
+        label = step.info('name');
         id = 'breakpoint-' + breakpoint;
         this.$stepContainer
         .append($('<li>', {
@@ -92,12 +92,8 @@
     /**
      *
      */
-    StepManager.prototype.addStep = function (index, steps) {
-      var i, item, step;
-      if (typeof index === 'object' || typeof index === 'array') {
-        steps = index;
-        index = undefined;
-      }
+    StepManager.prototype.addStep = function (steps) {
+      var i, step;
       if (typeof steps === 'object') {
         steps = [steps];
       }
@@ -107,10 +103,6 @@
             'step': steps[i].step,
             'layout': steps[i].layout
           };
-          if (index) {
-            this.steps[index] = step;
-            index += 1;
-          }
           this.steps.push(step);
         }
         else {
