@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['GridSet'] = (function () {
+  RLD['GridList'] = (function () {
 
-    function GridSet() {
+    function GridList() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,24 +12,24 @@
     /**
      * Extend the InitClass Object.
      */
-    GridSet.prototype = new RLD.InitClass();
+    GridList.prototype = new RLD.InitClass();
     /**
      *
      */
-    GridSet.prototype.initialize = function () {
+    GridList.prototype.initialize = function () {
       // Format the grids.
       this.processList(this.grids);
     };
     /**
      *
      */
-    GridSet.prototype.build = function () {
+    GridList.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    GridSet.prototype.processList = function (items) {
+    GridList.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
@@ -43,7 +43,7 @@
     /**
      *
      */
-    GridSet.prototype.getItem = function (index) {
+    GridList.prototype.getItem = function (index) {
       var i;
       for (i = 0; i < this.items.length; i++) {
         for (property in this.items[i]) {
@@ -52,16 +52,16 @@
           }
         }
       }
-      log('[RLD | GridSet] Item not found in this set.', 'info');
+      log('[RLD | GridList] Item not found in this set.', 'info');
     }
     /**
      *
      */
-    GridSet.prototype.update = function (set) {
+    GridList.prototype.update = function (set) {
       this.items = set;
     };
 
-    return GridSet;
+    return GridList;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

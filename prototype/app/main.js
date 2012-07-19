@@ -132,16 +132,16 @@
         'class': 'rld-application'
       });
       // Instansiate Editors.
-      this.compositeManager = new RLD.CompositeManager();
-      // this.regions is a simple object. The RegionSet provides methods to
+      this.compositeManager = new RLD.LayoutManager();
+      // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
-      this.regionSet = new RLD.RegionSet({
+      this.regionSet = new RLD.RegionList({
         'regions': this.regions
       });
-      this.stepSet = new RLD.StepSet({
+      this.stepSet = new RLD.StepList({
         'steps': this.steps
       });
-      this.gridSet = new RLD.GridSet({
+      this.gridSet = new RLD.GridList({
         'grids': this.grids
       });
       steps = this.stepSet.info('items');

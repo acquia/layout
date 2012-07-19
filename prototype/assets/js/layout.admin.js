@@ -15,9 +15,9 @@ $(document).ready(function (event) {
   /**
    * Respond to Region List updates.
    */
-  function updateRegionList (event, RegionSet) {
+  function updateRegionList (event, RegionList) {
     log(event, 'dir');
-    log(RegionSet, 'dir');
+    log(RegionList, 'dir');
   }
   /**
    * Respond to Close Region action.
@@ -46,7 +46,7 @@ $(document).ready(function (event) {
       'subheader_c': "Subheader C",
       'title': "Title"
     },
-    /* A layout is a series of overrides on a basic RegionSet. */
+    /* A layout is a series of overrides on a basic RegionList. */
     'steps': {
       'small': {
         'name': 'Phone Portrait',

@@ -89,7 +89,7 @@
     // Layout Class
     function Layout() {
       this.options = {};
-      this.regions = {}; // RegionSet
+      this.regions = {}; // RegionList
       this.grid = {}; // Grid 
       this.$editor;
       // Initialize the object.
@@ -160,8 +160,8 @@
       return;
     };
     
-    Layout.prototype.inflect = function (RegionSet, Grid) {
-      this.regions = RegionSet;
+    Layout.prototype.inflect = function (RegionList, Grid) {
+      this.regions = RegionList;
       this.grid = Grid;
     };
     

@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['StepSet'] = (function () {
+  RLD['StepList'] = (function () {
 
-    function StepSet() {
+    function StepList() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,11 +12,11 @@
     /**
      * Extend the InitClass Object.
      */
-    StepSet.prototype = new RLD.InitClass();
+    StepList.prototype = new RLD.InitClass();
     /**
      *
      */
-    StepSet.prototype.init = function (options) {
+    StepList.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -30,13 +30,13 @@
     /**
      *
      */
-    StepSet.prototype.build = function () {
+    StepList.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    StepSet.prototype.info = function (property, value) {      
+    StepList.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
           this[property] = value;
@@ -49,7 +49,7 @@
     /**
      *
      */
-     StepSet.prototype.processList = function (items) {
+     StepList.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
@@ -66,12 +66,12 @@
     /**
      *
      */
-    StepSet.prototype.update = function (stepSet) {
+    StepList.prototype.update = function (stepSet) {
       this.stepItems = stepSet;
       this.triggerEvent('stepOrderUpdated', this);
     };
 
-    return StepSet;
+    return StepList;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

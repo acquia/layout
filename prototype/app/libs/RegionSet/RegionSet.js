@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['RegionSet'] = (function () {
+  RLD['RegionList'] = (function () {
 
-    function RegionSet() {
+    function RegionList() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,11 +12,11 @@
     /**
      * Extend the InitClass Object.
      */
-    RegionSet.prototype = new RLD.InitClass();
+    RegionList.prototype = new RLD.InitClass();
     /**
      *
      */
-    RegionSet.prototype.init = function (options) {
+    RegionList.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -30,13 +30,13 @@
     /**
      *
      */
-    RegionSet.prototype.build = function () {
+    RegionList.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    RegionSet.prototype.info = function (property, value) {      
+    RegionList.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
           this[property] = value;
@@ -49,7 +49,7 @@
     /**
      *
      */
-     RegionSet.prototype.processList = function (items) {
+     RegionList.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
@@ -63,12 +63,12 @@
     /**
      *
      */
-    RegionSet.prototype.update = function (regionSet) {
+    RegionList.prototype.update = function (regionSet) {
       this.regionItems = regionSet;
       this.triggerEvent('regionOrderUpdated', this);
     };
 
-    return RegionSet;
+    return RegionList;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

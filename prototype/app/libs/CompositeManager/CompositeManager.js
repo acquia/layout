@@ -1,11 +1,11 @@
 (function (RLD, $) {
   /**
-   * CompositeManager editor provides functionality to display, add and remove
+   * LayoutManager editor provides functionality to display, add and remove
    * layout representations across arbitrary, user-defined breakpoint limits.
    */
-  RLD['CompositeManager'] = (function build() {
+  RLD['LayoutManager'] = (function build() {
     
-    function CompositeManager() {
+    function LayoutManager() {
       this.options = {
         'ui': {
           'class-layout': 'rld-stepmanager',
@@ -29,11 +29,11 @@
     /**
      * Extend the InitClass Object.
      */
-    CompositeManager.prototype = new RLD.InitClass();
+    LayoutManager.prototype = new RLD.InitClass();
     /**
      * Integrate instantiation options.
      */
-    CompositeManager.prototype.init = function (options) {
+    LayoutManager.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -56,7 +56,7 @@
     /**
      *
      */
-    CompositeManager.prototype.build = function () {
+    LayoutManager.prototype.build = function () {
       // Assemble the editor fraemwork.
       
       this.$editor = $('<div>', {})
@@ -81,7 +81,7 @@
     /**
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    CompositeManager.prototype.registerLayout = function (step, regionSet, gridSet) {
+    LayoutManager.prototype.registerLayout = function (step, regionSet, gridSet) {
       var index;
       var grid = gridSet.getItem(step.grid);
       var layout = new RLD.Layout({
@@ -94,7 +94,7 @@
       this.stepManager.addStep({'step': step, 'layout': layout});
     };
     
-    return CompositeManager;
+    return LayoutManager;
     
   }());
 

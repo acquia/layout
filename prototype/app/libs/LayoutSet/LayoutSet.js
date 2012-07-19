@@ -1,8 +1,8 @@
 (function (RLD, $) {
   // Temp location.
-  RLD['LayoutSet'] = (function () {
+  RLD['LayoutList'] = (function () {
 
-    function LayoutSet() {
+    function LayoutList() {
       this.options = {};
       this.items = [];
       this.$editor = $();
@@ -12,11 +12,11 @@
     /**
      * Extend the InitClass Object.
      */
-    LayoutSet.prototype = new RLD.InitClass();
+    LayoutList.prototype = new RLD.InitClass();
     /**
      *
      */
-    LayoutSet.prototype.init = function (options) {
+    LayoutList.prototype.init = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {
@@ -30,13 +30,13 @@
     /**
      *
      */
-    LayoutSet.prototype.build = function () {
+    LayoutList.prototype.build = function () {
       return this.$editor;
     };
     /**
      *
      */
-    LayoutSet.prototype.info = function (property, value) {      
+    LayoutList.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {
           this[property] = value;
@@ -49,7 +49,7 @@
     /**
      *
      */
-     LayoutSet.prototype.processList = function (items) {
+     LayoutList.prototype.processList = function (items) {
       var item;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
@@ -63,11 +63,11 @@
     /**
      *
      */
-    LayoutSet.prototype.update = function (layoutSet) {
+    LayoutList.prototype.update = function (layoutSet) {
       this.layoutItems = layoutSet;
     };
 
-    return LayoutSet;
+    return LayoutList;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));
