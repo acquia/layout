@@ -21,31 +21,6 @@ function layout_admin_grids() {
  */
 function layout_admin_grids_form($form, $form_state, $grids) {
   $form = array();
-  $form['new_breakpoint'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Add new breakpoint'),
-    '#tree' => TRUE,
-    '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
-  );
-  $form['new_breakpoint'] += layout_admin_grids_form_element();
-
-  $form['new_breakpoint']['label'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Breakpoint label'),
-    '#description' => t("Examples: smartphone, tablet, desktop"),
-  );
-  $form['new_breakpoint']['width'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Breakpoint'),
-    '#description' => t("Width point where this grid is applied."),
-  );
-  $form['new_breakpoint']['css'] = array(
-    '#type' => 'textarea',
-    '#title' => t('Grid CSS'),
-    '#description' => t("CSS to describe the grid applied to this breakpoint."),
-  );
-
   $form['breakpoints'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
@@ -58,7 +33,20 @@ function layout_admin_grids_form($form, $form_state, $grids) {
       '#collapsed' => TRUE,
     );
     $form['breakpoints'][$index] += layout_admin_grids_form_element($grid);
+    $form['breakpoints'][$index] += array(
+      'remove' => array(
+        '#type' => 'checkbox',
+        '#title' => t('Remove breakpoint'),
+      ),
+    );
   }
+
+  $form['new_breakpoint'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Add new breakpoint'),
+    '#tree' => TRUE,
+  );
+  $form['new_breakpoint'] += layout_admin_grids_form_element();
 
   $form['submit'] = array(
     '#type' => 'submit',
@@ -99,12 +87,20 @@ function layout_admin_grids_form_element($grid = array()) {
  * @see layout_admin_grids_form()
  */
 function layout_admin_grids_form_submit($form, $form_state) {
-  $grids = array();
+  $new_grids = array();
   if (isset($form_state['values']['breakpoints'])) {
-    $grids = $form_state['values']['breakpoints'];
+    $new_grids = $form_state['values']['breakpoints'];
   }
   if (!empty($form_state['values']['new_breakpoint']['width'])) {
-    $grids[] = $form_state['values']['new_breakpoint'];
+    $new_grids[] = $form_state['values']['new_breakpoint'];
+  }
+
+  // Remove any grids that have the remove checkbox checked
+  $grids = array();
+  foreach ($new_grids as $index => $grid) {
+    if (empty($grid['remove'])) {
+      $grids[] = $grid;
+    }
   }
 
   // Sort the grids by width.
