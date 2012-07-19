@@ -2,10 +2,11 @@
   // Temp location.
   RLD['StepList'] = (function () {
 
+    var options = {};
+    var plugin = 'StepList';
+
     function StepList() {
-      this.options = {};
       this.items = [];
-      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -16,35 +17,15 @@
     /**
      *
      */
-    StepList.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
+    StepList.prototype.setup = function () {
+      // Process list items.
+      if ('steps' in this) {
+        this.processList(this.steps);
+        delete this.steps;
       }
-      // Format the steps.
-      this.processList(this.steps);
-    };
-    /**
-     *
-     */
-    StepList.prototype.build = function () {
-      return this.$editor;
-    };
-    /**
-     *
-     */
-    StepList.prototype.info = function (property, value) {      
-      if (property in this) {
-        if (value !== undefined) {
-          this[property] = value;
-          return;
-        }
-        return this[property];
+      else {
+        this.log('[RLD | ' + plugin + '] The list has no items at setup.');
       }
-      return;
     };
     /**
      *
@@ -66,8 +47,8 @@
     /**
      *
      */
-    StepList.prototype.update = function (stepSet) {
-      this.stepItems = stepSet;
+    StepList.prototype.update = function (type, list) {
+      this.stepItems = type;
       this.triggerEvent('stepOrderUpdated', this);
     };
 

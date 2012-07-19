@@ -16,8 +16,14 @@
      * Create the InitClass object that all other objects will extend.
      */
     var InitClass = (function () {
+    
+      var options = {};
+      var plugin = 'InitClass';
+
       function InitClass() {
+        this.$editor = $();
         this.listeners = {};
+        this.items = [];
       }
       /**
        * Safe logging function.
@@ -33,17 +39,24 @@
       /**
        *
        */
-      InitClass.prototype.init = function (options) {
+      InitClass.prototype.init = function (opts) {
         var prop;
-        this.options = $.extend({}, this.options, options);
-        for (prop in this.options) {
-          if (this.options.hasOwnProperty(prop)) {
-            this[prop] = this.options[prop];
+        if (options === undefined) {
+          options = {};
+        }
+        options = $.extend({}, options, opts);
+        for (prop in options) {
+          if (options.hasOwnProperty(prop)) {
+            this[prop] = options[prop];
           }
         }
         // Format the grids.
-        this.initialize.apply(this);
+        this.setup.apply(this);
       };
+      /**
+       *
+       */
+      InitClass.prototype.setup = function () {};
       /**
        *
        */
@@ -60,7 +73,30 @@
       /**
        *
        */
-      InitClass.prototype.build = function (options) {};
+      InitClass.prototype.build = function (options) {
+        return this.$editor;
+      };
+      /**
+       *
+       */
+      InitClass.prototype.addItem = function (item) {
+        this.items.push(item);
+      };
+      /**
+       *
+       */
+      InitClass.prototype.getItem = function (index) {
+        var i;
+        for (i = 0; i < this.items.length; i++) {
+          for (property in this.items[i]) {
+            if ('machine_name' in this.items[i] && this.items[i]['machine_name'] === index) {
+                return this.items[i];
+            }
+          }
+        }
+        this.log('[RLD | ' + plugin + '] Item not found in this set.', 'info');
+        return null;
+      };
       /**
        * Pushes a supplied function into the list of functions.
        */

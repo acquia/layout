@@ -1,50 +1,34 @@
 (function (RLD, $) {
   // Temp location.
   RLD['RegionList'] = (function () {
+  
+    var options = {};
+    var plugin = 'RegionList';
 
     function RegionList() {
-      this.options = {};
       this.items = [];
-      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
     /**
      * Extend the InitClass Object.
+     *
+     * Options passed into the constructor are assigned as
+     * properties of the instance.
      */
     RegionList.prototype = new RLD.InitClass();
     /**
-     *
+     * Called by the InitClass prototype.
      */
-    RegionList.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
+    RegionList.prototype.setup = function () {
       // Format the regions.
-      this.processList(this.regions);
-    };
-    /**
-     *
-     */
-    RegionList.prototype.build = function () {
-      return this.$editor;
-    };
-    /**
-     *
-     */
-    RegionList.prototype.info = function (property, value) {      
-      if (property in this) {
-        if (value !== undefined) {
-          this[property] = value;
-          return;
-        }
-        return this[property];
+      if ('regions' in this) {
+        this.processList(this.regions);
+        delete this.regions;
       }
-      return;
+      else {
+        this.log('[RLD | RegionList] The RegionList instance has no Regions at setup.');
+      }
     };
     /**
      *
@@ -63,8 +47,8 @@
     /**
      *
      */
-    RegionList.prototype.update = function (regionList) {
-      this.regionItems = regionList;
+    RegionList.prototype.update = function (type, list) {
+      this.items = type;
       this.triggerEvent('regionOrderUpdated', this);
     };
 

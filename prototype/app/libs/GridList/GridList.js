@@ -1,11 +1,12 @@
 (function (RLD, $) {
   // Temp location.
   RLD['GridList'] = (function () {
+  
+    var options = {};
+    var plugin = 'GridList';
 
     function GridList() {
-      this.options = {};
       this.items = [];
-      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -16,9 +17,15 @@
     /**
      *
      */
-    GridList.prototype.initialize = function () {
-      // Format the grids.
-      this.processList(this.grids);
+    GridList.prototype.setup = function () {
+      // Process list items.
+      if ('grids' in this) {
+        this.processList(this.grids);
+        delete this.grids;
+      }
+      else {
+        this.log('[RLD | ' + plugin + '] The list has no items at setup.');
+      }
     };
     /**
      *
@@ -43,23 +50,8 @@
     /**
      *
      */
-    GridList.prototype.getItem = function (index) {
-      var i;
-      for (i = 0; i < this.items.length; i++) {
-        for (property in this.items[i]) {
-          if ('machine_name' in this.items[i] && this.items[i]['machine_name'] === index) {
-              return this.items[i];
-          }
-        }
-      }
-      log('[RLD | GridList] Item not found in this set.', 'info');
-      return;
-    }
-    /**
-     *
-     */
-    GridList.prototype.update = function (set) {
-      this.items = set;
+    GridList.prototype.update = function (type, list) {
+      this.items = type;
     };
 
     return GridList;

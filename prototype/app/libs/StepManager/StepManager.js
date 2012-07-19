@@ -2,8 +2,10 @@
 
   RLD['StepManager'] = (function () {
 
+    var options = {};
+    var plugin = 'StepManager';
+
     function StepManager() {
-      this.options = {};
       this.steps = [];
       this.activeStep;
       // Initialize the object.
@@ -16,28 +18,20 @@
     /**
      *
      */
-    StepManager.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
+    StepManager.prototype.setup = function (options) {
       // UI objects.
       this.$stepContainer = $('<div>', {});
       this.$layoutContainer = $('<div>', {});
-      this.$editor = $('<div>', {});
     };
     /**
      *
      */
     StepManager.prototype.build = function ($stepContainer, $layoutContainer) {
+      this.$editor = $('<div>', {});
       var activeStep = (this.activeStep) ? this.activeStep : 0;
-      var fn;
+      var fn, i;
       this.$stepContainer = ($stepContainer.length > 0) ? $stepContainer : this.$stepContainer;
       this.$layoutContainer = ($layoutContainer.length > 0) ? $layoutContainer : this.$layoutContainer;
-      var i;
       // Clear the UI.
       this.$stepContainer.children().remove();
       this.$layoutContainer.children().remove();
@@ -75,19 +69,6 @@
       return this.$editor
       .append(this.$stepContainer)
       .append(this.$layoutContainer);
-    };
-    /**
-     *
-     */
-    StepManager.prototype.info = function (property, value) {      
-      if (property in this) {
-        if (value !== undefined) {
-          this[property] = value;
-          return;
-        }
-        return this[property];
-      }
-      return;
     };
     /**
      *

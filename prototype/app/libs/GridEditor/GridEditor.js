@@ -1,22 +1,18 @@
 (function (RLD, $) {
+
   RLD['GridEditor'] = (function () {
     
+    var options = {};
+    var plugin = 'GridEditor';
+    
     function GridEditor() {
-      this.$editor = $();
+      // Initialize the object.
       this.init.apply(this, arguments);
     }
     /**
      * Extend the InitClass Object.
      */
     GridEditor.prototype = new RLD.InitClass();
-    
-    GridEditor.prototype.init = function () {
-      
-    };
-    
-    GridEditor.prototype.build = function () {
-      return this.$editor;
-    }
     
     return GridEditor;
     

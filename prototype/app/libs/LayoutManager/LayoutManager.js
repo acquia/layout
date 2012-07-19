@@ -4,6 +4,9 @@
    * layout representations across arbitrary, user-defined breakpoint limits.
    */
   RLD['LayoutManager'] = (function build() {
+  
+    var options = {};
+    var plugin = 'LayoutManager';
     
     function LayoutManager() {
       this.options = {
@@ -32,7 +35,7 @@
     /**
      * Integrate instantiation options.
      */
-    LayoutManager.prototype.init = function (options) {
+    LayoutManager.prototype.setup = function (options) {
       var prop;
       this.options = $.extend({}, this.options, options);
       for (prop in this.options) {

@@ -1,12 +1,13 @@
 (function (RLD, $) {
   // Temp location.
   RLD['Step'] = (function () {
-
+    
+    var options = {
+      'breakpoint': '0'
+    };
+    var plugin = 'Step';
+    
     function Step() {
-      this.options = {
-        'breakpoint': '0'
-      };
-      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -15,22 +16,13 @@
      */
     Step.prototype = new RLD.InitClass();
     
-    Step.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
+    Step.prototype.setup = function () {
       // Breakpoints can be defined in pixels or ems.
       //this.processBreakpoint();
     };
-    
-    Step.prototype.build = function () {
-      return this.$editor;
-    };
-    
+    /**
+     *
+     */
     Step.prototype.info = function (property, value) {      
       if (property in this) {
         if (value !== undefined) {

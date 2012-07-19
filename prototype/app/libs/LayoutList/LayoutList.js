@@ -1,11 +1,12 @@
 (function (RLD, $) {
   // Temp location.
   RLD['LayoutList'] = (function () {
+  
+    var options = {};
+    var plugin = 'LayoutList';
 
     function LayoutList() {
-      this.options = {};
       this.items = [];
-      this.$editor = $();
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -16,35 +17,15 @@
     /**
      *
      */
-    LayoutList.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
+    LayoutList.prototype.setup = function () {
+      // Process list items.
+      if ('layouts' in this) {
+        this.processList(this.layouts);
+        delete this.layouts;
       }
-      // Format the layouts.
-      this.processList(this.layouts);
-    };
-    /**
-     *
-     */
-    LayoutList.prototype.build = function () {
-      return this.$editor;
-    };
-    /**
-     *
-     */
-    LayoutList.prototype.info = function (property, value) {      
-      if (property in this) {
-        if (value !== undefined) {
-          this[property] = value;
-          return;
-        }
-        return this[property];
+      else {
+        this.log('[RLD | ' + plugin + '] The list has no items at setup.');
       }
-      return;
     };
     /**
      *
@@ -63,29 +44,8 @@
     /**
      *
      */
-    LayoutList.prototype.addItem = function (item) {
-      this.items.push(item);
-    };
-    /**
-     *
-     */
-    LayoutList.prototype.getItem = function (index) {
-      var i;
-      for (i = 0; i < this.items.length; i++) {
-        for (property in this.items[i]) {
-          if ('machine_name' in this.items[i] && this.items[i]['machine_name'] === index) {
-              return this.items[i];
-          }
-        }
-      }
-      log('[RLD | LayoutList] Item not found in this set.', 'info');
-      return;
-    };
-    /**
-     *
-     */
-    LayoutList.prototype.update = function (layoutSet) {
-      this.layoutItems = layoutSet;
+    LayoutList.prototype.update = function (type, list) {
+      this.items = list;
     };
 
     return LayoutList;

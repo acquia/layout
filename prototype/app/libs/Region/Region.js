@@ -1,6 +1,9 @@
 (function (RLD, $) {
 
   RLD['Region'] = (function () {
+  
+    var options = {};
+    var plugin = 'Region';
 
     function regionClosed(event) {
       event.stopPropagation();
@@ -13,28 +16,21 @@
         $region.remove();
       }
     }
-    
+    /**
+     *
+     */
     function Region() {
-      this.options = {};
-      this.name = '';
-      this.machine_name = '';
-      this.weight;
       this.visibility;
-      this.$editor;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
-    
-    Region.prototype.init = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
-    };
-    
+    /**
+     * Extend the InitClass Object.
+     */
+    Region.prototype = new RLD.InitClass();
+    /**
+     *
+     */
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
       var classes = ['region'];
@@ -65,18 +61,7 @@
     
       return this.$editor;
     };
-    
-    Region.prototype.info = function (property, value) {      
-      if (property in this) {
-        if (value !== undefined) {
-          this[property] = value;
-          return;
-        }
-        return this[property];
-      }
-      return;
-    };
-    
+  
     return Region;
     
   }());
