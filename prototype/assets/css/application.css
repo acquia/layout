@@ -1,3 +1,19 @@
+.clearfix::after {
+  clear: both;
+  content: ' ';
+  display: block;
+  height: 0;
+  visibility: hidden;
+  width: 100%;
+}
+
+.rld-application .screen {
+  margin: 0 auto;
+  width: 450px;
+}
+
+/* @group Layout */
+
 /* @group Region and row styles */
 
 .row {
@@ -74,5 +90,7 @@
   padding: 4px;
   cursor: default;
 }
+
+/* @end */
 
 /* @end */

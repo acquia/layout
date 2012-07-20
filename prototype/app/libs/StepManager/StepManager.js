@@ -57,7 +57,7 @@
           .append(
             $('<div>', {
               'id': id,
-              'class': 'clearfix',
+              'class': 'screen clearfix',
               'html': layout.build()
             })
           );
