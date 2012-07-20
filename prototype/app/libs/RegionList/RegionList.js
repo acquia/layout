@@ -38,7 +38,7 @@
       for (item in items) {
         if (items.hasOwnProperty(item)) {
           this.items.push(new RLD.Region({
-            'name': items[item],
+            'label': items[item],
             'machine_name': item
           }));
         }

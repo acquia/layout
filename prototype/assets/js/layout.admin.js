@@ -47,11 +47,12 @@ $(document).ready(function (event) {
       'title': "Title"
     },
     /* A layout is a series of overrides on a basic RegionList. */
-    'steps': {
-      'small': {
-        'name': 'Phone Portrait',
+    'steps': [
+      {
+        'label': 'Phone Portrait',
+        'machine_name': 'small',
         'breakpoint': '0',
-        'grid': '2',
+        'grid': 'gridpak_2',
         'regions':[
           {
             'machine_name': 'header_a',
@@ -60,10 +61,11 @@ $(document).ready(function (event) {
           }
         ]
       },
-      'landscape': {
-        'name': 'Phone Landscape',
+      {
+        'label': 'Phone Landscape',
+        'machine_name': 'landscape',
         'breakpoint': '320',
-        'grid': '2',
+        'grid': 'gridpak_8',
         'regions':[
           {
             'machine_name': 'header_a',
@@ -72,10 +74,11 @@ $(document).ready(function (event) {
           }
         ]
       },
-      'tablet': {
-        'name': 'Tablet',
+      {
+        'label': 'Tablet',
+        'machine_name': 'tablet',
         'breakpoint': '480',
-        'grid': '2',
+        'grid': 'gridpak_8',
         'regions':[
           {
             'machine_name': 'header_a',
@@ -84,10 +87,11 @@ $(document).ready(function (event) {
           }
         ]
       },
-      'desktop': {
-        'name': 'Desktop',
+      {
+        'label': 'Desktop',
+        'machine_name': 'desktop',
         'breakpoint': '800',
-        'grid': '2',
+        'grid': 'gridpak_18',
         'regions':[
           {
             'machine_name': 'header_a',
@@ -96,27 +100,45 @@ $(document).ready(function (event) {
           }
         ]
       }
-    },
-    'grids': {
-      '1': {
-        'scope': 'columns-1'
+    ],
+    'grids': [
+      {
+        'machine_name': 'gridpak_1',
+        'columns': 1,
+        'gutter': '1%',
+        'padding': '0.5%' 
       },
-      '2': {
-        'scope': 'columns-2'
+      {
+        'machine_name': 'gridpak_2',
+        'columns': 2,
+        'gutter': '1%',
+        'padding': '0.5%'
       },
-      '8': {
-        'scope': 'columns-8'
+      {
+        'machine_name': 'gridpak_8',
+        'columns': 8,
+        'gutter': '1%',
+        'padding': '0.5%'
       },
-      '12': {
-        'scope': 'columns-12'
+      {
+        'machine_name': 'gridpak_12',
+        'columns': 12,
+        'gutter': '1%',
+        'padding': '0.5%'
       },
-      '16': {
-        'scope': 'columns-18'
+      {
+        'machine_name': 'gridpak_18',
+        'columns': 18,
+        'gutter': '1%',
+        'padding': '0.5%'
       },
-      '24': {
-        'scope': 'columns-24'
+      {
+        'machine_name': 'gridpak_24',
+        'columns': 24,
+        'gutter': '1%',
+        'padding': '0.5%'
       }
-    }
+    ]
   });
   // Register event listeners.
   editor.registerEventListener({

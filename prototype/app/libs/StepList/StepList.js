@@ -31,17 +31,15 @@
      *
      */
      StepList.prototype.processList = function (items) {
-      var item;
-      for (item in items) {
-        if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Step({
-            'name': items[item].name,
-            'machine_name': item,
-            'breakpoint': items[item].breakpoint,
-            'regions': items[item].regions,
-            'grid': items[item].grid
-          }));
-        }
+      var i;
+      for (i = 0; i < items.length; i++) {
+        this.items.push(new RLD.Step({
+          'label': items[i].label,
+          'machine_name': items[i].machine_name,
+          'breakpoint': items[i].breakpoint,
+          'regions': items[i].regions,
+          'grid': items[i].grid
+        }));
       }
     };
     /**

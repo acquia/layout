@@ -40,7 +40,7 @@
         step = this.steps[i].step;
         layout = this.steps[i].layout;
         breakpoint = step.info('breakpoint');
-        label = step.info('name');
+        label = step.info('label');
         id = 'breakpoint-' + breakpoint;
         this.$stepContainer
         .append($('<li>', {

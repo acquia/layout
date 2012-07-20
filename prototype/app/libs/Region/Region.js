@@ -38,10 +38,10 @@
         classes = classes.concat(options.classes).join(' ');
       }
       this.$editor = $('<div>', {
-        'id': 'region-' + this.name.split(' ').join('_'),
+        'id': 'region-' + this.label.split(' ').join('_'),
         'class': classes,
         'html': $('<p>', {
-          'text': 'Region ' + this.name
+          'text': 'Region ' + this.label
         })
       })
       .prepend($('<div>', {

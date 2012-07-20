@@ -37,14 +37,14 @@
      *
      */
     GridList.prototype.processList = function (items) {
-      var item;
-      for (item in items) {
-        if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Grid({
-            'machine_name': item,
-            'scope': items[item].scope
-          }));
-        }
+      var i;
+      for (i = 0; i < items.length; i++) {
+        this.items.push(new RLD.Grid({
+          'machine_name': items[i].machine_name,
+          'columns': items[i].columns,
+          'gutter': items[i].gutter,
+          'padding': items[i].padding 
+        }));
       }
     };
     /**
