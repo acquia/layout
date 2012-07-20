@@ -4,11 +4,11 @@
    * layout representations across arbitrary, user-defined breakpoint limits.
    */
   RLD['LayoutManager'] = (function build() {
-  
-    var options = {};
+
     var plugin = 'LayoutManager';
     
     function LayoutManager() {
+      // Ui components.
       this.options = {
         'ui': {
           'class-layout': 'rld-stepmanager',
@@ -16,7 +16,6 @@
           'class-layout-content': 'rld-layouts'
         }
       };
-      // Ui components.
       this.$editor = $();
       this.$stepSelector = $();
       this.$steps = $();
@@ -35,25 +34,18 @@
     /**
      * Integrate instantiation options.
      */
-    LayoutManager.prototype.setup = function (options) {
-      var prop;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
+    LayoutManager.prototype.setup = function () {
       this.stepManager = new RLD.StepManager();
       this.layouts = new RLD.LayoutList();
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
-        'class': this.options.ui['class-layout']
+        'class': this.ui['class-layout']
       });
       this.$steps = $('<ul>', {
-        'class': this.options.ui['class-layout-tabs']
+        'class': this.ui['class-layout-tabs']
       });
       this.$layouts = $('<div>', {
-        'class': this.options.ui['class-layout-content']
+        'class': this.ui['class-layout-content']
       });
     };
     /**

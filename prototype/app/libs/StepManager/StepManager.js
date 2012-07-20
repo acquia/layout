@@ -2,7 +2,6 @@
 
   RLD['StepManager'] = (function () {
 
-    var options = {};
     var plugin = 'StepManager';
 
     function StepManager() {
@@ -29,7 +28,7 @@
     StepManager.prototype.build = function ($stepContainer, $layoutContainer) {
       this.$editor = $('<div>', {});
       var activeStep = (this.activeStep) ? this.activeStep : 0;
-      var fn, i;
+      var fn, i, step, layout;
       this.$stepContainer = ($stepContainer.length > 0) ? $stepContainer : this.$stepContainer;
       this.$layoutContainer = ($layoutContainer.length > 0) ? $layoutContainer : this.$layoutContainer;
       // Clear the UI.

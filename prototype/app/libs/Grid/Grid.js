@@ -1,8 +1,7 @@
 (function (RLD, $) {
 
   RLD['Grid'] = (function () {
-    
-    var options = {};
+
     var plugin = 'Grid';
     
     function Grid() {

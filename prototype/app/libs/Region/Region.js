@@ -1,8 +1,7 @@
 (function (RLD, $) {
 
   RLD['Region'] = (function () {
-  
-    var options = {};
+
     var plugin = 'Region';
 
     function regionClosed(event) {

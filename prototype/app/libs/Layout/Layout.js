@@ -1,8 +1,7 @@
 (function (RLD, $) {
   
   RLD['Layout'] = (function () {
-  
-    var options = {};
+
     var plugin = 'Layout';
   
     // Region manipulation functions.

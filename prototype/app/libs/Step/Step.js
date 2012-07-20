@@ -1,13 +1,13 @@
 (function (RLD, $) {
   // Temp location.
   RLD['Step'] = (function () {
-    
-    var options = {
-      'breakpoint': '0'
-    };
+
     var plugin = 'Step';
     
     function Step() {
+      this.options = {
+        'breakpoint': '0'
+      };
       // Initialize the object.
       this.init.apply(this, arguments);
     }

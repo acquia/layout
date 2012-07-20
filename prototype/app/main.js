@@ -16,8 +16,7 @@
      * Create the InitClass object that all other objects will extend.
      */
     var InitClass = (function () {
-    
-      var options = {};
+
       var plugin = 'InitClass';
 
       function InitClass() {
@@ -41,16 +40,18 @@
        */
       InitClass.prototype.init = function (opts) {
         var prop;
-        if (options === undefined) {
-          options = {};
-        }
+        var options = ('options' in this) ? this.options : {};
         options = $.extend({}, options, opts);
         for (prop in options) {
           if (options.hasOwnProperty(prop)) {
             this[prop] = options[prop];
           }
         }
-        // Format the grids.
+        // Delete the options.
+        if ('options' in this) {
+          delete this.options;
+        }
+        // Call the object's setup method.
         this.setup.apply(this);
       };
       /**
@@ -129,16 +130,17 @@
       
       return InitClass;
     }());
+
     /**
      * The ResponsiveLayoutDesigner is a facade for a set of sub-systems that manage
      * the configuration of a responsive layout through a browser.
      */
     function ResponsiveLayoutDesigner() {
-      this.options = {};
+      var options = {};
+      var plugin = 'ResponsiveLayoutDesigner';
+      this.steps = {};
       this.regions = {};
-      this.composites = {};
-      this.regionList;
-      this.$editor = $();
+      this.grids = {};
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -153,38 +155,51 @@
     /**
      * Implement the init() interface.
      */
-    ResponsiveLayoutDesigner.prototype.init = function (options) {
+    ResponsiveLayoutDesigner.prototype.setup = function (options) {
       // Merge in user options.
       var arg = arguments;
-      var prop, i, steps;
-      this.options = $.extend({}, this.options, options);
-      for (prop in this.options) {
-        if (this.options.hasOwnProperty(prop)) {
-          this[prop] = this.options[prop];
-        }
-      }
+      var i, steps;
       // Create the application root node.
       this.$editor = $('<div>', {
         'class': 'rld-application'
       });
       // Instansiate Editors.
-      this.compositeManager = new RLD.LayoutManager();
+      this.layoutManager = new RLD.LayoutManager();
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
-      this.regionList = new RLD.RegionList({
-        'regions': this.regions
-      });
-      this.stepSet = new RLD.StepList({
-        'steps': this.steps
-      });
-      this.gridSet = new RLD.GridList({
-        'grids': this.grids
-      });
+      if ('regions' in this) {
+        this.regionList = new RLD.RegionList({
+          'regions': this.regions
+        });
+        delete this.regions;
+      }
+      else {
+        this.log('[RLD | ' + plugin + '] No regions provided.');
+      }
+      if ('steps' in this) {
+        this.stepSet = new RLD.StepList({
+          'steps': this.steps
+        });
+        delete this.steps;
+      }
+      else {
+        this.log('[RLD | ' + plugin + '] No steps provided.');
+      }
+      if ('grids' in this) {
+        this.gridSet = new RLD.GridList({
+          'grids': this.grids
+        });
+        delete this.grids;
+      }
+      else {
+        this.log('[RLD | ' + plugin + '] No grids provided.');
+      }
+      // For every step we'll register a layout.
       steps = this.stepSet.info('items');
       // Create obects for each composite.
       for (i = 0; i < steps.length; i++) {
         // Save the composition elements into a unit.
-        this.compositeManager.registerLayout(steps[i], this.regionList, this.gridSet);
+        this.layoutManager.registerLayout(steps[i], this.regionList, this.gridSet);
       }
     };
     /**
@@ -193,8 +208,8 @@
      * Returns a DOM fragment.
      */
     ResponsiveLayoutDesigner.prototype.build = function () {
-      // Build the compositeManager and attach it to the $editor.
-      this.compositeManager.build().appendTo(this.$editor);
+      // Build the layoutManager and attach it to the $editor.
+      this.layoutManager.build().appendTo(this.$editor);
       return this.$editor;
     };
     /**

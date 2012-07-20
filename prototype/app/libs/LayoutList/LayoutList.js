@@ -1,8 +1,7 @@
 (function (RLD, $) {
   // Temp location.
   RLD['LayoutList'] = (function () {
-  
-    var options = {};
+
     var plugin = 'LayoutList';
 
     function LayoutList() {

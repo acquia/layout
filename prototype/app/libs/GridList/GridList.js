@@ -1,8 +1,7 @@
 (function (RLD, $) {
   // Temp location.
   RLD['GridList'] = (function () {
-  
-    var options = {};
+
     var plugin = 'GridList';
 
     function GridList() {

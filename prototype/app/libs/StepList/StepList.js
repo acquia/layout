@@ -2,7 +2,6 @@
   // Temp location.
   RLD['StepList'] = (function () {
 
-    var options = {};
     var plugin = 'StepList';
 
     function StepList() {

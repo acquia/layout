@@ -148,4 +148,5 @@ $(document).ready(function (event) {
   });
   // Insert the editor in the DOM.
   editor.build().appendTo('#responsive-layout-designer');
+  window.RLDEditor = editor;
 });

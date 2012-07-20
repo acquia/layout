@@ -1,8 +1,7 @@
 (function (RLD, $) {
   // Temp location.
   RLD['RegionList'] = (function () {
-  
-    var options = {};
+
     var plugin = 'RegionList';
 
     function RegionList() {
