@@ -81,6 +81,7 @@ function layout_admin_grids_form_element($form_parents, $grid = NULL) {
       'source' => array_merge($form_parents, array('label')),
     ),
     '#default_value' => @$grid->machine_name,
+    '#required' => !empty($grid->machine_name),
     '#description' => t('The breakpoint machine name is used to identify the breakpoint in layouts, making it possible to set up different layouts for each breakpoint.'),
   );
   $form['width'] = array(
@@ -112,7 +113,7 @@ function layout_admin_grids_form_submit($form, $form_state) {
   if (isset($form_state['values']['breakpoints'])) {
     $new_grids = $form_state['values']['breakpoints'];
   }
-  if (!empty($form_state['values']['new_breakpoint']['width'])) {
+  if (!empty($form_state['values']['new_breakpoint']['machine_name'])) {
     $new_grids[$form_state['values']['new_breakpoint']['machine_name']] = $form_state['values']['new_breakpoint'];
   }
 
