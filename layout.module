@@ -195,11 +195,21 @@ function layout_set_grids($grids) {
 }
 
 /**
+ * Look up one grid setup based on machine name.
+ */
+function layout_grid_load($machine_name) {
+  $grids = layout_get_grids();
+  if (isset($grids[$machine_name])) {
+    return $grids[$machine_name];
+  }
+}
+
+/**
  * Build CSS for the grids with media queries.
  *
  * @todo
  *   Figure out a good way to avoid equal max/min-weights in subsequent
- *   grids.
+ *   grids if that is a problem.
  */
 function layout_get_grid_css() {
   $grids = layout_get_grids();
@@ -219,14 +229,14 @@ function layout_get_grid_css() {
       '@media screen and (' .
       ($first_grid ? '' : 'min-width:' . $min_width) .
       ((!$first_grid && !$last_grid) ? ') and (' : '') .
-      ($last_grid ? '' : 'max-width:' . $grid['width']) .
+      ($last_grid ? '' : 'max-width:' . $grid->width) .
       ') {';
-    $grid_css[] = $grid['css'];
+    $grid_css[] = $grid->css;
     $grid_css[] = '}';
 
     // Remember min-width for next grid if applicable. The grids are in
     // ascending width order, so we can rely on this sequence.
-    $min_width = $grid['width'];
+    $min_width = $grid->width;
   }
 
   return join("\n", $grid_css);
