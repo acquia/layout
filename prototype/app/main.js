@@ -102,30 +102,60 @@
        * Pushes a supplied function into the list of functions.
        */
       InitClass.prototype.registerEventListener = function (event, handler) {
-        if (event in this.listeners) {
-          this.listeners[event].push(handler);
-          return;
+        var handlers = {};
+        var e, fn;
+        // Deal with event/handlers pass in an object.
+        if (typeof event === 'string') {
+          handlers[event] = handler;
         }
-        // This is the first time this event has a listener registerd against it.
-        this.listeners[event] = [handler];
+        else {
+          handlers = event;
+        }
+        for (e in handlers) {
+          if (handlers.hasOwnProperty(e)) {
+            fn = handlers[e];
+            if (e in this.listeners) {
+              this.listeners[e].push(fn);
+              return;
+            }
+            // This is the first time this event has a listener registerd against it.
+            this.listeners[e] = [fn];   
+          }
+        }
       };    
       /**
        * Iterate through the callbacks and invoke them.
        */
       InitClass.prototype.triggerEvent = function (event) {
-        var i, listeners, e, args;
-        if (event in this.listeners) {
-          listeners = this.listeners[event];
+        var args =  Array.prototype.slice.call(arguments);
+        var i, listeners, e, type;
+        if (typeof event === 'object') {
+          type = event.type;
+        }
+        else {
+          type = event;
           // Create a jQuery Event for consistency and shift it into the arguments.
-          e = $.Event(event);
-          args = Array.prototype.slice.call(arguments);
+          e = $.Event(type);
+          // Unshift in the original target for reference if this event bubbles.
+          e.target = this;
           args.shift();
           args.unshift(e);
+        }
+        if (type in this.listeners) {
+          listeners = this.listeners[type];
           // Call the listeners.
           for (i = 0; i < listeners.length; i++) {
-            listeners[i].apply(this, args);
+            if (typeof listeners[i] === 'function') {
+              listeners[i].apply(this, args);
+            }
           } 
         }
+      };
+      /**
+       * Essentially an event pass-through.
+       */
+      InitClass.prototype.eventBroadcaster = function () {
+        this.triggerEvent.apply(this, arguments);
       };
       
       return InitClass;
