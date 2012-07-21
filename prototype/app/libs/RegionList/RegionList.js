@@ -32,14 +32,22 @@
     /**
      *
      */
-     RegionList.prototype.processList = function (items) {
-      var item;
+    RegionList.prototype.processList = function (items) {
+      var fn = $.proxy(this.eventBroadcaster, this);
+      var item, region;
       for (item in items) {
         if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Region({
+          region = new RLD.Region({
             'label': items[item],
             'machine_name': item
-          }));
+          });
+          region.registerEventListener({
+            'regionClosed': fn,
+            'regionResized': fn,
+            'regionResizing': fn
+          });
+          
+          this.items.push(region);
         }
       }
     };

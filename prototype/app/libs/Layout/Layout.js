@@ -1,97 +1,11 @@
-(function (RLD, $) {
+(function (RLD, $, _) {
   
   RLD['Layout'] = (function () {
 
     var plugin = 'Layout';
-  
-    // Region manipulation functions.
-    function regionResizeHandler(event) {
-      event.stopImmediatePropagation();
-      // Disable sortable while resize is active.
-      var $delegator = $(event.getDelegator());
-      $delegator.sortable('disable');
-      var $splitter = $(this);
-      var $region = $splitter.closest('.region');
-      var $row = $region.closest('.row');
-      // Since the resize function will be called on mousemove, we don't want
-      // to calculate the state of the row's region more than once. So we
-      // pass this information into the handlers.
-      var data = {};
-      // Determine if the splitter is on the left or right side of region.
-      data.side = ($splitter.hasClass('splitter-left')) ? 'left' : 'right';
-      data.width = $region.outerWidth();
-      data.siblings = {
-        '$left': $region.prevAll(),
-        '$right': $region.nextAll()
-      };
-      // Calculate the X origin. This is either the left or right edge of the active
-      // region, depending on which splitter is clicked.
-      data.regionX = 0;
-      data.siblings.$left.each(function () {
-        var $this = $(this);
-        data.regionX += $this.outerWidth();
-      });
-      data.regionX += (data.side === 'right') ? data.width : 0;
-      data.mouseX = event.pageX;
-      data.bounds = {};
-      data.bounds.width = $row.width();
-      data.bounds.left = $row.position().left;
-      data.bounds.right = $row.position().left + data.bounds.width;
-      data.$delegator = $delegator;
-      // Mark the splitter active.
-      $splitter.addClass('splitter-active');
-      // Add behaviors.
-      fn = $.proxy(resizeRegion, $region);
-      $(document).bind('mousemove.regionResize', data, fn);
-      fn = $.proxy(finishRegionResize, $region);
-      $(document).bind('mouseup.regionResize', data, fn);
-    }
-
-    function resizeRegion(event) {
-      event.stopImmediatePropagation();
-      if (event.pageX <= event.data.bounds.left || event.pageX >= event.data.bounds.right) {
-        return false;
-      }
-      var $region = this;
-      var side = event.data.side;
-      var deltaX = event.pageX - event.data.mouseX;
-      
-      if (event.data.side === 'left') {
-        // Resize the region.
-        $region.css({
-          'width': event.data.width - deltaX
-        });
-        // Resize the left siblings.
-        event.data.siblings.$left.css({
-          'width': event.data.regionX + deltaX
-        });
-      }
-      if (event.data.side === 'right') {
-        // Resize the region.
-        $region.css({
-          'width': event.data.width + deltaX
-        });
-        // Resize the left siblings.
-        event.data.siblings.$right.css({
-          'width': event.data.bounds.width - (event.data.regionX + deltaX)
-        }); 
-      }
-    }
-
-    function finishRegionResize(event) {
-      // Perform a final resize.
-      resizeRegion.apply(this, arguments);
-      // Clean up the DOM.
-      $(this).find('.splitter').removeClass('splitter-active');
-      $(document).unbind('.regionResize');
-      // Reenable sorting
-      event.data.$delegator.sortable('enable');
-    }
 
     // Layout Class
     function Layout() {
-      this.regions = {}; // RegionList
-      this.grid = {}; // Grid 
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -99,6 +13,16 @@
      * Extend the InitClass Object.
      */
     Layout.prototype = new RLD.InitClass();
+    
+    Layout.prototype.setup = function () {
+      var processShift = $.proxy(this.processShift, this);
+      var processRemove = $.proxy(this.processRemove, this);
+      this.regionList.registerEventListener({
+        'regionResizing': processShift,
+        'regionResized': processShift,
+        'regionClosed': processRemove
+      });
+    };
     
     Layout.prototype.build = function () {
       var regions = this.regionList.info('items');
@@ -123,9 +47,6 @@
           .appendTo(this.$editor);
         }
       }
-      // Region resizing behaviors.
-      this.$editor
-      .delegate('.region .splitter', 'mousedown.ResponsiveLayoutDesigner', regionResizeHandler);
       // Bind behaviors.
       fn = $.proxy(this.processSort, this);
       this.$editor.sortable({
@@ -151,7 +72,50 @@
       this.regionList.update(regionList);
     };
     
+    Layout.prototype.processShift = function (event, data) {
+      switch (event.type) {
+      case 'regionResized':
+        var $this = event.target.info('$editor');
+        var $currentRow = $this.closest('.row');
+        var placeholders = {
+          '$left': $currentRow.find('.placeholder:first'),
+          '$right': $currentRow.find('.placeholder:last')
+        };
+        var $nextRow = $currentRow.next('.row');
+        var $candidateRegion = $nextRow.find('.region');
+        if ($candidateRegion.length > 0) {
+          var $shiftedRegion = $candidateRegion.detach();
+          var width = placeholders['$' + data.side].width();
+          placeholders['$' + data.side].replaceWith(
+            $shiftedRegion
+            .css({
+              width: width
+            })
+          );
+          this.updateRow($nextRow);
+        }
+        break;
+      case 'regionResizing':
+        break;
+      default:
+        break;
+      }
+    };
+    
+    Layout.prototype.updateRow = function ($row) {
+      var $regions = $row.find('.region');
+      if ($regions.length === 0) {
+        $row.slideUp(function () {$(this).remove()});
+      }
+      if ($regions.length === 1) {}
+      if ($regions.length > 1) {}
+    }
+    
+    Layout.prototype.processRemove = function (event) {
+      
+    };
+    
     return Layout;
     
   }());
-}(ResponsiveLayoutDesigner, jQuery));
+}(ResponsiveLayoutDesigner, jQuery, _));
