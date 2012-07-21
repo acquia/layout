@@ -18,6 +18,7 @@
       var processShift = $.proxy(this.processShift, this);
       var processRemove = $.proxy(this.processRemove, this);
       this.regionList.registerEventListener({
+        'regionResizeStarted': processShift,
         'regionResizing': processShift,
         'regionResized': processShift,
         'regionClosed': processRemove
@@ -37,12 +38,6 @@
           })
           .append(regions[i].build({
             'classes': ['unit']
-          }))
-          .prepend($('<div>', {
-            'class': 'placeholder unit'
-          }))
-          .append($('<div>', {
-            'class': 'placeholder unit'
           }))
           .appendTo(this.$editor);
         }
@@ -74,8 +69,19 @@
     
     Layout.prototype.processShift = function (event, data) {
       switch (event.type) {
+      case 'regionResizeStarted':
+        var $this = data.$object;
+        var $currentRow = $this.closest('.row');
+        if (data.siblings['$' + data.side].length === 0) {
+          var $placeholder = this.buildPlaceholder();
+          $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($this);
+          data.siblings['$' + data.side] = $placeholder;
+        }
+        break;
+      case 'regionResizing':
+        break;
       case 'regionResized':
-        var $this = event.target.info('$editor');
+        var $this = data.$object;
         var $currentRow = $this.closest('.row');
         var placeholders = {
           '$left': $currentRow.find('.placeholder:first'),
@@ -95,8 +101,6 @@
           this.updateRow($nextRow);
         }
         break;
-      case 'regionResizing':
-        break;
       default:
         break;
       }
@@ -109,7 +113,13 @@
       }
       if ($regions.length === 1) {}
       if ($regions.length > 1) {}
-    }
+    };
+    
+    Layout.prototype.buildPlaceholder = function () {
+      return $('<div>', {
+        'class': 'placeholder unit'
+      });
+    };
     
     Layout.prototype.processRemove = function (event) {
       

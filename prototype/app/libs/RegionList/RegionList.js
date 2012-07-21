@@ -44,7 +44,8 @@
           region.registerEventListener({
             'regionClosed': fn,
             'regionResized': fn,
-            'regionResizing': fn
+            'regionResizing': fn,
+            'regionResizeStarted': fn
           });
           
           this.items.push(region);

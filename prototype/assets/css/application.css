@@ -16,13 +16,17 @@
 
 /* @group Region and row styles */
 
-.row {
+.rld-application .layout {
+  position: relative;
+}
+
+.rld-application .row {
   margin-bottom: 15px;
   margin-top: 15px;
   -webkit-user-select: none;
 }
-.layout .placeholder,
-.layout .region {
+.rld-application .layout .placeholder,
+.rld-application .layout .region {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -30,21 +34,21 @@
   height: 4em;
   position: relative;
 }
-.layout .region {
+.rld-application .layout .region {
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
 }
-.layout .placeholder {
+.rld-application .layout .placeholder {
   outline-offset: -5px;
   overflow: hidden;
   width: 0;
 }
-.layout .region .region-close {
+.rld-application .layout .region .region-close {
   position: absolute;
   right: 2em;
   top: 5px;
 }
-.splitter {
+.rld-application .splitter {
   background: #555 url('../images/grippie.png') center center no-repeat;
   bottom: 0;
 	cursor: e-resize;	/* in case col-resize isn't supported */
@@ -55,13 +59,13 @@
   width: 11px;
   z-index: 1;
 }
-.splitter.splitter-left {
+.rld-application .splitter.splitter-left {
   left: 0;
 }
-.splitter.splitter-right {
+.rld-application .splitter.splitter-right {
   right: 0;
 }
-.splitter.splitter-active {
+.rld-application .splitter.splitter-active {
   background: url('../images/grippie-active.png') 0 -3px;
 }
 

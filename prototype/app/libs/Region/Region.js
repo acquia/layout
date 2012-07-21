@@ -8,21 +8,24 @@
     function startResize(event) {
       event.stopImmediatePropagation();
       // Disable sortable while resize is active.
+      var region = this;
+      var $region = this.info('$editor');
       var $delegator = $(event.getDelegator());
-      var $splitter = $(this);
-      var $region = $splitter.closest('.region');
+      var $splitter = $(event.target);
       var $row = $region.closest('.row');
       $delegator.sortable('disable');
       // Since the resize function will be called on mousemove, we don't want
       // to calculate the state of the row's region more than once. So we
       // pass this information into the handlers.
       var data = {};
+      data.$object = $region;
+      data.object = region;
       // Determine if the splitter is on the left or right side of region.
-      data.side = ($splitter.hasClass('splitter-left')) ? 'left' : 'right';
+      data.side = $splitter.data('RLD/Region/Splitter-side');
       data.width = $region.outerWidth();
       data.siblings = {
-        '$left': $region.prevAll(),
-        '$right': $region.nextAll()
+        '$left': $region.prevAll('.region'),
+        '$right': $region.nextAll('.region')
       };
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
@@ -41,19 +44,21 @@
       // Mark the splitter active.
       $splitter.addClass('splitter-active');
       // Add behaviors.
-      fn = $.proxy(resize, $region);
+      fn = $.proxy(dragging, region);
       $(document).bind('mousemove.regionResize', data, fn);
-      fn = $.proxy(finishResize, $region);
+      fn = $.proxy(finishResize, region);
       $(document).bind('mouseup.regionResize', data, fn);
+      // Call listeners.
+      region.triggerEvent('regionResizeStarted', data);
     }
 
-    function resize(event) {
+    function dragging(event) {
       event.stopImmediatePropagation();
       if (event.pageX <= event.data.bounds.left || event.pageX >= event.data.bounds.right) {
         return false;
       }
-      var $region = this;
-      var region = $region.data('RLD/Region');
+      var region = this;
+      var $region = this.info('$editor');
       var side = event.data.side;
       var deltaX = event.pageX - event.data.mouseX;
       
@@ -77,22 +82,21 @@
           'width': event.data.bounds.width - (event.data.regionX + deltaX)
         }); 
       }
-      region.triggerEvent('regionResizing');
+      region.triggerEvent('regionResizing', event.data);
     }
 
     function finishResize(event) {
       event.stopImmediatePropagation();
-      var $region = this;
-      var region = $region.data('RLD/Region');
+      var region = this;
       var $delegator = $(event.getDelegator());
       $delegator.sortable('enable');
       // Perform a final resize.
-      resize.apply(this, arguments);
+      dragging.apply(this, arguments);
       // Clean up the DOM.
       $(this).find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
       // 
-      region.triggerEvent('regionResized', $.extend({}, event.data, {'object': region}));
+      region.triggerEvent('regionResized', event.data);
     }
 
     function close(event) {
@@ -124,6 +128,7 @@
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
       var classes = ['region'];
+      var fn;
       if ('classes' in options && 'length' in options.classes && options.classes.length > 0) {
         classes = classes.concat(options.classes).join(' ');
       }
@@ -153,9 +158,12 @@
       )
       .data('RLD/Region', this);
       // Region behaviors.
+      fn = $.proxy(close, this);
       this.$editor
-      .delegate('.region-close', 'mousedown', close)
-      .delegate('.region .splitter', 'mousedown.ResponsiveLayoutDesigner', startResize);
+      .delegate('.region-close', 'mousedown.ResponsiveLayoutDesigner', close);
+      fn = $.proxy(startResize, this);
+      this.$editor
+      .delegate('.region .splitter', 'mousedown.ResponsiveLayoutDesigner', fn);
     
       return this.$editor;
     };
