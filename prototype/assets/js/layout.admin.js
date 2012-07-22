@@ -49,94 +49,70 @@ $(document).ready(function (event) {
     /* A layout is a series of overrides on a basic RegionList. */
     'steps': [
       {
-        'label': 'Phone Portrait',
+        'label': 'Phone',
         'machine_name': 'small',
         'breakpoint': '0',
-        'grid': 'gridpak_2',
+        'grid': 'gridpak_3',
         'regions':[
           {
             'machine_name': 'header_a',
-            'columns': 4,
-            'push': 2
+            'columns': 1
           }
         ]
       },
       {
         'label': 'Phone Landscape',
         'machine_name': 'landscape',
-        'breakpoint': '320',
-        'grid': 'gridpak_8',
+        'breakpoint': '350',
+        'grid': 'gridpak_6',
         'regions':[
           {
             'machine_name': 'header_a',
-            'columns': 4,
-            'push': 2
+            'columns': 4
           }
         ]
       },
       {
         'label': 'Tablet',
         'machine_name': 'tablet',
-        'breakpoint': '480',
-        'grid': 'gridpak_8',
+        'breakpoint': '760',
+        'grid': 'gridpak_10',
         'regions':[
           {
             'machine_name': 'header_a',
-            'columns': 4,
-            'push': 2
+            'columns': 4
           }
         ]
       },
       {
         'label': 'Desktop',
         'machine_name': 'desktop',
-        'breakpoint': '800',
-        'grid': 'gridpak_18',
+        'breakpoint': '960',
+        'grid': 'gridpak_12',
         'regions':[
           {
             'machine_name': 'header_a',
-            'columns': 4,
-            'push': 2
+            'columns': 6
           }
         ]
       }
     ],
     'grids': [
       {
-        'machine_name': 'gridpak_1',
-        'columns': 1,
-        'gutter': '1%',
-        'padding': '0.5%' 
+        'machine_name': 'gridpak_3',
+        'columns': 3
       },
       {
-        'machine_name': 'gridpak_2',
-        'columns': 2,
-        'gutter': '1%',
-        'padding': '0.5%'
+        'machine_name': 'gridpak_6',
+        'columns': 6
       },
       {
-        'machine_name': 'gridpak_8',
-        'columns': 8,
-        'gutter': '1%',
-        'padding': '0.5%'
+        'machine_name': 'gridpak_10',
+        'columns': 10
       },
       {
         'machine_name': 'gridpak_12',
-        'columns': 12,
-        'gutter': '1%',
-        'padding': '0.5%'
-      },
-      {
-        'machine_name': 'gridpak_18',
-        'columns': 18,
-        'gutter': '1%',
-        'padding': '0.5%'
-      },
-      {
-        'machine_name': 'gridpak_24',
-        'columns': 24,
-        'gutter': '1%',
-        'padding': '0.5%'
+        'columns': 12
       }
     ]
   });
