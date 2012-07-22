@@ -20,10 +20,8 @@
       this.$stepSelector = $();
       this.$steps = $();
       this.$layouts = $();
-      this.listeners = {
-        'breakpointAdded': []
-      };
-      this.layouts = {};
+      this.layouts = [];
+      this.regionList = {};
       // Setup
       this.init.apply(this, arguments);
     }
@@ -35,8 +33,11 @@
      * Integrate instantiation options.
      */
     LayoutManager.prototype.setup = function () {
+      var fn;
       this.stepManager = new RLD.StepManager();
-      this.layouts = new RLD.LayoutList();
+      // Register
+      fn = $.proxy(this.switchStep, this);
+      this.stepManager.registerEventListener('stepActivated', fn);
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.ui['class-layout']
@@ -70,28 +71,57 @@
       .append(
         this.$stepSelector
         .append(
-          this.stepManager.build(this.$steps, this.$layouts)
+          this.stepManager.build(this.$steps)
+        )
+      )
+      .append(
+        this.$layouts
+        .append(
+          $('<div>', {
+            'class': 'screen clearfix',
+          })
         )
       );
       /*this.$editor
       .delegate('button.save', 'click.ResponsiveLayoutDesigner', {'type': 'save'}, this.update); */
       // The editor is built and ready to be attached.
+      this.switchStep();
       return this.$editor;
     };
     /**
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    LayoutManager.prototype.registerLayout = function (step, regionList, gridSet) {
-      var index;
-      var grid = gridSet.getItem(step.grid);
+    LayoutManager.prototype.registerLayout = function (step, gridList) {
+      var index, fn;
+      var grid = gridList.getItem(step.grid);
       var layout = new RLD.Layout({
-        'step': step, 
-        'regionList': regionList,
+        'regionList': this.regionList,
+        'step': step,
         'grid': grid
       });
-      this.layouts.addItem(layout);
+      this.layouts.push(layout);
       // Update Managers
-      this.stepManager.addStep({'step': step, 'layout': layout});
+      this.stepManager.addItem(step);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.switchStep = function (event) {
+      var step = this.stepManager.info('activeStep');
+      var id = this.stepManager.info('activeStep').info('breakpoint');
+      var $screen = this.$layouts.find('.screen');
+      var i, layout, lstep;
+      $screen.children().remove();
+      // Get the active step and layout.
+      for (i = 0; i < this.layouts.length; i++) {
+        layout = this.layouts[i];
+        lstep = layout.step;
+        if (lstep['machine_name'] === step['machine_name']) {          
+          this.$layouts.find('.screen').append(
+            this.layouts[i].build()
+          );
+        }
+      }
     };
     
     return LayoutManager;

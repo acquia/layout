@@ -25,12 +25,11 @@
       });
     };
     
-    Layout.prototype.build = function () {
+    Layout.prototype.build = function (options) {
+      this.$editor = $('<div>', {});
       var regions = this.regionList.info('items');
-      this.$editor = $('<div>', {
-        'class': 'layout'
-      });
-      var i;
+      var i, fn;
+      // Build rows and regions.
       if (regions.length > 0) {
         for (i = 0; i < regions.length; i++) {
           $('<div>', {

@@ -20,7 +20,7 @@
       var plugin = 'InitClass';
 
       function InitClass() {
-        this.$editor = $();
+        this.$editor = $('<div>', {});
         this.listeners = {};
         this.items = [];
       }
@@ -194,7 +194,6 @@
         'class': 'rld-application'
       });
       // Instansiate Editors.
-      this.layoutManager = new RLD.LayoutManager();
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
       if ('regions' in this) {
@@ -207,7 +206,7 @@
         this.log('[RLD | ' + plugin + '] No regions provided.');
       }
       if ('steps' in this) {
-        this.stepSet = new RLD.StepList({
+        this.stepList = new RLD.StepList({
           'steps': this.steps
         });
         delete this.steps;
@@ -216,7 +215,7 @@
         this.log('[RLD | ' + plugin + '] No steps provided.');
       }
       if ('grids' in this) {
-        this.gridSet = new RLD.GridList({
+        this.gridList = new RLD.GridList({
           'grids': this.grids
         });
         delete this.grids;
@@ -224,12 +223,14 @@
       else {
         this.log('[RLD | ' + plugin + '] No grids provided.');
       }
+      // Create a layout manager.
+      this.layoutManager = new RLD.LayoutManager({'regionList': this.regionList});
       // For every step we'll register a layout.
-      steps = this.stepSet.info('items');
+      steps = this.stepList.info('items');
       // Create obects for each composite.
       for (i = 0; i < steps.length; i++) {
         // Save the composition elements into a unit.
-        this.layoutManager.registerLayout(steps[i], this.regionList, this.gridSet);
+        this.layoutManager.registerLayout(steps[i], this.gridList);
       }
     };
     /**

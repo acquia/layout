@@ -16,7 +16,7 @@
 
 /* @group Region and row styles */
 
-.rld-application .layout {
+.rld-application .rld-layouts {
   position: relative;
 }
 
@@ -25,8 +25,8 @@
   margin-top: 15px;
   -webkit-user-select: none;
 }
-.rld-application .layout .placeholder,
-.rld-application .layout .region {
+.rld-application .rld-layouts .placeholder,
+.rld-application .rld-layouts .region {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -34,16 +34,16 @@
   height: 4em;
   position: relative;
 }
-.rld-application .layout .region {
+.rld-application .rld-layouts .region {
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
 }
-.rld-application .layout .placeholder {
+.rld-application .rld-layouts .placeholder {
   outline-offset: -5px;
   overflow: hidden;
   width: 0;
 }
-.rld-application .layout .region .region-close {
+.rld-application .rld-layouts .region .region-close {
   position: absolute;
   right: 2em;
   top: 5px;
@@ -72,6 +72,10 @@
 .rld-application .splitter {
   
 }
+
+/* @end */
+
+/* @grid */
 
 /* @group Sortable */
 
