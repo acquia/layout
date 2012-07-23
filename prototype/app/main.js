@@ -61,12 +61,12 @@
       /**
        *
        */
-      InitClass.prototype.info = function (property, value) {      
+      InitClass.prototype.info = function (property, value) {              
+        if (value !== undefined) {
+          this[property] = value;
+          return;
+        }
         if (property in this) {
-          if (value !== undefined) {
-            this[property] = value;
-            return;
-          }
           return this[property];
         }
         return;

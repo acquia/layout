@@ -7,6 +7,8 @@
   width: 100%;
 }
 .rld-screen {
+  margin: 0 auto;
+  max-width: 1024px;
   text-align: center;
 }
 .rld-iframe {

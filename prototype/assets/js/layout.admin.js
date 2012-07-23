@@ -63,7 +63,7 @@ $(document).ready(function (event) {
       {
         'label': 'Phone Landscape',
         'machine_name': 'landscape',
-        'breakpoint': '350',
+        'breakpoint': '240',
         'grid': 'gridpak_6',
         'regions':[
           {
@@ -75,7 +75,7 @@ $(document).ready(function (event) {
       {
         'label': 'Tablet',
         'machine_name': 'tablet',
-        'breakpoint': '760',
+        'breakpoint': '320',
         'grid': 'gridpak_10',
         'regions':[
           {
@@ -87,7 +87,7 @@ $(document).ready(function (event) {
       {
         'label': 'Desktop',
         'machine_name': 'desktop',
-        'breakpoint': '960',
+        'breakpoint': '720',
         'grid': 'gridpak_12',
         'regions':[
           {

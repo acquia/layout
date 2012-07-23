@@ -117,7 +117,7 @@
         layout = this.layouts[i];
         lstep = layout.step;
         if (lstep['machine_name'] === step['machine_name']) {
-          var $frame = this.requestFrame('assets/html/preview-iframe.html')
+          var $frame = this.requestFrame('assets/html/preview-iframe.html', step.info('size'))
           .load(function () {
             $(this.contentDocument)
             .find('body')
@@ -125,38 +125,18 @@
           });
           // Append the frame to the screen.
           $screen
-          .append($frame);
+          .html($frame);
         }
       }
     };
     /**
      *
      */
-    LayoutManager.prototype.buildFrame = function (layout) {
-      $.ajax({
-        'url': 'assets/empty.html',
-        'success': this.requestFrame,
-        'error': function (jqXHR, textStatus, errorThrown) {
-          that.log('ajax request for empty.html failed.');
-        },
-        'statusCode': {
-          404: function() {
-            that.log("page not found");
-          }
-        }
-      });
-      var layout = this;
-      
-      return $frame;
-    };
-    /**
-     *
-     */
-    LayoutManager.prototype.requestFrame = function (src) {
+    LayoutManager.prototype.requestFrame = function (src, width) {
       return $frame = $('<iframe>', {
         'id': 'rld-layout-previewer',
         'src': src,
-        'width': 300,
+        'width': width,
         'height': 500
       })
       .css({

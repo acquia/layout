@@ -25,6 +25,9 @@
       else {
         this.log('[RLD | ' + plugin + '] The list has no items at setup.');
       }
+      // Calculate the step sizes.
+      this.processStepSizes();
+      
     };
     /**
      *
@@ -47,6 +50,32 @@
     StepList.prototype.update = function (type, list) {
       this.stepItems = type;
       this.triggerEvent('stepOrderUpdated', this);
+    };
+    /**
+     * @Todo, the steps will need to be sorted by breakpoint
+     * before the sizes can be calculated.
+     */
+    StepList.prototype.processStepSizes = function () {
+      var i;
+      if ('items' in this) {
+        var i, k, step, breakMin, breakMax, size;
+        for (i = 0; i < this.items.length; i++) {
+          step = this.items[i];
+          breakMin = Number(step.info('breakpoint'));
+          if (this.items[i + 1] !== undefined) {
+            breakMax = Number(this.items[i + 1].info('breakpoint'));
+            size = breakMax - breakMin;
+            // Add all of the previous breakpoint sizes to this step size.
+            if (i > 0) {
+              size += this.items[i - 1].info('size');
+            }
+          }
+          else {
+            size = '100%'; // First time I've used Infinity!
+          }
+          this.items[i].info('size', size);
+        }
+      }
     };
 
     return StepList;
