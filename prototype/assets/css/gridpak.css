@@ -8,7 +8,7 @@
  
 
 /* Reusable column setup */
-.col {
+.rld-col {
   border:0px solid rgba(0,0,0,0);
   float:left;
   -webkit-box-sizing:border-box;
@@ -32,12 +32,12 @@ Span 3:    100%
 
 @media screen and (min-width: 0px) and (max-width: 349px) {
 
-  .col {
+  .rld-col {
     margin-left:1%;
     padding:0 0.5%;
   }
   
-  .row .col:first-child {
+  .rld-row .rld-col:first-child {
     margin-left:0;
   }
   
@@ -45,19 +45,19 @@ Span 3:    100%
   /*
   Add your semantic classnames in alongside their corresponding spans here. e.g.
   
-  .span_3,
+  .rld-span_3,
   .my_semantic_class_name {
   ...
   }
   */
   
-  .span_1 {
+  .rld-span_1 {
     width:32.6666666667%;
   }
-  .span_2 {
+  .rld-span_2 {
     width:66.3333333333%;
   }
-  .span_3 {
+  .rld-span_3 {
     margin-left:0;
     width:100%;
   }
@@ -77,29 +77,29 @@ Span 6:    100%
 
 @media screen and (min-width: 350px) and (max-width: 759px) {
 
-  .col {
+  .rld-col {
     margin-left:1%;
     padding:0 0.5%;
   }
-  .row .col:first-child { 
+  .rld-row .rld-col:first-child { 
   margin-left:0;
   }
-  .span_1 {
+  .rld-span_1 {
     width:15.8333333333%;
   }
-  .span_2 {
+  .rld-span_2 {
     width:32.6666666667%;
   }
-  .span_3 {
+  .rld-span_3 {
     width:49.5%;
   }
-  .span_4 {
+  .rld-span_4 {
     width:66.3333333333%;
   }
-  .span_5 {
+  .rld-span_5 {
     width:83.1666666667%;
   }
-  .span_6 {
+  .rld-span_6 {
     margin-left:0;
     width:100%;
   }
@@ -123,41 +123,41 @@ Span 10:    100%
 
 @media screen and (min-width: 760px) and (max-width: 959px) {
 
-  .col {
+  .rld-col {
     margin-left:1%;
     padding:0 0.5%;
   }
-  .row .col:first-child {
+  .rld-row .rld-col:first-child {
     margin-left:0;
   }
-  .span_1 {
+  .rld-span_1 {
     width:9.1%;
   }
-  .span_2 {
+  .rld-span_2 {
     width:19.2%;
   }
-  .span_3 {
+  .rld-span_3 {
     width:29.3%;
   }
-  .span_4 {
+  .rld-span_4 {
     width:39.4%;
   }
-  .span_5 {
+  .rld-span_5 {
     width:49.5%;
   }
-  .span_6 {
+  .rld-span_6 {
     width:59.6%;
   }
-  .span_7 {
+  .rld-span_7 {
     width:69.7%;
   }
-  .span_8 {
+  .rld-span_8 {
     width:79.8%;
   }
-  .span_9 {
+  .rld-span_9 {
     width:89.9%;
   }
-  .span_10 {
+  .rld-span_10 {
     margin-left:0;
     width:100%;
   }
@@ -183,47 +183,47 @@ Span 12:    100%
 
 @media screen and (min-width: 960px) {
 
-  .col {
+  .rld-col {
     margin-left:1%;
     padding:0 0.5%;
   }
-  .row .col:first-child {
+  .rld-row .rld-col:first-child {
     margin-left:0;
   }
-  .span_1 {
+  .rld-span_1 {
     width:7.41666666667%;
   }
-  .span_2 {
+  .rld-span_2 {
     width:15.8333333333%;
   }
-  .span_3 {
+  .rld-span_3 {
     width:24.25%;
   }
-  .span_4 {
+  .rld-span_4 {
     width:32.6666666667%;
   }
-  .span_5 {
+  .rld-span_5 {
     width:41.0833333333%;
   }
-  .span_6 {
+  .rld-span_6 {
     width:49.5%;
   }
-  .span_7 {
+  .rld-span_7 {
     width:57.9166666667%;
   }
-  .span_8 {
+  .rld-span_8 {
     width:66.3333333333%;
   }
-  .span_9 {
+  .rld-span_9 {
     width:74.75%;
   }
-  .span_10 {
+  .rld-span_10 {
     width:83.1666666667%;
   }
-  .span_11 {
+  .rld-span_11 {
     width:91.5833333333%;
   }
-  .span_12 {
+  .rld-span_12 {
     margin-left:0;
     width:100%;
   }

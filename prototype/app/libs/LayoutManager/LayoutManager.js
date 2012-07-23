@@ -107,21 +107,21 @@
      *
      */
     LayoutManager.prototype.switchStep = function (event) {
-      var step = this.stepManager.info('activeStep');
-      var id = this.stepManager.info('activeStep').info('breakpoint');
+      var activeStep = this.stepManager.info('activeStep');
+      var id = activeStep.info('breakpoint');
       var $screen = this.$layouts.find('.rld-screen');
-      var i, layout, lstep;
+      var i, layout;
       $screen.children().remove();
       // Get the active step and layout.
       for (i = 0; i < this.layouts.length; i++) {
         layout = this.layouts[i];
-        lstep = layout.step;
-        if (lstep['machine_name'] === step['machine_name']) {
-          var $frame = this.requestFrame('assets/html/preview-iframe.html', step.info('size'))
+        if (layout.step.info('machine_name') === activeStep.info('machine_name')) {          
+          var fn = $.proxy(layout.build, layout);
+          var $frame = this.requestFrame('assets/html/preview-iframe.html', layout.step.info('size'))
           .load(function () {
             $(this.contentDocument)
             .find('body')
-            .append(layout.build())
+            .append(fn);
           });
           // Append the frame to the screen.
           $screen

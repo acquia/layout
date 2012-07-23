@@ -29,23 +29,48 @@ $(document).ready(function (event) {
 
   // Attach a BreakPoint editor
   var editor = new ResponsiveLayoutDesigner({
-    'regions': {
-      'body': "Body",
-      'footer_a': "Footer A",
-      'footer_b': "Footer B",
-      'footer_c': "Footer C",
-      'header_a': "Header A",
-      'header_b': "Header B",
-      'header_c': "Header C",
-      'navigation': "Navigation",
-      'sidebar_a': "Sidebar A",
-      'sidebar_b': "Sidebar B",
-      'sidebar_c': "Sidebar C",
-      'subheader_a': "Subheader A",
-      'subheader_b': "Subheader B",
-      'subheader_c': "Subheader C",
-      'title': "Title"
-    },
+    'regions': [
+      {
+        'machine_name': 'header_a',
+        'label': 'Header A'
+      },
+      {
+        'machine_name': 'header_b',
+        'label': "Header B"
+      },
+      {
+        'machine_name': 'header_c',
+        'label': 'Header C'
+      },
+      {
+        'machine_name': 'body',
+        'label': 'Body'
+      },
+      {
+        'machine_name': 'navigation',
+        'label': 'Navigation'
+      },
+      {
+        'machine_name': 'sidebar_a',
+        'label': 'Sidebar A'
+      },
+      {
+        'machine_name': 'sidebar_b',
+        'label': 'Sidebar B'
+      },
+      {
+        'machine_name': 'footer_a',
+        'label': 'Footer A'
+      },
+      {
+        'machine_name': 'footer_b',
+        'label': 'Footer B'
+      },
+      {
+        'machine_name': 'footer_c',
+        'label': 'Footer C'
+      }
+    ],
     /* A layout is a series of overrides on a basic RegionList. */
     'steps': [
       {
@@ -57,13 +82,17 @@ $(document).ready(function (event) {
           {
             'machine_name': 'header_a',
             'columns': 1
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
           }
         ]
       },
       {
         'label': 'Phone Landscape',
         'machine_name': 'landscape',
-        'breakpoint': '240',
+        'breakpoint': '320',
         'grid': 'gridpak_6',
         'regions':[
           {
@@ -75,7 +104,7 @@ $(document).ready(function (event) {
       {
         'label': 'Tablet',
         'machine_name': 'tablet',
-        'breakpoint': '320',
+        'breakpoint': '720',
         'grid': 'gridpak_10',
         'regions':[
           {
@@ -87,7 +116,7 @@ $(document).ready(function (event) {
       {
         'label': 'Desktop',
         'machine_name': 'desktop',
-        'breakpoint': '720',
+        'breakpoint': '940',
         'grid': 'gridpak_12',
         'regions':[
           {

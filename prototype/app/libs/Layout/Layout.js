@@ -28,15 +28,25 @@
     Layout.prototype.build = function (options) {
       this.$editor = $('<div>', {});
       var regions = this.regionList.info('items');
-      var i, fn;
+      var step = this.step;
+      // The size of a region may be overridden in this step.
+      var regionOverrides = step.info('regions');
+      var i, k, fn, region;
       // Build rows and regions.
       if (regions.length > 0) {
         for (i = 0; i < regions.length; i++) {
+          var classes = ['rld-col'];
+          region = regions[i];
+          for (k = 0; k < regionOverrides.length; k++) {            
+            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+              classes.push('rld-span_' + regionOverrides[k].columns);
+            }  
+          }
           $('<div>', {
             'class': 'rld-row clearfix'
           })
           .append(regions[i].build({
-            'classes': ['rld-unit']
+            'classes': classes
           }))
           .appendTo(this.$editor);
         }

@@ -34,22 +34,21 @@
      */
     RegionList.prototype.processList = function (items) {
       var fn = $.proxy(this.eventBroadcaster, this);
-      var item, region;
-      for (item in items) {
-        if (items.hasOwnProperty(item)) {
-          region = new RLD.Region({
-            'label': items[item],
-            'machine_name': item
-          });
-          region.registerEventListener({
-            'regionClosed': fn,
-            'regionResized': fn,
-            'regionResizing': fn,
-            'regionResizeStarted': fn
-          });
-          
-          this.items.push(region);
-        }
+      var i, item, region;
+      for (i = 0; i < items.length; i++) {
+        item = items[i];
+        region = new RLD.Region({
+          'label': item['label'],
+          'machine_name': item['machine_name']
+        });
+        region.registerEventListener({
+          'regionClosed': fn,
+          'regionResized': fn,
+          'regionResizing': fn,
+          'regionResizeStarted': fn
+        });
+        
+        this.items.push(region);
       }
     };
     /**
