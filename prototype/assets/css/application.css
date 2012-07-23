@@ -24,8 +24,6 @@
 }
 
 .rld-row {
-  margin-bottom: 15px;
-  margin-top: 15px;
   -webkit-user-select: none;
 }
 .rld-placeholder,
@@ -38,6 +36,7 @@
   position: relative;
 }
 .rld-region {
+  margin-bottom: 15px;
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
 }

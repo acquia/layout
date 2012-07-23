@@ -29,23 +29,42 @@
       this.$editor = $('<div>', {});
       var regions = this.regionList.info('items');
       var step = this.step;
+      var grid = this.grid;
+      var count = 0;
       // The size of a region may be overridden in this step.
       var regionOverrides = step.info('regions');
+      var $row;
       var i, k, fn, region;
       // Build rows and regions.
       if (regions.length > 0) {
         for (i = 0; i < regions.length; i++) {
+          var override = undefined;
+          if ((count === 0) || (count >= grid.columns)) {
+            $row = $('<div>', {
+              'class': 'rld-row clearfix'
+            });
+            count = 0;
+          }
           var classes = ['rld-col'];
           region = regions[i];
-          for (k = 0; k < regionOverrides.length; k++) {            
-            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
-              classes.push('rld-span_' + regionOverrides[k].columns);
-            }  
+          if (regionOverrides.length > 0) {
+            for (k = 0; k < regionOverrides.length; k++) {         
+              if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+                override = regionOverrides[k];
+                break;
+              }
+            }
           }
-          $('<div>', {
-            'class': 'rld-row clearfix'
-          })
-          .append(regions[i].build({
+          if (override !== undefined) {
+            classes.push('rld-span_' + override.columns);
+            count += override.columns;
+          }
+          else {
+            classes.push('rld-span_' + grid.columns);
+            count = 0;
+          }
+          
+          $row.append(regions[i].build({
             'classes': classes
           }))
           .appendTo(this.$editor);

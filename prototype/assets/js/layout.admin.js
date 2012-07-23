@@ -43,16 +43,16 @@ $(document).ready(function (event) {
         'label': 'Header C'
       },
       {
-        'machine_name': 'body',
-        'label': 'Body'
-      },
-      {
         'machine_name': 'navigation',
         'label': 'Navigation'
       },
       {
         'machine_name': 'sidebar_a',
         'label': 'Sidebar A'
+      },
+      {
+        'machine_name': 'body',
+        'label': 'Body'
       },
       {
         'machine_name': 'sidebar_b',
@@ -98,6 +98,10 @@ $(document).ready(function (event) {
           {
             'machine_name': 'header_a',
             'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
           }
         ]
       },
@@ -110,6 +114,14 @@ $(document).ready(function (event) {
           {
             'machine_name': 'header_a',
             'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 2
           }
         ]
       },
@@ -121,7 +133,27 @@ $(document).ready(function (event) {
         'regions':[
           {
             'machine_name': 'header_a',
-            'columns': 6
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 4
+          },
+          {
+            'machine_name': 'sidebar_a',
+            'columns': 2
+          },
+          {
+            'machine_name': 'body',
+            'columns': 8
+          },
+          {
+            'machine_name': 'sidebar_b',
+            'columns': 2
           }
         ]
       }
