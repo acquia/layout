@@ -6,27 +6,28 @@
   visibility: hidden;
   width: 100%;
 }
-
-.rld-application .screen {
+.rld-screen {
+  text-align: center;
+}
+.rld-iframe {
   margin: 0 auto;
-  width: 450px;
 }
 
 /* @group Layout */
 
 /* @group Region and row styles */
 
-.rld-application .rld-layouts {
+.rld-layouts {
   position: relative;
 }
 
-.rld-application .row {
+.rld-row {
   margin-bottom: 15px;
   margin-top: 15px;
   -webkit-user-select: none;
 }
-.rld-application .rld-layouts .placeholder,
-.rld-application .rld-layouts .region {
+.rld-placeholder,
+.rld-region {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -34,21 +35,21 @@
   height: 4em;
   position: relative;
 }
-.rld-application .rld-layouts .region {
+.rld-region {
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
 }
-.rld-application .rld-layouts .placeholder {
+.rld-placeholder {
   outline-offset: -5px;
   overflow: hidden;
   width: 0;
 }
-.rld-application .rld-layouts .region .region-close {
+.rld-region .rld-region-close {
   position: absolute;
   right: 2em;
   top: 5px;
 }
-.rld-application .splitter {
+.rld-splitter {
   background: #555 url('../images/grippie.png') center center no-repeat;
   bottom: 0;
 	cursor: e-resize;	/* in case col-resize isn't supported */
@@ -59,18 +60,14 @@
   width: 11px;
   z-index: 1;
 }
-.rld-application .splitter.splitter-left {
+.rld-splitter-left {
   left: 0;
 }
-.rld-application .splitter.splitter-right {
+.rld-splitter-right {
   right: 0;
 }
-.rld-application .splitter.splitter-active {
+.rld-splitter-active {
   background: url('../images/grippie-active.png') 0 -3px;
-}
-
-.rld-application .splitter {
-  
 }
 
 /* @end */

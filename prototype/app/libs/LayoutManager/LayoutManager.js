@@ -78,7 +78,7 @@
         this.$layouts
         .append(
           $('<div>', {
-            'class': 'screen clearfix',
+            'class': 'rld-screen clearfix',
           })
         )
       );
@@ -109,19 +109,61 @@
     LayoutManager.prototype.switchStep = function (event) {
       var step = this.stepManager.info('activeStep');
       var id = this.stepManager.info('activeStep').info('breakpoint');
-      var $screen = this.$layouts.find('.screen');
+      var $screen = this.$layouts.find('.rld-screen');
       var i, layout, lstep;
       $screen.children().remove();
       // Get the active step and layout.
       for (i = 0; i < this.layouts.length; i++) {
         layout = this.layouts[i];
         lstep = layout.step;
-        if (lstep['machine_name'] === step['machine_name']) {          
-          this.$layouts.find('.screen').append(
-            this.layouts[i].build()
-          );
+        if (lstep['machine_name'] === step['machine_name']) {
+          var $frame = this.requestFrame('assets/html/preview-iframe.html')
+          .load(function () {
+            $(this.contentDocument)
+            .find('body')
+            .append(layout.build())
+          });
+          // Append the frame to the screen.
+          $screen
+          .append($frame);
         }
       }
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.buildFrame = function (layout) {
+      $.ajax({
+        'url': 'assets/empty.html',
+        'success': this.requestFrame,
+        'error': function (jqXHR, textStatus, errorThrown) {
+          that.log('ajax request for empty.html failed.');
+        },
+        'statusCode': {
+          404: function() {
+            that.log("page not found");
+          }
+        }
+      });
+      var layout = this;
+      
+      return $frame;
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.requestFrame = function (src) {
+      return $frame = $('<iframe>', {
+        'id': 'rld-layout-previewer',
+        'src': src,
+        'width': 300,
+        'height': 500
+      })
+      .css({
+        'overflow': 'hidden',
+        'border': '0 none'
+      })
+      .addClass('rld-iframe');
     };
     
     return LayoutManager;

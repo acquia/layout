@@ -80,11 +80,11 @@ body {
 
 /* @group Layouts */
 
-.rld-layouts .region {
+.rld-region {
   background-color: #555;
   color: white;
 }
-.rld-layouts .placeholder {
+.rld-placeholder {
   outline: 1px dashed #31cbff;
   background-color: white;
   color: #ccc;

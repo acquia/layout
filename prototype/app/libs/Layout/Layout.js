@@ -33,10 +33,10 @@
       if (regions.length > 0) {
         for (i = 0; i < regions.length; i++) {
           $('<div>', {
-            'class': 'row clearfix'
+            'class': 'rld-row clearfix'
           })
           .append(regions[i].build({
-            'classes': ['unit']
+            'classes': ['rld-unit']
           }))
           .appendTo(this.$editor);
         }
@@ -59,7 +59,7 @@
       var regionList = [];
       var i;
       // Get the region objects in their new order.
-      var $regions = ui.sender.find('.region');
+      var $regions = ui.sender.find('.rld-region');
       for (i = 0; i < $regions.length; i++) {
         regionList.push($($regions[i]).data('RLD/Region'));
       }
@@ -70,7 +70,7 @@
       switch (event.type) {
       case 'regionResizeStarted':
         var $this = data.$object;
-        var $currentRow = $this.closest('.row');
+        var $currentRow = $this.closest('.rld-row');
         if (data.siblings['$' + data.side].length === 0) {
           var $placeholder = this.buildPlaceholder();
           $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($this);
@@ -81,13 +81,13 @@
         break;
       case 'regionResized':
         var $this = data.$object;
-        var $currentRow = $this.closest('.row');
+        var $currentRow = $this.closest('.rld-row');
         var placeholders = {
           '$left': $currentRow.find('.placeholder:first'),
           '$right': $currentRow.find('.placeholder:last')
         };
-        var $nextRow = $currentRow.next('.row');
-        var $candidateRegion = $nextRow.find('.region');
+        var $nextRow = $currentRow.next('.rld-row');
+        var $candidateRegion = $nextRow.find('.rld-region');
         if ($candidateRegion.length > 0) {
           var $shiftedRegion = $candidateRegion.detach();
           var width = placeholders['$' + data.side].width();
@@ -106,7 +106,7 @@
     };
     
     Layout.prototype.updateRow = function ($row) {
-      var $regions = $row.find('.region');
+      var $regions = $row.find('.rld-region');
       if ($regions.length === 0) {
         $row.slideUp(function () {$(this).remove()});
       }
@@ -116,7 +116,7 @@
     
     Layout.prototype.buildPlaceholder = function () {
       return $('<div>', {
-        'class': 'placeholder unit'
+        'class': 'rld-placeholder unit'
       });
     };
     

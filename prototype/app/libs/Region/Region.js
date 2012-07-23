@@ -12,7 +12,7 @@
       var $region = this.info('$editor');
       var $delegator = $(event.getDelegator());
       var $splitter = $(event.target);
-      var $row = $region.closest('.row');
+      var $row = $region.closest('.rld-row');
       $delegator.sortable('disable');
       // Since the resize function will be called on mousemove, we don't want
       // to calculate the state of the row's region more than once. So we
@@ -24,8 +24,8 @@
       data.side = $splitter.data('RLD/Region/Splitter-side');
       data.width = $region.outerWidth();
       data.siblings = {
-        '$left': $region.prevAll('.region'),
-        '$right': $region.nextAll('.region')
+        '$left': $region.prevAll('.rld-region'),
+        '$right': $region.nextAll('.rld-region')
       };
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
@@ -101,10 +101,10 @@
 
     function close(event) {
       event.stopPropagation();
-      var $region = $(this).closest('.region');
+      var $region = $(this).closest('.rld-region');
       // If region has no siblings, hide row. Otherwise, hide region.
       if ($region.prev().length === 0 && $region.next().length === 0) {
-        $region.closest('.row').remove();
+        $region.closest('.rld-row').remove();
       }
       else {
         $region.remove();
@@ -127,13 +127,13 @@
      */
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
-      var classes = ['region'];
+      var classes = ['rld-region'];
       var fn;
       if ('classes' in options && 'length' in options.classes && options.classes.length > 0) {
         classes = classes.concat(options.classes).join(' ');
       }
       this.$editor = $('<div>', {
-        'id': 'region-' + this.label.split(' ').join('_'),
+        'id': 'rld-region-' + this.label.split(' ').join('_'),
         'class': classes,
         'html': $('<p>', {
           'text': 'Region ' + this.label
@@ -141,18 +141,18 @@
       })
       .prepend(
         $('<div>', {
-          'class': 'splitter splitter-left'
+          'class': 'rld-splitter rld-splitter-left'
         })
         .data('RLD/Region/Splitter-side', 'left')
       )
       .append($('<a>', {
-        'class': 'region-close',
+        'class': 'rld-region-close',
         'href': '#',
         'text': 'Close'
       }))
       .append(
         $('<div>', {
-          'class': 'splitter splitter-right'
+          'class': 'rld-splitter rld-splitter-right'
         })
         .data('RLD/Region/Splitter-side', 'right')
       )
@@ -160,10 +160,10 @@
       // Region behaviors.
       fn = $.proxy(close, this);
       this.$editor
-      .delegate('.region-close', 'mousedown.ResponsiveLayoutDesigner', close);
+      .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', close);
       fn = $.proxy(startResize, this);
       this.$editor
-      .delegate('.region .splitter', 'mousedown.ResponsiveLayoutDesigner', fn);
+      .delegate('.rld-region .rld-splitter', 'mousedown.ResponsiveLayoutDesigner', fn);
     
       return this.$editor;
     };
