@@ -41,8 +41,7 @@
         this.items.push(new RLD.Grid({
           'machine_name': items[i].machine_name,
           'columns': items[i].columns,
-          'gutter': items[i].gutter,
-          'padding': items[i].padding 
+          'classes': items[i].classes
         }));
       }
     };

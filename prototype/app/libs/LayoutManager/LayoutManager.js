@@ -1,4 +1,4 @@
-(function (RLD, $) {
+(function (RLD, $, _) {
   /**
    * LayoutManager editor provides functionality to display, add and remove
    * layout representations across arbitrary, user-defined breakpoint limits.
@@ -110,44 +110,38 @@
       var activeStep = this.stepManager.info('activeStep');
       var id = activeStep.info('breakpoint');
       var $screen = this.$layouts.find('.rld-screen');
+      var $layout = $('<div>', {
+        'class': 'rld-layout'
+      });
       var i, layout;
-      $screen.children().remove();
+      // Clear out the current screen.
+      $screen.children('.rld-layout').slideUp(80, function () {
+        $(this).remove();
+      });
       // Get the active step and layout.
       for (i = 0; i < this.layouts.length; i++) {
         layout = this.layouts[i];
         if (layout.step.info('machine_name') === activeStep.info('machine_name')) {          
-          var fn = $.proxy(layout.build, layout);
-          var $frame = this.requestFrame('assets/html/preview-iframe.html', layout.step.info('size'))
-          .load(function () {
-            $(this.contentDocument)
-            .find('body')
-            .append(fn);
+          var gridClasses = layout.info('grid').info('classes') || [];
+          if (gridClasses.length > 0) {
+            $screen.addClass();
+          }
+          $screen.animate({
+            width: layout.step.info('size')
           });
           // Append the frame to the screen.
           $screen
-          .html($frame);
+          .append(
+            $layout
+            .addClass(gridClasses.join(' '))
+            .html(layout.build())
+          );
         }
       }
     };
-    /**
-     *
-     */
-    LayoutManager.prototype.requestFrame = function (src, width) {
-      return $frame = $('<iframe>', {
-        'id': 'rld-layout-previewer',
-        'src': src,
-        'width': width,
-        'height': 500
-      })
-      .css({
-        'overflow': 'hidden',
-        'border': '0 none'
-      })
-      .addClass('rld-iframe');
-    };
-    
+
     return LayoutManager;
     
   }());
 
-}(ResponsiveLayoutDesigner, jQuery));
+}(ResponsiveLayoutDesigner, jQuery, _));
