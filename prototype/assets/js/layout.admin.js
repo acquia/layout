@@ -200,8 +200,12 @@ $(document).ready(function (event) {
   // Register event listeners.
   editor.registerEventListener({
     'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
-    'regionClosed': ResponsiveLayoutDesignerEventHandler,
-    'layoutSaved': ResponsiveLayoutDesignerEventHandler
+    'layoutSaved': ResponsiveLayoutDesignerEventHandler,
+    'regionRemoved': ResponsiveLayoutDesignerEventHandler,
+    'regionAdded': ResponsiveLayoutDesignerEventHandler,
+    'regionResized': ResponsiveLayoutDesignerEventHandler,
+    'regionResizing': ResponsiveLayoutDesignerEventHandler,
+    'regionResizeStarted': ResponsiveLayoutDesignerEventHandler
   });
   // Insert the editor in the DOM.
   editor.build().appendTo('#responsive-layout-designer');

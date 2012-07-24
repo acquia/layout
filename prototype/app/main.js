@@ -185,19 +185,18 @@
     /**
      * Implement the init() interface.
      */
-    ResponsiveLayoutDesigner.prototype.setup = function (options) {
+    ResponsiveLayoutDesigner.prototype.setup = function () {
       // Merge in user options.
-      var arg = arguments;
-      var i, steps;
+      var regionList,stepList, gridList;
       // Create the application root node.
       this.$editor = $('<div>', {
         'class': 'rld-application'
       });
-      // Instansiate Editors.
+      // Instansiate the LayoutManager.
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
       if ('regions' in this) {
-        this.regionList = new RLD.RegionList({
+        regionList = new RLD.RegionList({
           'regions': this.regions
         });
         delete this.regions;
@@ -206,7 +205,7 @@
         this.log('[RLD | ' + plugin + '] No regions provided.');
       }
       if ('steps' in this) {
-        this.stepList = new RLD.StepList({
+        stepList = new RLD.StepList({
           'steps': this.steps
         });
         delete this.steps;
@@ -215,7 +214,7 @@
         this.log('[RLD | ' + plugin + '] No steps provided.');
       }
       if ('grids' in this) {
-        this.gridList = new RLD.GridList({
+        gridList = new RLD.GridList({
           'grids': this.grids
         });
         delete this.grids;
@@ -224,14 +223,11 @@
         this.log('[RLD | ' + plugin + '] No grids provided.');
       }
       // Create a layout manager.
-      this.layoutManager = new RLD.LayoutManager({'regionList': this.regionList});
-      // For every step we'll register a layout.
-      steps = this.stepList.info('items');
-      // Create obects for each composite.
-      for (i = 0; i < steps.length; i++) {
-        // Save the composition elements into a unit.
-        this.layoutManager.registerLayout(steps[i], this.gridList);
-      }
+      this.layoutManager = new RLD.LayoutManager({
+        'stepList': stepList,
+        'regionList': regionList,
+        'gridList': gridList
+      });
     };
     /**
      * Generate a view of the class instance.
@@ -263,14 +259,7 @@
       // Loop through the listeners and register them.
       for (e in listeners) {
         if (listeners.hasOwnProperty(e)) {
-          switch (e) {
-          case 'regionOrderUpdated':
-          case 'regionClosed':
-            this.regionList.registerEventListener(e, listeners[e]);
-            break;
-          default:
-            break;
-          }
+          this.layoutManager.registerEventListener(e, listeners[e]);
         }
       }
     };

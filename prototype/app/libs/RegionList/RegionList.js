@@ -42,12 +42,13 @@
           'machine_name': item['machine_name']
         });
         region.registerEventListener({
-          'regionClosed': fn,
-          'regionResized': fn,
+          'regionAdded': fn,
+          'regionRemoved': fn,
           'regionResizing': fn,
-          'regionResizeStarted': fn
+          'regionResizeStarted': fn,
+          'regionResized': fn
         });
-        
+        // Add the new region to the list.
         this.items.push(region);
       }
     };
@@ -56,7 +57,6 @@
      */
     RegionList.prototype.update = function (type, list) {
       this.items = type;
-      this.triggerEvent('regionOrderUpdated', this);
     };
 
     return RegionList;
