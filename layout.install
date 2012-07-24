@@ -74,5 +74,58 @@ function layout_schema() {
     ),
     'primary key' => array('machine_name'),
   );
+  $schema['layout_grid'] = array(
+    'description' => 'Information about common grids for responsive layouts.',
+    'export' => array(
+      'key' => 'name',
+      'identifier' => 'layout_grid', // Exports will be defined as $layout_grid.
+      'default hook' => 'default_layout_grid',  // Function hook name.
+      'api' => array(
+        'owner' => 'layout',
+        'api' => 'default_layout_grid',  // Base name for api include files.
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
+    'fields' => array(
+      'grid_id' => array(
+        'description' => 'Serial ID for this grid.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Machine name for this grid.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'admin_title' => array(
+        'description' => 'User visible label for this grid.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'width' => array(
+        'description' => 'Pixel or em value for the breakpoint (eg. 780px, 23em, etc).',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'css' => array(
+        'description' => 'Grid CSS style.',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('grid_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
   return $schema;
 }

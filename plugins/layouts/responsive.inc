@@ -265,7 +265,7 @@ function theme_layout_responsive($vars) {
 
   // Embed the grid css inline for now. Yeah, I know this is evil.
   // It is just a prototype for now, ok? I know it is evil. Yes.
-  $grid_css = layout_get_grid_css();
+  $grid_css = layout_grid_get_css();
   return '<div class="panel-responsive clearfix"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
 }
 

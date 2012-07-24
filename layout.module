@@ -44,16 +44,17 @@ function layout_menu() {
     'file' => 'layout.admin.regions.inc',
   );
 
-  // Grids.
-  $items['admin/structure/panels/layouts/grids'] = array(
-    'title' => 'Responsive grids',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'layout_admin_grids',
-    'access arguments' => array('administer layouts'),
-    'weight' => 10,
-    'file' => 'layout.admin.grids.inc',
-  );
   return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function layout_menu_alter(&$items) {
+  // Convert the automatically created ctools menu item to a local task.
+  if (isset($items['admin/structure/panels/layouts/grids'])) {
+    $items['admin/structure/panels/layouts/grids']['type'] = MENU_LOCAL_TASK;
+  }
 }
 
 /**
@@ -84,10 +85,12 @@ function layout_theme() {
  * Implements hook_ctools_plugin_directory().
  */
 function layout_ctools_plugin_directory($owner, $plugin_type) {
-  if ($owner == 'panels' && $plugin_type == 'layouts') {
+  if (($owner == 'panels' && $plugin_type == 'layouts') || ($owner == 'ctools' && $plugin_type =='export_ui')) {
     return "plugins/$plugin_type";
   }
 }
+
+// == Regions =================================================================
 
 /**
  * Add or update region in common set of regions.
@@ -189,28 +192,68 @@ function layout_get_layouts_using_region($machine_name) {
   return $layouts_using_region;
 }
 
+// == Grids ===================================================================
+
 /**
- * API function to get all responsive grids on the site.
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_layout_grid API.
  */
-function layout_get_grids() {
-  return variable_get('layout_grids', array());
+function layout_ctools_plugin_api($owner, $api) {
+  if ($owner == 'layout' && $api == 'default_layout_grid') {
+    return array('version' => 1);
+  }
 }
 
 /**
- * API function to set all responsive grids on the site.
+ * Implementation of hook_default_layout_grid().
+ *
+ * Provide a couple of default grids.
  */
-function layout_set_grids($grids) {
-  return variable_set('layout_grids', $grids);
+function layout_default_layout_grid() {
+  $export = array();
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'smartphone';
+  $grid->admin_title = 'Smartphone';
+  $grid->width = '320px';
+  $grid->css = '.panel-responsive { background-color: yellow; }';
+  $export['smatphone'] = $grid;
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'tablet';
+  $grid->admin_title = 'Tablet';
+  $grid->width = '760px';
+  $grid->css = '.panel-responsive { background-color: green; }';
+  $export['tablet'] = $grid;
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'standard';
+  $grid->admin_title = 'Standard';
+  $grid->width = '960px';
+  $grid->css = '.panel-responsive { background-color: blue; }';
+  $export['standard'] = $grid;
+
+  return $export;
+}
+
+/**
+ * API function to get all responsive grids on the site.
+ */
+function layout_grid_load_all() {
+  $grids = ctools_export_crud_load_all('layout_grid');
+  uasort($grids, 'layout_grid_item_sort_by_width');
+  return $grids;
 }
 
 /**
  * Look up one grid setup based on machine name.
  */
-function layout_grid_load($machine_name) {
-  $grids = layout_get_grids();
-  if (isset($grids[$machine_name])) {
-    return $grids[$machine_name];
-  }
+function layout_grid_load($name) {
+  return ctools_export_crud_load('layout_grid', $name);
 }
 
 /**
@@ -220,15 +263,17 @@ function layout_grid_load($machine_name) {
  *   Figure out a good way to avoid equal max/min-weights in subsequent
  *   grids if that is a problem.
  */
-function layout_get_grid_css() {
-  $grids = layout_get_grids();
+function layout_grid_get_css() {
+  $grids = layout_grid_load_all();
 
   $grid_css = array();
   $min_width = 0;
 
-  foreach ($grids as $index => $grid) {
-    $first_grid = empty($min_width);
-    $last_grid = ($index == count($grids) -1);
+  $grid_count = count($grids);
+  $grid_index = 0;
+  foreach ($grids as $name => $grid) {
+    $first_grid = $grid_index == 0;
+    $last_grid = ($grid_index == ($grid_count - 1));
 
     // Build the media query for this grid. The first item should not have a
     // min-width (open ended to 0), and the last item should have no max-width
@@ -246,7 +291,21 @@ function layout_get_grid_css() {
     // Remember min-width for next grid if applicable. The grids are in
     // ascending width order, so we can rely on this sequence.
     $min_width = $grid->width;
+    $grid_index++;
   }
 
   return join("\n", $grid_css);
+}
+
+/**
+ * Sort the grids in ascending order by their width.
+ */
+function layout_grid_item_sort_by_width($a, $b) {
+  // Cast the width to int. Whether it provided as px or em, the cast should
+  // result in a relevant number. It will not sort mixed em/px numbers properly
+  // but that sounds like a broken setup. Not desigining for that.
+  if ((int) $a->width == (int) $b->width) {
+    return 0;
+  }
+  return ((int) $a->width < (int) $b->width) ? -1 : 1;
 }
