@@ -30,17 +30,27 @@
      *
      */
     LayoutList.prototype.processList = function (items) {
-      var i;
+      // The broadcaster just pipes events through.
+      var fn = $.proxy(this.eventBroadcaster, this);
+      var handlers = {};
+      var i, layout, listener;
+      // Get a list of the listeners to register on each Layout.
+      var listener;
+      for (listener in this.listeners) {
+        if (this.listeners.hasOwnProperty(listener)) {
+          handlers[listener] = fn;
+        }
+      }
       // Create obects for each composite.
       for (i = 0; i < items.length; i++) {
-        // Save the composition elements into a unit.
-        this.items.push(
-          new RLD.Layout({
-            'regionList': items[i].regionList,
-            'step': items[i].step,
-            'grid': items[i].grid
-          })
-        );
+        // Save the layout elements into a unit.
+        layout = new RLD.Layout({
+          'regionList': items[i].regionList,
+          'step': items[i].step,
+          'grid': items[i].grid
+        });
+        layout.registerEventListener(handlers);
+        this.items.push(layout);
       }
     };
     /**

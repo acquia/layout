@@ -87,9 +87,10 @@
     Layout.prototype.processEvent = function (event, data) {
       switch (event.type) {
       case 'regionAdded':
+        this.triggerEvent('regionAdded', this, data.object);
+        break;
       case 'regionRemoved':
-        var $this = data.$object;
-        $this.remove();
+        this.triggerEvent('regionRemoved', this, data.object);
         break;
       case 'regionResizeStarted':
         var $this = data.$object;
@@ -99,8 +100,11 @@
           $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($this);
           data.siblings['$' + data.side] = $placeholder;
         }
+        this.triggerEvent('regionResizeStarted', this);
         break;
       case 'regionResizing':
+        // Turn this on to test, but not for production.
+        // this.triggerEvent('regionResizing', this);
         break;
       case 'regionResized':
         var $this = data.$object;
@@ -122,6 +126,7 @@
           );
           this.updateRow($nextRow);
         }
+        this.triggerEvent('regionResized', this);
         break;
       case 'sortdeactivate':
         var regionList = [];

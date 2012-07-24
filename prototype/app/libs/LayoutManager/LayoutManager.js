@@ -31,11 +31,26 @@
      * Integrate instantiation options.
      */
     LayoutManager.prototype.setup = function () {
+      var fn, steps;
       this.stepManager = new RLD.StepManager();
       this.layoutList = new RLD.LayoutList();
-      // Register
-      var fn = $.proxy(this.switchStep, this);
-      this.stepManager.registerEventListener('stepActivated', fn);
+      // Register for events on the StepManager.
+      fn = $.proxy(this.switchStep, this);
+      this.stepManager.registerEventListener({
+        'stepActivated': fn
+      });
+      // Register for events on the LayoutList.
+      // The broadcaster just pipes events through.
+      fn = $.proxy(this.eventBroadcaster, this);
+      this.layoutList.registerEventListener({
+        'layoutSaved': fn,
+        'regionOrderUpdated': fn,
+        'regionRemoved': fn,
+        'regionAdded': fn,
+        'regionResized': fn,
+        'regionResizing': fn,
+        'regionResizeStarted': fn
+      });
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.ui['class-layout']
@@ -48,7 +63,7 @@
       });
       // Register Layouts into the layoutList
       // For every step we'll register a layout.
-      var steps = this.stepList.info('items');
+      steps = this.stepList.info('items');
       // Create obects for each composite.
       for (i = 0; i < steps.length; i++) {
         // Save the composition elements into a unit.
@@ -99,6 +114,7 @@
      */
     LayoutManager.prototype.registerLayout = function (step, gridList) {
       // Add the Layout to the LayoutList.
+      var fn = $.proxy(this.eventBroadcaster, this);
       this.layoutList.addItem({
         'step': step,
         'regionList': this.regionList,
