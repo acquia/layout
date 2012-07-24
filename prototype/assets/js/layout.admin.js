@@ -86,6 +86,14 @@ $(document).ready(function (event) {
           {
             'machine_name': 'header_b',
             'columns': 2
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 2
+          },
+          {
+            'machine_name': 'navigation',
+            'columns': 1
           }
         ]
       },
@@ -161,19 +169,31 @@ $(document).ready(function (event) {
     'grids': [
       {
         'machine_name': 'gridpak_3',
-        'columns': 3
+        'columns': 3,
+        'classes': [
+          'rld-container-3'
+        ],
       },
       {
         'machine_name': 'gridpak_6',
-        'columns': 6
+        'columns': 6,
+        'classes': [
+          'rld-container-6'
+        ],
       },
       {
         'machine_name': 'gridpak_10',
-        'columns': 10
+        'columns': 10,
+        'classes': [
+          'rld-container-10'
+        ],
       },
       {
         'machine_name': 'gridpak_12',
-        'columns': 12
+        'columns': 12,
+        'classes': [
+          'rld-container-12'
+        ],
       }
     ]
   });
