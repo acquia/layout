@@ -86,6 +86,14 @@ $(document).ready(function (event) {
           {
             'machine_name': 'header_b',
             'columns': 2
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 2
+          },
+          {
+            'machine_name': 'navigation',
+            'columns': 1
           }
         ]
       },
