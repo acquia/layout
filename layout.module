@@ -119,16 +119,25 @@ function layout_region_save($region) {
 
 /**
  * Load all common layout regions.
+ *
+ * @return
+ *   All common regions in an associative array keyed by machine name.
  */
 function layout_region_load_all() {
   // Get non-custom regions first in order of weights. Weight is not relevant
   // for custom regions because we don't include them in the default layout.
-  return db_select('layout_regions', 'lr')
+  $result = db_select('layout_regions', 'lr')
     ->fields('lr')
     ->orderBy('custom')
     ->orderBy('weight')
     ->execute()
     ->fetchAll();
+  // Re-format the results to be keyed by machine name.
+  $regions = array();
+  foreach ($result as $region) {
+    $regions[$region->machine_name] = $region;
+  }
+  return $regions;
 }
 
 /**

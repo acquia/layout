@@ -41,10 +41,11 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   }
 
   $form = array();
+  $default_regions = layout_region_load_all();
   layout_responsive_merge_default_settings($layout_settings, $layout);
   $regions_text = '';
-  foreach ($layout_settings['regions'] as $machine_name => $label) {
-    $regions_text .= $machine_name . ':' . $label . "\n";
+  foreach ($layout_settings['regions'] as $machine_name => $classes) {
+    $regions_text .= $machine_name . '; ' . $default_regions[$machine_name]->label . '; ' . $classes . "\n";
   }
   $form['layout_responsive_regions'] = array(
     '#type' => 'textarea',
@@ -59,7 +60,6 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   );
 
   // Build a list of unused regions to provide to the user.
-  $default_regions = layout_region_load_all();
   $unused_regions = array();
   foreach ($default_regions as $region) {
     if (!isset($layout_settings['regions'][$region->machine_name])) {
@@ -116,11 +116,11 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
     if (!empty($region_info)) {
 
       // Enforce machine name format for security/interoperability.
-      list($machine_name, $label) = explode(':', trim($region_info));
+      list($machine_name, $label, $classes) = explode('; ', $region_info . ' ');
       if (!is_numeric($machine_name) && preg_match('!^([a-z0-9_-])+$!', $machine_name)) {
 
         // Save region for this layout.
-        $layout_settings['regions'][$machine_name] = $label;
+        $layout_settings['regions'][$machine_name] = $classes;
 
         // Save region in common regions list in case it is a new layout
         // that we did not know before or the region label was updated.
@@ -183,7 +183,15 @@ function layout_responsive_get_sublayouts($plugin, $layout_name) {
 function layout_responsive_panels($display, $settings, $layout) {
   $items = array();
   layout_responsive_merge_default_settings($settings, $layout);
-  return $settings['regions'];
+
+  // Resolve machine names to names for visual presentation in panels.
+  $default_regions = layout_region_load_all();
+  $region_names = array();
+  foreach ($settings['regions'] as $machine_name => $classes) {
+    $region_names[$machine_name] = $default_regions[$machine_name]->label;
+  }
+
+  return $region_names;
 }
 
 /**
@@ -205,32 +213,14 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
-    // Initialize default layout options with regions we know about and three
-    // most common breakpoints.
+    // Initialize default layout options with regions we know about.
     $default_regions = layout_region_load_all();
     $settings = array(
       'regions' => array(),
-      'breakpoints' => array(320 => 'Smartphone', 768 => 'Tablet', 960 => 'Standard'),
     );
     foreach ($default_regions as $region) {
       if (!$region->custom) {
-        $settings['regions'][$region->machine_name] = $region->label;
-      }
-    }
-
-    // A layout is a region key => grid class map.
-    // @todo make nesting possible.
-    $default_layout = array();
-    foreach($settings['regions'] as $key => $name) {
-      // @todo figure out the proper grid class.
-      $default_layout[$key] = 'grid-full';
-    }
-
-    // Save list of regions related to their grid classes in each layout.
-    foreach($settings['breakpoints'] as $px => $name) {
-      if (!isset($settings['layouts'][$px])) {
-        // If this layout is not there, apply the
-        $settings['layouts'][$px] = $default_layout;
+        $settings['regions'][$region->machine_name] = '';
       }
     }
   }
@@ -258,7 +248,16 @@ function theme_layout_responsive($vars) {
   $output = '';
   foreach ($content as $machine_name => $rendered) {
     if (!empty($rendered)) {
-      $output .= '<div class="layout-responsive-region layout-responsive-region-' . $machine_name .'">';
+      // Add a minimal wrapper with some common classes + configured custom classes.
+      // The custom classes are used for grid placement.
+      $classes = array();
+      $classes[] = 'layout-responsive-region';
+      $classes[] = 'layout-responsive-region-' . $machine_name;
+      $classes[] = 'col';
+      if (!empty($settings['regions'][$machine_name])) {
+        $classes[] = $settings['regions'][$machine_name];
+      }
+      $output .= '<div class="' . join(' ', $classes) . '">';
       $output .= $rendered;
       $output .= '</div>';
     }
@@ -267,7 +266,7 @@ function theme_layout_responsive($vars) {
   // Embed the grid css inline for now. Yeah, I know this is evil.
   // It is just a prototype for now, ok? I know it is evil. Yes.
   $grid_css = layout_get_grid_css();
-  return '<div class="panel-responsive"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
+  return '<div class="panel-responsive clearfix"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
 }
 
 /**

@@ -17,8 +17,9 @@ Drupal.responsiveLayout.init = function() {
   $('.panels-responsive-admin').append('<div class="panels-responsive-admin-regions"></div>');
 
   // For each region in the configuration, add the required markup.
-  for (var machineName in Drupal.responsiveLayout.getRegionList()) {
-    Drupal.responsiveLayout.regionAddtoDOM('append', machineName, Drupal.settings.responsiveLayout.settings.regions[machineName], false);
+  var regions = Drupal.responsiveLayout.getRegionList();
+  for (var machineName in regions) {
+    Drupal.responsiveLayout.regionAddtoDOM('append', machineName, regions[machineName], false);
   }
 
   // Initialize sortable widget.
@@ -29,8 +30,6 @@ Drupal.responsiveLayout.init = function() {
       // list in our local list.
       deactivate: Drupal.responsiveLayout.setRegionList,
   });
-  // Make regular text selection disabled for the items.
-  $('.panels-responsive-admin-regions').disableSelection();
 
   // Bind click handler for interactive region addition.
   $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
@@ -43,11 +42,11 @@ Drupal.responsiveLayout.getRegionList = function() {
   var regionList = {};
   var editorLines = $('#edit-layout-settings-layout-responsive-regions').val().split("\n");
   for (lineNo in editorLines) {
-    var line = $.trim(editorLines[lineNo]);
+    var line = editorLines[lineNo];
     if (line.length) {
       // Regions are represented as 'machne_name:Human readable label'.
-      var regionDefinition = editorLines[lineNo].split(':', 2);
-      regionList[regionDefinition[0]] = regionDefinition[1];
+      var regionDefinition = line.split('; ', 3);
+      regionList[regionDefinition[0]] = {'label': regionDefinition[1], 'classes': regionDefinition[2]};
     }
   }
   return regionList;
@@ -68,7 +67,7 @@ Drupal.responsiveLayout.setRegionList = function() {
   var regionsDom = $('.panels-responsive-admin-regions .region:visible');
   $(regionsDom).each(function (index, value) {
     var machineName = $(value).data('region-machine-name');
-    regionsText += machineName + ':' + $(value).data('region-label') + "\n";
+    regionsText += machineName + '; ' + $(value).data('region-label') + '; ' + $(value).find('input').val() + "\n";
   });
   $('#edit-layout-settings-layout-responsive-regions').val(regionsText);
 }
@@ -121,7 +120,7 @@ Drupal.responsiveLayout.regionAdd = function() {
   // Add new region if details were provided.
   if (machineName.length && label.length) {
     // Actually add the region to the DOM.
-    Drupal.responsiveLayout.regionAddtoDOM('prepend', machineName, label, true);
+    Drupal.responsiveLayout.regionAddtoDOM('prepend', machineName, {'label': label, 'classes': ''}, true);
     // Save the new region list/order in our local list.
     Drupal.responsiveLayout.setRegionList();
   }
@@ -133,11 +132,11 @@ Drupal.responsiveLayout.regionAdd = function() {
 /**
  * Add region to the DOM, attach metadata and animate.
  */
-Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, label, animate) {
+Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, data, animate) {
 
   // Add region related markup. Hide by default if revealing with animation.
   var regions = $('.panels-responsive-admin-regions');
-  var markup = '<div class="region region-' + machineName + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + label + '<span class="remove-icon">X</span></div>';
+  var markup = '<div class="region region-' + machineName + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + data.label + '<input type="text" placeholder="classnames" value="' + data.classes + '" /><span class="remove-icon">X</span></div>';
 
   // When used interactively, we prepend to the list since that is more
   // visible. When used as an API function in initialization, we append in
@@ -151,8 +150,9 @@ Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, label,
 
   // Add metadata to the region and attach remove icon event.
   var region = $(regions).find('.region-' + machineName);
-  $(region).data('region-machine-name', machineName).data('region-label', label);
+  $(region).data('region-machine-name', machineName).data('region-label', data.label);
   $(region).find('.remove-icon').click(Drupal.responsiveLayout.regionRemove);
+  $(region).find('input').change(Drupal.responsiveLayout.setRegionList);
 
   // Animate the region showing up if needed.
   if (animate) {
