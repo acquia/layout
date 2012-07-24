@@ -96,11 +96,11 @@ function layout_ctools_plugin_directory($owner, $plugin_type) {
  * Add or update region in common set of regions.
  *
  * @param $region
- *   Region object with keys 'machine_name' and 'label'.
+ *   Region object with keys 'name' and 'admin_title'.
  */
 function layout_region_save($region) {
   $new_values = array(
-    'label' => $region->label,
+    'admin_title' => $region->admin_title,
   );
 
   // Only add the custom and weight keys if passed in. When updating existing
@@ -114,8 +114,8 @@ function layout_region_save($region) {
   }
 
   // Add or update the region with the given machine name.
-  return db_merge('layout_regions')
-    ->key(array('machine_name' => $region->machine_name))
+  return db_merge('layout_region')
+    ->key(array('name' => $region->name))
     ->fields($new_values)
     ->execute();
 }
@@ -129,7 +129,7 @@ function layout_region_save($region) {
 function layout_region_load_all() {
   // Get non-custom regions first in order of weights. Weight is not relevant
   // for custom regions because we don't include them in the default layout.
-  $result = db_select('layout_regions', 'lr')
+  $result = db_select('layout_region', 'lr')
     ->fields('lr')
     ->orderBy('custom')
     ->orderBy('weight')
@@ -138,7 +138,7 @@ function layout_region_load_all() {
   // Re-format the results to be keyed by machine name.
   $regions = array();
   foreach ($result as $region) {
-    $regions[$region->machine_name] = $region;
+    $regions[$region->name] = $region;
   }
   return $regions;
 }
@@ -146,10 +146,10 @@ function layout_region_load_all() {
 /**
  * Load one layout based on its machine name.
  */
-function layout_region_load($machine_name) {
-  return db_select('layout_regions', 'lr')
+function layout_region_load($name) {
+  return db_select('layout_region', 'lr')
     ->fields('lr')
-    ->condition('machine_name', $machine_name)
+    ->condition('name', $name)
     ->execute()
     ->fetchObject();
 }
@@ -157,9 +157,9 @@ function layout_region_load($machine_name) {
 /**
  * Delete one layout based on its machine name.
  */
-function layout_region_delete($machine_name) {
-  return db_delete('layout_regions')
-    ->condition('machine_name', $machine_name)
+function layout_region_delete($name) {
+  return db_delete('layout_region')
+    ->condition('name', $name)
     ->execute();
 }
 
@@ -181,11 +181,11 @@ function layout_get_responsive_layouts() {
 /**
  * Get a list of layout names using the given region machine name.
  */
-function layout_get_layouts_using_region($machine_name) {
+function layout_get_layouts_using_region($name) {
   $layouts = layout_get_responsive_layouts();
   $layouts_using_region = array();
-  foreach ($layouts as $name => $data) {
-    if (isset($data['layout']->settings['regions']) && is_array($data['layout']->settings['regions']) && isset($data['layout']->settings['regions'][$machine_name])) {
+  foreach ($layouts as $data) {
+    if (isset($data['layout']->settings['regions']) && is_array($data['layout']->settings['regions']) && isset($data['layout']->settings['regions'][$name])) {
       $layouts_using_region[$data['layout']->name] = $data['title'];
     }
   }
@@ -244,6 +244,7 @@ function layout_default_layout_grid() {
  * API function to get all responsive grids on the site.
  */
 function layout_grid_load_all() {
+  ctools_include('export');
   $grids = ctools_export_crud_load_all('layout_grid');
   uasort($grids, 'layout_grid_item_sort_by_width');
   return $grids;
@@ -253,6 +254,7 @@ function layout_grid_load_all() {
  * Look up one grid setup based on machine name.
  */
 function layout_grid_load($name) {
+  ctools_include('export');
   return ctools_export_crud_load('layout_grid', $name);
 }
 

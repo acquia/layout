@@ -29,7 +29,7 @@ function layout_admin_region_list_form($form, $form_state, $regions) {
   foreach ($regions as $region) {
 
     // Build friendly list of layouts this region is used in.
-    $in_use_in_layouts = array_values(layout_get_layouts_using_region($region->machine_name));
+    $in_use_in_layouts = array_values(layout_get_layouts_using_region($region->name));
     $layout_count = count($in_use_in_layouts);
     if ($layout_count > 4) {
       // If over 4 layouts use this region, cut the list on the third and
@@ -44,14 +44,14 @@ function layout_admin_region_list_form($form, $form_state, $regions) {
       $in_use_in_layouts = check_plain(join(', ', $in_use_in_layouts));
     }
 
-    $form['regions'][$region->machine_name] = array(
-      'label' => array(
+    $form['regions'][$region->name] = array(
+      'admin_title' => array(
         '#type' => 'markup',
-        '#markup' => check_plain($region->label),
+        '#markup' => check_plain($region->admin_title),
       ),
-      'machine_name' => array(
+      'name' => array(
         '#type' => 'markup',
-        '#markup' => check_plain($region->machine_name),
+        '#markup' => check_plain($region->name),
       ),
       'in_use_in_layouts' => array(
         '#type' => 'markup',
@@ -87,8 +87,8 @@ function layout_admin_region_list_form($form, $form_state, $regions) {
 function layout_admin_region_list_form_submit($form, $form_state) {
   $regions = layout_region_load_all();
   foreach ($regions as $region) {
-    $region->weight = $form_state['values']['regions'][$region->machine_name]['weight'];
-    $region->custom = (int) !$form_state['values']['regions'][$region->machine_name]['default'];
+    $region->weight = $form_state['values']['regions'][$region->name]['weight'];
+    $region->custom = (int) !$form_state['values']['regions'][$region->name]['default'];
     layout_region_save($region);
   }
   drupal_set_message(t('Saved all region changes.'));
@@ -112,14 +112,14 @@ function theme_layout_admin_region_list_form($vars) {
   );
 
   $rows = array();
-  foreach (element_children($form['regions']) as $machine_name) {
+  foreach (element_children($form['regions']) as $name) {
     $row = array(
-      drupal_render($form['regions'][$machine_name]['label']) . ' (' . drupal_render($form['regions'][$machine_name]['machine_name']) . ')',
-      drupal_render($form['regions'][$machine_name]['default']),
-      drupal_render($form['regions'][$machine_name]['weight']),
-      drupal_render($form['regions'][$machine_name]['in_use_in_layouts']),
-      l(t('edit'), 'admin/structure/panels/layouts/regions/' . $machine_name . '/edit'),
-      l(t('delete'), 'admin/structure/panels/layouts/regions/' . $machine_name . '/delete'),
+      drupal_render($form['regions'][$name]['admin_title']) . ' (' . drupal_render($form['regions'][$name]['name']) . ')',
+      drupal_render($form['regions'][$name]['default']),
+      drupal_render($form['regions'][$name]['weight']),
+      drupal_render($form['regions'][$name]['in_use_in_layouts']),
+      l(t('edit'), 'admin/structure/panels/layouts/regions/' . $name . '/edit'),
+      l(t('delete'), 'admin/structure/panels/layouts/regions/' . $name . '/delete'),
     );
     $rows[] = array(
       'data' => $row,
@@ -142,17 +142,17 @@ function theme_layout_admin_region_list_form($vars) {
  */
 function layout_admin_region_delete($region) {
   // Set nice page title.
-  drupal_set_title(t('Delete region @region', array('@region' => $region->label)));
+  drupal_set_title(t('Delete region @region', array('@region' => $region->admin_title)));
 
   // Check if the region is used in any of our responsive layouts.
-  $layouts = layout_get_layouts_using_region($region->machine_name);
+  $layouts = layout_get_layouts_using_region($region->name);
   if (count($layouts)) {
     // If any layouts use this region, inform the user.
     $layout_list = array();
     foreach ($layouts as $name => $title) {
       $layout_list[] = l($title, 'admin/structure/panels/layouts/list/'. $name . '/edit');
     }
-    drupal_set_message(t('<p>The region %region cannot be deleted because it is in use in the following layouts:</p>!layouts<p>To enable deletion of the region, either remove it from the layouts where it appears or delete them.</p>', array('%region' => $region->label, '!layouts' => theme('item_list', array('items' => $layout_list)))), 'warning');
+    drupal_set_message(t('<p>The region %region cannot be deleted because it is in use in the following layouts:</p>!layouts<p>To enable deletion of the region, either remove it from the layouts where it appears or delete them.</p>', array('%region' => $region->admin_title, '!layouts' => theme('item_list', array('items' => $layout_list)))), 'warning');
     return '';
   }
   else {
@@ -172,7 +172,7 @@ function layout_admin_region_delete_form($form, $form_state, $region) {
   );
   return confirm_form(
     $form,
-    t('Are you sure you want to delete the %region region?', array('%region' => $region->label)),
+    t('Are you sure you want to delete the %region region?', array('%region' => $region->admin_title)),
     'admin/structure/panels/layouts/regions',
     t('Deleting a region will make it unavailable for future layouts.'),
     t('Delete'),
@@ -186,8 +186,8 @@ function layout_admin_region_delete_form($form, $form_state, $region) {
  * @see layout_admin_region_delete_form()
  */
 function layout_admin_region_delete_form_submit($form, &$form_state) {
-  layout_region_delete($form_state['values']['region']->machine_name);
-  drupal_set_message(t('Region %region deleted.', array('%region' => $form_state['values']['region']->label)));
+  layout_region_delete($form_state['values']['region']->name);
+  drupal_set_message(t('Region %region deleted.', array('%region' => $form_state['values']['region']->admin_title)));
   $form_state['redirect'] = 'admin/structure/panels/layouts/regions';
 }
 
@@ -199,10 +199,10 @@ function layout_admin_region_delete_form_submit($form, &$form_state) {
 function layout_admin_region_edit($region = NULL) {
   if (empty($region)) {
     drupal_set_title(t('Add region'));
-    $region = (object) array('label' => '', 'machine_name' => '', 'weight' => 0, 'custom' => 1);
+    $region = (object) array('admin_title' => '', 'name' => '', 'weight' => 0, 'custom' => 1);
   }
   else {
-    drupal_set_title(t('Edit region @region', array('@region' => $region->label)));
+    drupal_set_title(t('Edit region @region', array('@region' => $region->admin_title)));
   }
   return drupal_get_form('layout_admin_region_edit_form', $region);
 }
@@ -213,22 +213,22 @@ function layout_admin_region_edit($region = NULL) {
  * @see layout_admin_region_edit_form_submit()
  */
 function layout_admin_region_edit_form($form, $form_state, $region) {
-  $form['label'] = array(
+  $form['admin_title'] = array(
     '#title' => t('Region label'),
     '#description' => t('Name of the region visible in the layout editor.'),
     '#type' => 'textfield',
-    '#default_value' => $region->label,
+    '#default_value' => $region->admin_title,
     '#required' => TRUE,
   );
-  $form['machine_name'] = array(
+  $form['name'] = array(
     '#title' => t('Region machine name'),
     '#type' => 'machine_name',
     '#maxlength' => 32,
     '#machine_name' => array(
       'exists' => 'layout_region_load',
-      'source' => array('label'),
+      'source' => array('admin_title'),
     ),
-    '#default_value' => $region->machine_name,
+    '#default_value' => $region->name,
     '#description' => t('The region machine name is used to identify the region in layouts, when assigning panes and to apply CSS classes to the region.'),
   );
   $form['default'] = array(
@@ -252,11 +252,11 @@ function layout_admin_region_edit_form($form, $form_state, $region) {
  */
 function layout_admin_region_edit_form_submit($form, &$form_state) {
   $region = (object) array(
-    'machine_name' => $form_state['values']['machine_name'],
-    'label' => $form_state['values']['label'],
+    'name' => $form_state['values']['name'],
+    'admin_title' => $form_state['values']['admin_title'],
     'custom' => (int) !$form_state['values']['default'],
   );
   layout_region_save($region);
-  drupal_set_message(t('Region %region saved.', array('%region' => $form_state['values']['label'])));
+  drupal_set_message(t('Region %region saved.', array('%region' => $form_state['values']['admin_title'])));
   $form_state['redirect'] = 'admin/structure/panels/layouts/regions';
 }

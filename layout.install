@@ -27,10 +27,10 @@ function layout_install() {
     'footer_c' => 'Footer C',
   );
   $weight = 0;
-  foreach ($common_regions as $machine_name => $label) {
+  foreach ($common_regions as $name => $admin_title) {
     $region = (object) array(
-      'machine_name' => $machine_name,
-      'label' => $label,
+      'name' => $name,
+      'admin_title' => $admin_title,
       'weight' => $weight++,
       'custom' => 0,
     );
@@ -42,17 +42,35 @@ function layout_install() {
  * Implements hook_schema().
  */
 function layout_schema() {
-  $schema['layout_regions'] = array(
+  $schema['layout_region'] = array(
     'description' => 'Information about common regions for responsive layouts.',
+    'export' => array(
+      'key' => 'name',
+      'identifier' => 'layout_region', // Exports will be defined as $layout_region.
+      'default hook' => 'default_layout_region',  // Function hook name.
+      'api' => array(
+        'owner' => 'layout',
+        'api' => 'default_layout_region',  // Base name for api include files.
+        'minimum_version' => 1,
+        'current_version' => 1,
+      ),
+    ),
     'fields' => array(
-      'machine_name' => array(
+      'region_id' => array(
+        'description' => 'Serial ID for this region.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'no export' => TRUE,
+      ),
+      'name' => array(
         'description' => 'Machine name for this region.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
-      'label' => array(
+      'admin_title' => array(
         'description' => 'User visible label for this region.',
         'type' => 'varchar',
         'length' => 255,
@@ -72,7 +90,10 @@ function layout_schema() {
         'default' => 1,
       ),
     ),
-    'primary key' => array('machine_name'),
+    'primary key' => array('region_id'),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
   );
   $schema['layout_grid'] = array(
     'description' => 'Information about common grids for responsive layouts.',

@@ -44,8 +44,8 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   $default_regions = layout_region_load_all();
   layout_responsive_merge_default_settings($layout_settings, $layout);
   $regions_text = '';
-  foreach ($layout_settings['regions'] as $machine_name => $classes) {
-    $regions_text .= $machine_name . '; ' . $default_regions[$machine_name]->label . '; ' . $classes . "\n";
+  foreach ($layout_settings['regions'] as $name => $classes) {
+    $regions_text .= $name . '; ' . $default_regions[$name]->admin_title . '; ' . $classes . "\n";
   }
   $form['layout_responsive_regions'] = array(
     '#type' => 'textarea',
@@ -62,8 +62,8 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   // Build a list of unused regions to provide to the user.
   $unused_regions = array();
   foreach ($default_regions as $region) {
-    if (!isset($layout_settings['regions'][$region->machine_name])) {
-      $unused_regions[$region->machine_name] = $region->label;
+    if (!isset($layout_settings['regions'][$region->name])) {
+      $unused_regions[$region->name] = $region->admin_title;
     }
   }
 
@@ -74,7 +74,7 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     '#empty_value' => '',
     '#empty_option' => t('- New region -'),
   );
-  $form['layout_responsive_add']['label'] = array(
+  $form['layout_responsive_add']['admin_title'] = array(
     '#title' => t('New region label'),
     '#type' => 'textfield',
     '#size' => 30,
@@ -84,13 +84,13 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
       ),
     ),
   );
-  $form['layout_responsive_add']['machine_name'] = array(
+  $form['layout_responsive_add']['name'] = array(
     '#title' => t('New region machine name'),
     '#type' => 'machine_name',
     '#maxlength' => 32,
     '#machine_name' => array(
       'exists' => 'layout_region_load',
-      'source' => array('layout_settings', 'layout_responsive_add', 'label'),
+      'source' => array('layout_settings', 'layout_responsive_add', 'admin_title'),
     ),
     '#required' => FALSE,
   );
@@ -116,17 +116,17 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
     if (!empty($region_info)) {
 
       // Enforce machine name format for security/interoperability.
-      list($machine_name, $label, $classes) = explode('; ', $region_info . ' ');
-      if (!is_numeric($machine_name) && preg_match('!^([a-z0-9_-])+$!', $machine_name)) {
+      list($name, $admin_title, $classes) = explode('; ', $region_info . ' ');
+      if (!is_numeric($name) && preg_match('!^([a-z0-9_-])+$!', $name)) {
 
         // Save region for this layout.
-        $layout_settings['regions'][$machine_name] = $classes;
+        $layout_settings['regions'][$name] = $classes;
 
         // Save region in common regions list in case it is a new layout
-        // that we did not know before or the region label was updated.
+        // that we did not know before or the region admin_title was updated.
         $region = (object) array(
-          'machine_name' => $machine_name,
-          'label' => $label,
+          'name' => $name,
+          'admin_title' => $admin_title,
         );
         layout_region_save($region);
       }
@@ -187,8 +187,8 @@ function layout_responsive_panels($display, $settings, $layout) {
   // Resolve machine names to names for visual presentation in panels.
   $default_regions = layout_region_load_all();
   $region_names = array();
-  foreach ($settings['regions'] as $machine_name => $classes) {
-    $region_names[$machine_name] = $default_regions[$machine_name]->label;
+  foreach ($settings['regions'] as $name => $classes) {
+    $region_names[$name] = $default_regions[$name]->admin_title;
   }
 
   return $region_names;
@@ -220,7 +220,7 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
     );
     foreach ($default_regions as $region) {
       if (!$region->custom) {
-        $settings['regions'][$region->machine_name] = '';
+        $settings['regions'][$region->name] = '';
       }
     }
   }
@@ -246,16 +246,16 @@ function theme_layout_responsive($vars) {
 
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
-  foreach ($content as $machine_name => $rendered) {
+  foreach ($content as $name => $rendered) {
     if (!empty($rendered)) {
       // Add a minimal wrapper with some common classes + configured custom classes.
       // The custom classes are used for grid placement.
       $classes = array();
       $classes[] = 'layout-responsive-region';
-      $classes[] = 'layout-responsive-region-' . $machine_name;
+      $classes[] = 'layout-responsive-region-' . $name;
       $classes[] = 'col';
-      if (!empty($settings['regions'][$machine_name])) {
-        $classes[] = $settings['regions'][$machine_name];
+      if (!empty($settings['regions'][$name])) {
+        $classes[] = $settings['regions'][$name];
       }
       $output .= '<div class="' . join(' ', $classes) . '">';
       $output .= $rendered;
