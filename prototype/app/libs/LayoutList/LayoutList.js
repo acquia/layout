@@ -30,16 +30,25 @@
      *
      */
     LayoutList.prototype.processList = function (items) {
-      var item;
-      for (item in items) {
-        if (items.hasOwnProperty(item)) {
-          this.items.push(new RLD.Layout({
-            'label': items[item],
-            'machine_name': item
-          }));
-        }
+      var i;
+      // Create obects for each composite.
+      for (i = 0; i < items.length; i++) {
+        // Save the composition elements into a unit.
+        this.items.push(
+          new RLD.Layout({
+            'regionList': items[i].regionList,
+            'step': items[i].step,
+            'grid': items[i].grid
+          })
+        );
       }
     };
+    /**
+     *
+     */
+    LayoutList.prototype.addItem = function (layout) {
+      this.processList([layout]);
+    }
     /**
      *
      */

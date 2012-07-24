@@ -15,13 +15,13 @@
     Layout.prototype = new RLD.InitClass();
     
     Layout.prototype.setup = function () {
-      var processShift = $.proxy(this.processShift, this);
-      var processRemove = $.proxy(this.processRemove, this);
+      var fn = $.proxy(this.processEvent, this);
       this.regionList.registerEventListener({
-        'regionResizeStarted': processShift,
-        'regionResizing': processShift,
-        'regionResized': processShift,
-        'regionClosed': processRemove
+        'regionAdded': fn,
+        'regionRemoved': fn,
+        'regionResizeStarted': fn,
+        'regionResizing': fn,
+        'regionResized': fn
       });
     };
     
@@ -71,7 +71,7 @@
         }
       }
       // Bind behaviors.
-      fn = $.proxy(this.processSort, this);
+      fn = $.proxy(this.processEvent, this);
       this.$editor.sortable({
         // Make a placeholder visible when dragging.
         placeholder: "ui-state-highlight",
@@ -84,19 +84,13 @@
       return this.$editor;
     };
     
-    Layout.prototype.processSort = function(event, ui) {
-      var regionList = [];
-      var i;
-      // Get the region objects in their new order.
-      var $regions = ui.sender.find('.rld-region');
-      for (i = 0; i < $regions.length; i++) {
-        regionList.push($($regions[i]).data('RLD/Region'));
-      }
-      this.regionList.update(regionList);
-    };
-    
-    Layout.prototype.processShift = function (event, data) {
+    Layout.prototype.processEvent = function (event, data) {
       switch (event.type) {
+      case 'regionAdded':
+      case 'regionRemoved':
+        var $this = data.$object;
+        $this.remove();
+        break;
       case 'regionResizeStarted':
         var $this = data.$object;
         var $currentRow = $this.closest('.rld-row');
@@ -128,6 +122,18 @@
           );
           this.updateRow($nextRow);
         }
+        break;
+      case 'sortdeactivate':
+        var regionList = [];
+        var i;
+        // Get the region objects in their new order.
+        var $regions = data.sender.find('.rld-region');
+        for (i = 0; i < $regions.length; i++) {
+          regionList.push($($regions[i]).data('RLD/Region'));
+        }
+        this.regionList.update(regionList);
+        // 
+        this.triggerEvent('regionOrderUpdated', this);
         break;
       default:
         break;

@@ -101,7 +101,9 @@
 
     function close(event) {
       event.stopPropagation();
-      var $region = $(this).closest('.rld-region');
+      var data = {};
+      var region = data.object = this;
+      var $region = data.$object = this.info('$editor');
       // If region has no siblings, hide row. Otherwise, hide region.
       if ($region.prev().length === 0 && $region.next().length === 0) {
         $region.closest('.rld-row').remove();
@@ -109,6 +111,7 @@
       else {
         $region.remove();
       }
+      region.triggerEvent('regionRemoved', data);
     }
     /**
      *
@@ -160,7 +163,7 @@
       // Region behaviors.
       fn = $.proxy(close, this);
       this.$editor
-      .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', close);
+      .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', fn);
       fn = $.proxy(startResize, this);
       this.$editor
       .delegate('.rld-region .rld-splitter', 'mousedown.ResponsiveLayoutDesigner', fn);

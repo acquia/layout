@@ -20,8 +20,6 @@
       this.$stepSelector = $();
       this.$steps = $();
       this.$layouts = $();
-      this.layouts = [];
-      this.regionList = {};
       // Setup
       this.init.apply(this, arguments);
     }
@@ -33,10 +31,10 @@
      * Integrate instantiation options.
      */
     LayoutManager.prototype.setup = function () {
-      var fn;
       this.stepManager = new RLD.StepManager();
+      this.layoutList = new RLD.LayoutList();
       // Register
-      fn = $.proxy(this.switchStep, this);
+      var fn = $.proxy(this.switchStep, this);
       this.stepManager.registerEventListener('stepActivated', fn);
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
@@ -48,6 +46,14 @@
       this.$layouts = $('<div>', {
         'class': this.ui['class-layout-content']
       });
+      // Register Layouts into the layoutList
+      // For every step we'll register a layout.
+      var steps = this.stepList.info('items');
+      // Create obects for each composite.
+      for (i = 0; i < steps.length; i++) {
+        // Save the composition elements into a unit.
+        this.registerLayout(steps[i]);
+      }
     };
     /**
      *
@@ -92,15 +98,13 @@
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
     LayoutManager.prototype.registerLayout = function (step, gridList) {
-      var index, fn;
-      var grid = gridList.getItem(step.grid);
-      var layout = new RLD.Layout({
-        'regionList': this.regionList,
+      // Add the Layout to the LayoutList.
+      this.layoutList.addItem({
         'step': step,
-        'grid': grid
+        'regionList': this.regionList,
+        'grid': this.gridList.getItem(step.grid)
       });
-      this.layouts.push(layout);
-      // Update Managers
+      // Add the Step to the StepManager.
       this.stepManager.addItem(step);
     };
     /**
@@ -119,8 +123,8 @@
         $(this).remove();
       });
       // Get the active step and layout.
-      for (i = 0; i < this.layouts.length; i++) {
-        layout = this.layouts[i];
+      for (i = 0; i < this.layoutList.info('items').length; i++) {
+        layout = this.layoutList.info('items')[i];
         if (layout.step.info('machine_name') === activeStep.info('machine_name')) {          
           var gridClasses = layout.info('grid').info('classes') || [];
           if (gridClasses.length > 0) {
