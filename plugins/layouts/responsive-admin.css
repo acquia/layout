@@ -1,9 +1,12 @@
 .panels-responsive-admin {
   width: 320px;
 }
-.form-item-admin-description, .form-item-category,
-#panels-live-preview, #ctools-export-ui-edit-item-form h2,
-.form-item-layout-settings-layout-responsive-regions {
+.form-item-admin-description,
+.form-item-category,
+#panels-live-preview,
+#ctools-export-ui-edit-item-form h2,
+.form-item-layout-settings-layout-responsive-regions,
+#edit-layout-settings-layout-responsive-add {
   display: none;
 }
 .panels-responsive-admin-regions .region {
@@ -35,6 +38,12 @@
   padding: 4px;
   cursor: default;
 }
+.panels-responsive-admin-regions .region input {
+  font-size: 1.2em;
+  display: block;
+  margin: 7px 7px 7px 2.5em;
+  line-height: 1.4em;
+}
 .form-item.form-item-layout-settings-layout-responsive-add-existing-region {
   float: left;
   margin-right: 30px;
@@ -46,3 +55,11 @@
 .panels-dnd .panel-region {
   margin: 10px 0;
 }
+
+/* @group ResponsiveLayoutDesigner */
+
+.rld-layouts {
+  border: 1px solid #d0d0d1;
+}
+
+/* @end */

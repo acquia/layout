@@ -41,10 +41,11 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   }
 
   $form = array();
+  $default_regions = layout_region_load_all();
   layout_responsive_merge_default_settings($layout_settings, $layout);
   $regions_text = '';
-  foreach ($layout_settings['regions'] as $machine_name => $label) {
-    $regions_text .= $machine_name . ':' . $label . "\n";
+  foreach ($layout_settings['regions'] as $name => $classes) {
+    $regions_text .= $name . '; ' . $default_regions[$name]->admin_title . '; ' . $classes . "\n";
   }
   $form['layout_responsive_regions'] = array(
     '#type' => 'textarea',
@@ -59,11 +60,10 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
   );
 
   // Build a list of unused regions to provide to the user.
-  $default_regions = layout_region_load_all();
   $unused_regions = array();
   foreach ($default_regions as $region) {
-    if (!isset($layout_settings['regions'][$region->machine_name])) {
-      $unused_regions[$region->machine_name] = $region->label;
+    if (!isset($layout_settings['regions'][$region->name])) {
+      $unused_regions[$region->name] = $region->admin_title;
     }
   }
 
@@ -74,7 +74,7 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     '#empty_value' => '',
     '#empty_option' => t('- New region -'),
   );
-  $form['layout_responsive_add']['label'] = array(
+  $form['layout_responsive_add']['admin_title'] = array(
     '#title' => t('New region label'),
     '#type' => 'textfield',
     '#size' => 30,
@@ -84,13 +84,13 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
       ),
     ),
   );
-  $form['layout_responsive_add']['machine_name'] = array(
+  $form['layout_responsive_add']['name'] = array(
     '#title' => t('New region machine name'),
     '#type' => 'machine_name',
     '#maxlength' => 32,
     '#machine_name' => array(
       'exists' => 'layout_region_load',
-      'source' => array('layout_settings', 'layout_responsive_add', 'label'),
+      'source' => array('layout_settings', 'layout_responsive_add', 'admin_title'),
     ),
     '#required' => FALSE,
   );
@@ -116,17 +116,17 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
     if (!empty($region_info)) {
 
       // Enforce machine name format for security/interoperability.
-      list($machine_name, $label) = explode(':', trim($region_info));
-      if (!is_numeric($machine_name) && preg_match('!^([a-z0-9_-])+$!', $machine_name)) {
+      list($name, $admin_title, $classes) = explode('; ', $region_info . ' ');
+      if (!is_numeric($name) && preg_match('!^([a-z0-9_-])+$!', $name)) {
 
         // Save region for this layout.
-        $layout_settings['regions'][$machine_name] = $label;
+        $layout_settings['regions'][$name] = $classes;
 
         // Save region in common regions list in case it is a new layout
-        // that we did not know before or the region label was updated.
+        // that we did not know before or the region admin_title was updated.
         $region = (object) array(
-          'machine_name' => $machine_name,
-          'label' => $label,
+          'name' => $name,
+          'admin_title' => $admin_title,
         );
         layout_region_save($region);
       }
@@ -183,7 +183,15 @@ function layout_responsive_get_sublayouts($plugin, $layout_name) {
 function layout_responsive_panels($display, $settings, $layout) {
   $items = array();
   layout_responsive_merge_default_settings($settings, $layout);
-  return $settings['regions'];
+
+  // Resolve machine names to names for visual presentation in panels.
+  $default_regions = layout_region_load_all();
+  $region_names = array();
+  foreach ($settings['regions'] as $name => $classes) {
+    $region_names[$name] = $default_regions[$name]->admin_title;
+  }
+
+  return $region_names;
 }
 
 /**
@@ -205,32 +213,14 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
-    // Initialize default layout options with regions we know about and three
-    // most common breakpoints.
+    // Initialize default layout options with regions we know about.
     $default_regions = layout_region_load_all();
     $settings = array(
       'regions' => array(),
-      'breakpoints' => array(320 => 'Smartphone', 768 => 'Tablet', 960 => 'Standard'),
     );
     foreach ($default_regions as $region) {
       if (!$region->custom) {
-        $settings['regions'][$region->machine_name] = $region->label;
-      }
-    }
-
-    // A layout is a region key => grid class map.
-    // @todo make nesting possible.
-    $default_layout = array();
-    foreach($settings['regions'] as $key => $name) {
-      // @todo figure out the proper grid class.
-      $default_layout[$key] = 'grid-full';
-    }
-
-    // Save list of regions related to their grid classes in each layout.
-    foreach($settings['breakpoints'] as $px => $name) {
-      if (!isset($settings['layouts'][$px])) {
-        // If this layout is not there, apply the
-        $settings['layouts'][$px] = $default_layout;
+        $settings['regions'][$region->name] = '';
       }
     }
   }
@@ -240,6 +230,9 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
 
 /**
  * Draw the responsive layout.
+ *
+ * @todo
+ *   Embeddig the grid CSS inline is evil. Fix it.
  */
 function theme_layout_responsive($vars) {
   $css_id = $vars['css_id'];
@@ -251,9 +244,29 @@ function theme_layout_responsive($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
-  // Just return the regions ordered as configured.
-  $output = join('', $content);
-  return '<div class="panel-responsive">' . $output . '</div>';
+  // Render the regions ordered as configured with minimal wrappers.
+  $output = '';
+  foreach ($content as $name => $rendered) {
+    if (!empty($rendered)) {
+      // Add a minimal wrapper with some common classes + configured custom classes.
+      // The custom classes are used for grid placement.
+      $classes = array();
+      $classes[] = 'layout-responsive-region';
+      $classes[] = 'layout-responsive-region-' . $name;
+      $classes[] = 'col';
+      if (!empty($settings['regions'][$name])) {
+        $classes[] = $settings['regions'][$name];
+      }
+      $output .= '<div class="' . join(' ', $classes) . '">';
+      $output .= $rendered;
+      $output .= '</div>';
+    }
+  }
+
+  // Embed the grid css inline for now. Yeah, I know this is evil.
+  // It is just a prototype for now, ok? I know it is evil. Yes.
+  $grid_css = layout_grid_get_css();
+  return '<div class="panel-responsive clearfix"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
 }
 
 /**
@@ -278,6 +291,24 @@ function theme_layout_responsive_admin($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
+
+  // Add the ResponsiveLayoutDesigner application.
+  // This is a messy, messy list of files. Eventually we'll want to package
+  // this app up into a single JavaScript file and minify it.
+  $path = drupal_get_path('module', 'layout');
+  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
+  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Layout/Layout.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/RegionList/RegionList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Region/Region.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/GridList/GridList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Grid/Grid.js');
   drupal_add_js($layout['path'] . '/responsive-admin.js');
 
   $default_regions = layout_region_load_all();
@@ -286,5 +317,5 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_library('system', 'ui.sortable');
 
   // This is filled in on the client side.
-  return '<div class="panels-responsive-admin"></div>';
+  return '<div id="responsive-layout-designer"></div>'; // <div class="panels-responsive-admin"></div>
 }

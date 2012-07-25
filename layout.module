@@ -6,23 +6,101 @@
  */
 
 /**
- * Implementation of hook_ctools_plugin_directory().
+ * Implements hook_menu().
+ */
+function layout_menu() {
+  $items = array();
+
+  // Regions.
+  $items['admin/structure/panels/layouts/regions'] = array(
+    'title' => 'Responsive regions',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'layout_admin_region_list',
+    'access arguments' => array('administer layouts'),
+    'weight' => 0,
+    'file' => 'layout.admin.regions.inc',
+  );
+  $items['admin/structure/panels/layouts/regions/add'] = array(
+    'title' => 'Add region',
+    'page callback' => 'layout_admin_region_edit',
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_LOCAL_ACTION,
+    'file' => 'layout.admin.regions.inc',
+  );
+  $items['admin/structure/panels/layouts/regions/%layout_region/edit'] = array(
+    'title' => 'Edit region',
+    'page callback' => 'layout_admin_region_edit',
+    'page arguments' => array(5),
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_CALLBACK,
+    'file' => 'layout.admin.regions.inc',
+  );
+  $items['admin/structure/panels/layouts/regions/%layout_region/delete'] = array(
+    'title' => 'Delete region',
+    'page callback' => 'layout_admin_region_delete',
+    'page arguments' => array(5),
+    'access arguments' => array('administer layouts'),
+    'type' => MENU_CALLBACK,
+    'file' => 'layout.admin.regions.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ */
+function layout_menu_alter(&$items) {
+  // Convert the automatically created ctools menu item to a local task.
+  if (isset($items['admin/structure/panels/layouts/grids'])) {
+    $items['admin/structure/panels/layouts/grids']['type'] = MENU_LOCAL_TASK;
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function layout_permission() {
+  return array(
+    'administer layouts' => array(
+      'title' => t('Administer responsive layouts'),
+      'description' => t('Administer backend settings for responsive layouts.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function layout_theme() {
+  return array(
+    'layout_admin_region_list_form' => array(
+      'render element' => 'form',
+      'file' => 'layout.admin.regions.inc',
+    ),
+  );
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
  */
 function layout_ctools_plugin_directory($owner, $plugin_type) {
-  if ($owner == 'panels' && $plugin_type == 'layouts') {
+  if (($owner == 'panels' && $plugin_type == 'layouts') || ($owner == 'ctools' && $plugin_type =='export_ui')) {
     return "plugins/$plugin_type";
   }
 }
+
+// == Regions =================================================================
 
 /**
  * Add or update region in common set of regions.
  *
  * @param $region
- *   Region object with keys 'machine_name' and 'label'.
+ *   Region object with keys 'name' and 'admin_title'.
  */
 function layout_region_save($region) {
   $new_values = array(
-    'label' => $region->label,
+    'admin_title' => $region->admin_title,
   );
 
   // Only add the custom and weight keys if passed in. When updating existing
@@ -36,34 +114,200 @@ function layout_region_save($region) {
   }
 
   // Add or update the region with the given machine name.
-  return db_merge('layout_regions')
-    ->key(array('machine_name' => $region->machine_name))
+  return db_merge('layout_region')
+    ->key(array('name' => $region->name))
     ->fields($new_values)
     ->execute();
 }
 
 /**
  * Load all common layout regions.
+ *
+ * @return
+ *   All common regions in an associative array keyed by machine name.
  */
 function layout_region_load_all() {
   // Get non-custom regions first in order of weights. Weight is not relevant
   // for custom regions because we don't include them in the default layout.
-  return db_select('layout_regions', 'lr')
+  $result = db_select('layout_region', 'lr')
     ->fields('lr')
     ->orderBy('custom')
     ->orderBy('weight')
     ->execute()
     ->fetchAll();
+  // Re-format the results to be keyed by machine name.
+  $regions = array();
+  foreach ($result as $region) {
+    $regions[$region->name] = $region;
+  }
+  return $regions;
 }
 
 /**
  * Load one layout based on its machine name.
  */
-function layout_region_load($machine_name) {
-  return db_select('layout_regions', 'lr')
+function layout_region_load($name) {
+  return db_select('layout_region', 'lr')
     ->fields('lr')
-    ->condition('machine_name', $machine_name)
+    ->condition('name', $name)
     ->execute()
     ->fetchObject();
+}
 
+/**
+ * Delete one layout based on its machine name.
+ */
+function layout_region_delete($name) {
+  return db_delete('layout_region')
+    ->condition('name', $name)
+    ->execute();
+}
+
+/**
+ * Get all responsive layout info arrays from panels.
+ */
+function layout_get_responsive_layouts() {
+  ctools_include('plugins', 'panels');
+  $all_layouts = panels_get_layouts();
+  $responsive_layouts = array();
+  foreach ($all_layouts as $name => $data) {
+    if (empty($data['builder']) && isset($data['layout']->plugin) && ($data['layout']->plugin == 'responsive')) {
+      $responsive_layouts[$name] = $data;
+    }
+  }
+  return $responsive_layouts;
+}
+
+/**
+ * Get a list of layout names using the given region machine name.
+ */
+function layout_get_layouts_using_region($name) {
+  $layouts = layout_get_responsive_layouts();
+  $layouts_using_region = array();
+  foreach ($layouts as $data) {
+    if (isset($data['layout']->settings['regions']) && is_array($data['layout']->settings['regions']) && isset($data['layout']->settings['regions'][$name])) {
+      $layouts_using_region[$data['layout']->name] = $data['title'];
+    }
+  }
+  return $layouts_using_region;
+}
+
+// == Grids ===================================================================
+
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_layout_grid API.
+ */
+function layout_ctools_plugin_api($owner, $api) {
+  if ($owner == 'layout' && $api == 'default_layout_grid') {
+    return array('version' => 1);
+  }
+}
+
+/**
+ * Implementation of hook_default_layout_grid().
+ *
+ * Provide a couple of default grids.
+ */
+function layout_default_layout_grid() {
+  $export = array();
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'smartphone';
+  $grid->admin_title = 'Smartphone';
+  $grid->width = '320px';
+  $grid->css = '.panel-responsive { background-color: yellow; }';
+  $export['smatphone'] = $grid;
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'tablet';
+  $grid->admin_title = 'Tablet';
+  $grid->width = '760px';
+  $grid->css = '.panel-responsive { background-color: green; }';
+  $export['tablet'] = $grid;
+
+  $grid = new stdClass;
+  $grid->api_version = 1;
+  $grid->name = 'standard';
+  $grid->admin_title = 'Standard';
+  $grid->width = '960px';
+  $grid->css = '.panel-responsive { background-color: blue; }';
+  $export['standard'] = $grid;
+
+  return $export;
+}
+
+/**
+ * API function to get all responsive grids on the site.
+ */
+function layout_grid_load_all() {
+  ctools_include('export');
+  $grids = ctools_export_crud_load_all('layout_grid');
+  uasort($grids, 'layout_grid_item_sort_by_width');
+  return $grids;
+}
+
+/**
+ * Look up one grid setup based on machine name.
+ */
+function layout_grid_load($name) {
+  ctools_include('export');
+  return ctools_export_crud_load('layout_grid', $name);
+}
+
+/**
+ * Build CSS for the grids with media queries.
+ *
+ * @todo
+ *   Figure out a good way to avoid equal max/min-weights in subsequent
+ *   grids if that is a problem.
+ */
+function layout_grid_get_css() {
+  $grids = layout_grid_load_all();
+
+  $grid_css = array();
+  $min_width = 0;
+
+  $grid_count = count($grids);
+  $grid_index = 0;
+  foreach ($grids as $name => $grid) {
+    $first_grid = $grid_index == 0;
+    $last_grid = ($grid_index == ($grid_count - 1));
+
+    // Build the media query for this grid. The first item should not have a
+    // min-width (open ended to 0), and the last item should have no max-width
+    // (open-ended to infinity). Mid-items should both have a min-width and a
+    // max-width.
+    $grid_css[] =
+      '@media screen and (' .
+      ($first_grid ? '' : 'min-width:' . $min_width) .
+      ((!$first_grid && !$last_grid) ? ') and (' : '') .
+      ($last_grid ? '' : 'max-width:' . $grid->width) .
+      ') {';
+    $grid_css[] = $grid->css;
+    $grid_css[] = '}';
+
+    // Remember min-width for next grid if applicable. The grids are in
+    // ascending width order, so we can rely on this sequence.
+    $min_width = $grid->width;
+    $grid_index++;
+  }
+
+  return join("\n", $grid_css);
+}
+
+/**
+ * Sort the grids in ascending order by their width.
+ */
+function layout_grid_item_sort_by_width($a, $b) {
+  // Cast the width to int. Whether it provided as px or em, the cast should
+  // result in a relevant number. It will not sort mixed em/px numbers properly
+  // but that sounds like a broken setup. Not desigining for that.
+  if ((int) $a->width == (int) $b->width) {
+    return 0;
+  }
+  return ((int) $a->width < (int) $b->width) ? -1 : 1;
 }

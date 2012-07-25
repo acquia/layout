@@ -17,12 +17,30 @@
 
 /* @group Layout */
 
+/* @group StepManager */
+
+.rld-steps {
+  list-style: none;
+  text-align: center;
+}
+.rld-steps li {
+  display: inline-block;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+.rld-layouts {
+  padding: 1em;
+}
+
+/* @end */
+
+/* @end */
+
 /* @group Region and row styles */
 
 .rld-layouts {
   position: relative;
 }
-
 .rld-row {
   -webkit-user-select: none;
 }
@@ -36,11 +54,16 @@
   position: relative;
 }
 .rld-region {
+  background-color: #555;
+  color: white;
   margin-bottom: 15px;
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
 }
 .rld-placeholder {
+  background-color: white;
+  color: #ccc;
+  outline: 1px dashed #31cbff;
   outline-offset: -5px;
   overflow: hidden;
   width: 0;

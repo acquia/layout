@@ -1,4 +1,30 @@
-(function ($) {
+(function ($, ResponsiveLayoutDesigner) {
+
+/**
+ * Safe logging function.
+ */
+function log (message, type) {
+  if ('console' in window) {
+    var type = type || 'log';
+    if (type in console) {
+      console[type](message);
+    }
+  }
+}
+/**
+ * Respond to app updates.  This is generic so we don't have to
+ * a callback for each event we'd like to track during prototyping.
+ */
+function ResponsiveLayoutDesignerEventHandler (event) {
+  var i;
+  // Log the event type.
+  log(event.type, 'info');
+  var args = Array.prototype.slice.call(arguments);
+  // Print the args as well.
+  for (i = 0; i < args.length; i++) {
+    log(args[i], 'dir');
+  }
+}
 
 Drupal.responsiveLayout = Drupal.responsiveLayout || {};
 
@@ -17,37 +43,175 @@ Drupal.responsiveLayout.init = function() {
   $('.panels-responsive-admin').append('<div class="panels-responsive-admin-regions"></div>');
 
   // For each region in the configuration, add the required markup.
-  for (var machineName in Drupal.responsiveLayout.getRegionList()) {
-    Drupal.responsiveLayout.regionAddtoDOM('append', machineName, Drupal.settings.responsiveLayout.settings.regions[machineName], false);
-  }
-
-  // Initialize sortable widget.
-  $('.panels-responsive-admin-regions').sortable({
-      // Make a placeholder visible when dragging.
-      placeholder: "ui-state-highlight",
-      // When the dragging and dropping is done, save updated region
-      // list in our local list.
-      deactivate: Drupal.responsiveLayout.setRegionList,
+  var regions = Drupal.responsiveLayout.getRegionList();
+  // Build a BreakPoint editor
+  var editor = new ResponsiveLayoutDesigner({
+    'regions': regions,
+    /* A layout is a series of overrides on a basic RegionList. */
+    'steps': [
+      {
+        'label': 'Phone',
+        'machine_name': 'small',
+        'breakpoint': '0',
+        'grid': 'gridpak_3',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 1
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
+          },
+          {
+            'machine_name': 'subheader_a',
+            'columns': 1
+          },
+          {
+            'machine_name': 'subheader_b',
+            'columns': 1
+          },
+          {
+            'machine_name': 'subheader_c',
+            'columns': 1
+          }
+        ]
+      },
+      {
+        'label': 'Phone Landscape',
+        'machine_name': 'landscape',
+        'breakpoint': '320',
+        'grid': 'gridpak_6',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
+          }
+        ]
+      },
+      {
+        'label': 'Tablet',
+        'machine_name': 'tablet',
+        'breakpoint': '720',
+        'grid': 'gridpak_10',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 2
+          }
+        ]
+      },
+      {
+        'label': 'Desktop',
+        'machine_name': 'desktop',
+        'breakpoint': '940',
+        'grid': 'gridpak_12',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 4
+          },
+          {
+            'machine_name': 'sidebar_a',
+            'columns': 2
+          },
+          {
+            'machine_name': 'body',
+            'columns': 8
+          },
+          {
+            'machine_name': 'sidebar_b',
+            'columns': 2
+          }
+        ]
+      }
+    ],
+    'grids': [
+      {
+        'machine_name': 'gridpak_3',
+        'columns': 3,
+        'classes': [
+          'rld-container-3'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_6',
+        'columns': 6,
+        'classes': [
+          'rld-container-6'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_10',
+        'columns': 10,
+        'classes': [
+          'rld-container-10'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_12',
+        'columns': 12,
+        'classes': [
+          'rld-container-12'
+        ]
+      }
+    ]
   });
-  // Make regular text selection disabled for the items.
-  $('.panels-responsive-admin-regions').disableSelection();
+  // Register event listeners.
+  editor.registerEventListener({
+    'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
+    'layoutSaved': ResponsiveLayoutDesignerEventHandler,
+    'regionRemoved': ResponsiveLayoutDesignerEventHandler,
+    'regionAdded': ResponsiveLayoutDesignerEventHandler,
+    'regionResized': ResponsiveLayoutDesignerEventHandler,
+    'regionResizing': ResponsiveLayoutDesignerEventHandler,
+    'regionResizeStarted': ResponsiveLayoutDesignerEventHandler
+  });
+  // Insert the editor in the DOM.
+  editor.build().appendTo('#responsive-layout-designer');
+  window.RLDEditor = editor;
 
   // Bind click handler for interactive region addition.
-  $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
+  // $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
 }
 
 /**
  * Returned parsed list of regions based on values in textarea.
  */
 Drupal.responsiveLayout.getRegionList = function() {
-  var regionList = {};
+  var regionList = [];
   var editorLines = $('#edit-layout-settings-layout-responsive-regions').val().split("\n");
+  var lineNo, line;
   for (lineNo in editorLines) {
-    var line = $.trim(editorLines[lineNo]);
+    line = editorLines[lineNo];
     if (line.length) {
-      // Regions are represented as 'machne_name:Human readable label'.
-      var regionDefinition = editorLines[lineNo].split(':', 2);
-      regionList[regionDefinition[0]] = regionDefinition[1];
+      // Regions are represented as 'name;classes'.
+      var regionDefinition = line.split('; ', 3);
+      regionList.push({
+        'machine_name': regionDefinition[0],
+        'label': regionDefinition[1],
+        'classes': regionDefinition[2]
+      });
     }
   }
   return regionList;
@@ -67,8 +231,8 @@ Drupal.responsiveLayout.setRegionList = function() {
   // Look at the visible regions only and gather their machine names.
   var regionsDom = $('.panels-responsive-admin-regions .region:visible');
   $(regionsDom).each(function (index, value) {
-    var machineName = $(value).data('region-machine-name');
-    regionsText += machineName + ':' + $(value).data('region-label') + "\n";
+    var name = $(value).data('region-name');
+    regionsText += name + '; ' + $(value).data('region-admin-title') + '; ' + $(value).find('input').val() + "\n";
   });
   $('#edit-layout-settings-layout-responsive-regions').val(regionsText);
 }
@@ -78,10 +242,10 @@ Drupal.responsiveLayout.setRegionList = function() {
  * Event handler for region remove icon.
  */
 Drupal.responsiveLayout.regionRemove = function() {
-  // Get machine name and label and add it to the list of regions to add (back).
-  var machineName = $(this).parent().data('region-machine-name');
-  var label = $(this).parent().data('region-label');
-  $('#edit-layout-settings-layout-responsive-add-existing-region').append(new Option(label, machineName));
+  // Get machine name and admin title and add it to the list of regions to add (back).
+  var name = $(this).parent().data('region-name');
+  var adminTitle = $(this).parent().data('region-admin-title');
+  $('#edit-layout-settings-layout-responsive-add-existing-region').append(new Option(adminTitle, name));
 
   // Slide up the region when the remove icon is clicked. This will hide it
   // from view and will make it not being saved. Register the saving function
@@ -99,9 +263,9 @@ Drupal.responsiveLayout.regionAdd = function() {
   // Look at the existing regions select list.
   var regionSelected = $('#edit-layout-settings-layout-responsive-add-existing-region :selected');
   if ($(regionSelected).attr('value').length) {
-    // An existing region was selected. Get label from there.
-    var label = $(regionSelected).text();
-    var machineName = $(regionSelected).attr('value');
+    // An existing region was selected. Get admin title from there.
+    var adminTitle = $(regionSelected).text();
+    var name = $(regionSelected).attr('value');
 
     // Remove this region from the region select list, trigger change event.
     $(regionSelected).remove();
@@ -109,19 +273,19 @@ Drupal.responsiveLayout.regionAdd = function() {
     $('#edit-layout-settings-layout-responsive-add-existing-region').change();
   }
   else {
-    // Get the name and label from the input fields.
-    var machineName = $('#edit-layout-settings-layout-responsive-add-machine-name').val();
-    var label = $('#edit-layout-settings-layout-responsive-add-label').val();
+    // Get the name and admin title from the input fields.
+    var name = $('#edit-layout-settings-layout-responsive-add-name').val();
+    var adminTitle = $('#edit-layout-settings-layout-responsive-add-admin-title').val();
 
-    // Clear label input and trigger change event that will clear out the machine
-    // name too due to the behavior in machine-name.js.
-    $('#edit-layout-settings-layout-responsive-add-label').val('').change();
+    // Clear admin title input and trigger change event that will clear out the
+    // machine name too due to the behavior in machine-name.js.
+    $('#edit-layout-settings-layout-responsive-add-admin-title').val('').change();
   }
 
   // Add new region if details were provided.
-  if (machineName.length && label.length) {
+  if (name.length && adminTitle.length) {
     // Actually add the region to the DOM.
-    Drupal.responsiveLayout.regionAddtoDOM('prepend', machineName, label, true);
+    Drupal.responsiveLayout.regionAddtoDOM('prepend', name, {'adminTitle': adminTitle, 'classes': ''}, true);
     // Save the new region list/order in our local list.
     Drupal.responsiveLayout.setRegionList();
   }
@@ -133,11 +297,11 @@ Drupal.responsiveLayout.regionAdd = function() {
 /**
  * Add region to the DOM, attach metadata and animate.
  */
-Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, label, animate) {
+Drupal.responsiveLayout.regionAddtoDOM = function(placement, name, data, animate) {
 
   // Add region related markup. Hide by default if revealing with animation.
   var regions = $('.panels-responsive-admin-regions');
-  var markup = '<div class="region region-' + machineName + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + label + '<span class="remove-icon">X</span></div>';
+  var markup = '<div class="region region-' + name + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + data.adminTitle + '<input type="text" placeholder="classnames" value="' + data.classes + '" /><span class="remove-icon">X</span></div>';
 
   // When used interactively, we prepend to the list since that is more
   // visible. When used as an API function in initialization, we append in
@@ -150,9 +314,10 @@ Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, label,
   }
 
   // Add metadata to the region and attach remove icon event.
-  var region = $(regions).find('.region-' + machineName);
-  $(region).data('region-machine-name', machineName).data('region-label', label);
+  var region = $(regions).find('.region-' + name);
+  $(region).data('region-name', name).data('region-admin-title', data.adminTitle);
   $(region).find('.remove-icon').click(Drupal.responsiveLayout.regionRemove);
+  $(region).find('input').change(Drupal.responsiveLayout.setRegionList);
 
   // Animate the region showing up if needed.
   if (animate) {
@@ -160,4 +325,4 @@ Drupal.responsiveLayout.regionAddtoDOM = function(placement, machineName, label,
   }
 }
 
-})(jQuery);
+})(jQuery, ResponsiveLayoutDesigner);
