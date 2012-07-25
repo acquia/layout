@@ -1,4 +1,4 @@
-(function (RLD, $, _) {
+(function (RLD, $) {
   
   RLD['Layout'] = (function () {
 
@@ -167,4 +167,4 @@
     return Layout;
     
   }());
-}(ResponsiveLayoutDesigner, jQuery, _));
+}(ResponsiveLayoutDesigner, jQuery));
