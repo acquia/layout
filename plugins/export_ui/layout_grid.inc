@@ -35,7 +35,7 @@ $plugin = array(
  *
  * @see layout_grid_edit_form_validate().
  */
-function layout_grid_edit_formm(&$form, $form_state) {
+function layout_grid_edit_form(&$form, $form_state) {
   $grid = $form_state['item'];
 
   // Common form elements are already provided by ctools for admin_title
@@ -64,7 +64,7 @@ function layout_grid_edit_formm(&$form, $form_state) {
  *
  * @see layout_grid_edit_form().
  */
-function layout_grid_edit_formm_validate(&$form, $form_state) {
+function layout_grid_edit_form_validate(&$form, $form_state) {
   if (!preg_match('!(^\d+(px|em)$!', $form_state['values']['width'])) {
     form_set_error('width', t('Only pixel or em based breakpoints are supported, for example 960px or 41em.'));
   }
