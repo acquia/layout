@@ -298,7 +298,6 @@ function theme_layout_responsive_admin($vars) {
   $path = drupal_get_path('module', 'layout');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
-  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/layout.admin.css');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');

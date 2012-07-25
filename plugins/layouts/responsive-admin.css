@@ -55,3 +55,11 @@
 .panels-dnd .panel-region {
   margin: 10px 0;
 }
+
+/* @group ResponsiveLayoutDesigner */
+
+.rld-layouts {
+  border: 1px solid #d0d0d1;
+}
+
+/* @end */
