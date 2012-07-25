@@ -45,7 +45,7 @@ Drupal.responsiveLayout.init = function() {
   // For each region in the configuration, add the required markup.
   var regions = Drupal.responsiveLayout.getRegionList();
   // Build a BreakPoint editor
-  var editor = new ResponsiveLayoutDesigner({
+  this.editor = new ResponsiveLayoutDesigner({
     'regions': regions,
     /* A layout is a series of overrides on a basic RegionList. */
     'steps': [
@@ -177,8 +177,9 @@ Drupal.responsiveLayout.init = function() {
       }
     ]
   });
+  // var save = $.proxy(this.save, this);
   // Register event listeners.
-  editor.registerEventListener({
+  this.editor.registerEventListener({
     'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
     'layoutSaved': ResponsiveLayoutDesignerEventHandler,
     'regionRemoved': ResponsiveLayoutDesignerEventHandler,
@@ -188,12 +189,30 @@ Drupal.responsiveLayout.init = function() {
     'regionResizeStarted': ResponsiveLayoutDesignerEventHandler
   });
   // Insert the editor in the DOM.
-  editor.build().appendTo('#responsive-layout-designer');
-  window.RLDEditor = editor;
-
-  // Bind click handler for interactive region addition.
-  // $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
+  this.editor.build().appendTo('#responsive-layout-designer');
+  // Save a reference to the editor to the DOM for development.
+  window.RLDEditor = this.editor;
+  // Intervene on form submit to get data from the app into the page.
+  // @todo this form ID seems really generic. We need something more specific.
+  var that = this;
+  // $('#ctools-export-ui-edit-item-form').bind('submit', {'responsiveLayout': that}, Drupal.responsiveLayout.save);
 }
+
+/**
+ * Responds to the ResponsiveLayoutDesigner's 'layoutSaved' event.
+ */
+Drupal.responsiveLayout.save = function (event) {
+  var layoutManager = event.data.responsiveLayout.editor.save();
+  var regionList = layoutManager.info('regionList');
+  var regions = regionList.info('items');
+  var regionText = event.data.responsiveLayout.setRegionList(regions);
+  // Set the new region textfield value on the form elements.
+  var $hiddenText = $(this).find('#edit-layout-settings-layout-responsive-regions');
+  var value = $hiddenText.val();
+  $hiddenText.val(regionText);
+  value = $hiddenText.val();
+  return true;
+};
 
 /**
  * Returned parsed list of regions based on values in textarea.
@@ -226,15 +245,12 @@ Drupal.responsiveLayout.getRegionList = function() {
  * and we don't have a live preview needed given the useful builder view
  * itself.
  */
-Drupal.responsiveLayout.setRegionList = function() {
+Drupal.responsiveLayout.setRegionList = function(regions) {
   var regionsText = '';
-  // Look at the visible regions only and gather their machine names.
-  var regionsDom = $('.panels-responsive-admin-regions .region:visible');
-  $(regionsDom).each(function (index, value) {
-    var name = $(value).data('region-name');
-    regionsText += name + '; ' + $(value).data('region-admin-title') + '; ' + $(value).find('input').val() + "\n";
-  });
-  $('#edit-layout-settings-layout-responsive-regions').val(regionsText);
+  for (var i = 0; i < regions.length; i++) {
+    regionsText += regions[i].info('machine_name') + '; ' + regions[i].info('label') + '; ' + regions[i].info('classes') + "\n";
+  }
+  return regionsText;
 }
 
 
