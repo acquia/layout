@@ -1,4 +1,5 @@
 // Set up the application once the DOM is ready.
+(function ($) {
 $(document).ready(function (event) {
 
   /**
@@ -27,7 +28,7 @@ $(document).ready(function (event) {
     }
   }
 
-  // Attach a BreakPoint editor
+  // Build a BreakPoint editor
   var editor = new ResponsiveLayoutDesigner({
     'regions': [
       {
@@ -172,28 +173,28 @@ $(document).ready(function (event) {
         'columns': 3,
         'classes': [
           'rld-container-3'
-        ],
+        ]
       },
       {
         'machine_name': 'gridpak_6',
         'columns': 6,
         'classes': [
           'rld-container-6'
-        ],
+        ]
       },
       {
         'machine_name': 'gridpak_10',
         'columns': 10,
         'classes': [
           'rld-container-10'
-        ],
+        ]
       },
       {
         'machine_name': 'gridpak_12',
         'columns': 12,
         'classes': [
           'rld-container-12'
-        ],
+        ]
       }
     ]
   });
@@ -211,3 +212,4 @@ $(document).ready(function (event) {
   editor.build().appendTo('#responsive-layout-designer');
   window.RLDEditor = editor;
 });
+}(jQuery));
