@@ -264,6 +264,10 @@
       }
     };
 
+    ResponsiveLayoutDesigner.prototype.save = function () {
+      return this.layoutManager;
+    };
+
     return ResponsiveLayoutDesigner;
     
   }());

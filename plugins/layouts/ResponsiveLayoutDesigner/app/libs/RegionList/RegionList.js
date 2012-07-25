@@ -39,7 +39,8 @@
         item = items[i];
         region = new RLD.Region({
           'label': item['label'],
-          'machine_name': item['machine_name']
+          'machine_name': item['machine_name'],
+          'classes': item['classes']
         });
         region.registerEventListener({
           'regionAdded': fn,
