@@ -1,9 +1,12 @@
 .panels-responsive-admin {
   width: 320px;
 }
-.form-item-admin-description, .form-item-category,
-#panels-live-preview, #ctools-export-ui-edit-item-form h2,
-.form-item-layout-settings-layout-responsive-regions {
+.form-item-admin-description,
+.form-item-category,
+#panels-live-preview,
+#ctools-export-ui-edit-item-form h2,
+.form-item-layout-settings-layout-responsive-regions,
+#edit-layout-settings-layout-responsive-add {
   display: none;
 }
 .panels-responsive-admin-regions .region {

@@ -1,4 +1,30 @@
-(function ($) {
+(function ($, ResponsiveLayoutDesigner) {
+
+/**
+ * Safe logging function.
+ */
+function log (message, type) {
+  if ('console' in window) {
+    var type = type || 'log';
+    if (type in console) {
+      console[type](message);
+    }
+  }
+}
+/**
+ * Respond to app updates.  This is generic so we don't have to
+ * a callback for each event we'd like to track during prototyping.
+ */
+function ResponsiveLayoutDesignerEventHandler (event) {
+  var i;
+  // Log the event type.
+  log(event.type, 'info');
+  var args = Array.prototype.slice.call(arguments);
+  // Print the args as well.
+  for (i = 0; i < args.length; i++) {
+    log(args[i], 'dir');
+  }
+}
 
 Drupal.responsiveLayout = Drupal.responsiveLayout || {};
 
@@ -18,35 +44,174 @@ Drupal.responsiveLayout.init = function() {
 
   // For each region in the configuration, add the required markup.
   var regions = Drupal.responsiveLayout.getRegionList();
-  for (var name in regions) {
-    Drupal.responsiveLayout.regionAddtoDOM('append', name, regions[name], false);
-  }
-
-  // Initialize sortable widget.
-  $('.panels-responsive-admin-regions').sortable({
-      // Make a placeholder visible when dragging.
-      placeholder: "ui-state-highlight",
-      // When the dragging and dropping is done, save updated region
-      // list in our local list.
-      deactivate: Drupal.responsiveLayout.setRegionList,
+  // Build a BreakPoint editor
+  var editor = new ResponsiveLayoutDesigner({
+    'regions': regions,
+    /* A layout is a series of overrides on a basic RegionList. */
+    'steps': [
+      {
+        'label': 'Phone',
+        'machine_name': 'small',
+        'breakpoint': '0',
+        'grid': 'gridpak_3',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 1
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
+          },
+          {
+            'machine_name': 'subheader_a',
+            'columns': 1
+          },
+          {
+            'machine_name': 'subheader_b',
+            'columns': 1
+          },
+          {
+            'machine_name': 'subheader_c',
+            'columns': 1
+          }
+        ]
+      },
+      {
+        'label': 'Phone Landscape',
+        'machine_name': 'landscape',
+        'breakpoint': '320',
+        'grid': 'gridpak_6',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 2
+          }
+        ]
+      },
+      {
+        'label': 'Tablet',
+        'machine_name': 'tablet',
+        'breakpoint': '720',
+        'grid': 'gridpak_10',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 2
+          }
+        ]
+      },
+      {
+        'label': 'Desktop',
+        'machine_name': 'desktop',
+        'breakpoint': '940',
+        'grid': 'gridpak_12',
+        'regions':[
+          {
+            'machine_name': 'header_a',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_b',
+            'columns': 4
+          },
+          {
+            'machine_name': 'header_c',
+            'columns': 4
+          },
+          {
+            'machine_name': 'sidebar_a',
+            'columns': 2
+          },
+          {
+            'machine_name': 'body',
+            'columns': 8
+          },
+          {
+            'machine_name': 'sidebar_b',
+            'columns': 2
+          }
+        ]
+      }
+    ],
+    'grids': [
+      {
+        'machine_name': 'gridpak_3',
+        'columns': 3,
+        'classes': [
+          'rld-container-3'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_6',
+        'columns': 6,
+        'classes': [
+          'rld-container-6'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_10',
+        'columns': 10,
+        'classes': [
+          'rld-container-10'
+        ]
+      },
+      {
+        'machine_name': 'gridpak_12',
+        'columns': 12,
+        'classes': [
+          'rld-container-12'
+        ]
+      }
+    ]
   });
+  // Register event listeners.
+  editor.registerEventListener({
+    'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
+    'layoutSaved': ResponsiveLayoutDesignerEventHandler,
+    'regionRemoved': ResponsiveLayoutDesignerEventHandler,
+    'regionAdded': ResponsiveLayoutDesignerEventHandler,
+    'regionResized': ResponsiveLayoutDesignerEventHandler,
+    'regionResizing': ResponsiveLayoutDesignerEventHandler,
+    'regionResizeStarted': ResponsiveLayoutDesignerEventHandler
+  });
+  // Insert the editor in the DOM.
+  editor.build().appendTo('#responsive-layout-designer');
+  window.RLDEditor = editor;
 
   // Bind click handler for interactive region addition.
-  $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
+  // $('#edit-layout-settings-layout-responsive-add-button').click(Drupal.responsiveLayout.regionAdd);
 }
 
 /**
  * Returned parsed list of regions based on values in textarea.
  */
 Drupal.responsiveLayout.getRegionList = function() {
-  var regionList = {};
+  var regionList = [];
   var editorLines = $('#edit-layout-settings-layout-responsive-regions').val().split("\n");
+  var lineNo, line;
   for (lineNo in editorLines) {
-    var line = editorLines[lineNo];
+    line = editorLines[lineNo];
     if (line.length) {
       // Regions are represented as 'name;classes'.
       var regionDefinition = line.split('; ', 3);
-      regionList[regionDefinition[0]] = {'adminTitle': regionDefinition[1], 'classes': regionDefinition[2]};
+      regionList.push({
+        'machine_name': regionDefinition[0],
+        'label': regionDefinition[1],
+        'classes': regionDefinition[2]
+      });
     }
   }
   return regionList;
@@ -160,4 +325,4 @@ Drupal.responsiveLayout.regionAddtoDOM = function(placement, name, data, animate
   }
 }
 
-})(jQuery);
+})(jQuery, ResponsiveLayoutDesigner);
