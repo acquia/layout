@@ -1,4 +1,4 @@
-(function (RLD, $, _) {
+(function (RLD, $) {
   /**
    * LayoutManager editor provides functionality to display, add and remove
    * layout representations across arbitrary, user-defined breakpoint limits.
@@ -164,4 +164,4 @@
     
   }());
 
-}(ResponsiveLayoutDesigner, jQuery, _));
+}(ResponsiveLayoutDesigner, jQuery));

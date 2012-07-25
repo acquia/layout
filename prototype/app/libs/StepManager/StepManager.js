@@ -1,4 +1,4 @@
-(function (RLD, $, _) {
+(function (RLD, $) {
 
   RLD['StepManager'] = (function () {
 
@@ -76,4 +76,4 @@
     return StepManager;
     
   }());
-}(ResponsiveLayoutDesigner, jQuery, _));
+}(ResponsiveLayoutDesigner, jQuery));
