@@ -296,22 +296,19 @@ function theme_layout_responsive_admin($vars) {
   // This is a messy, messy list of files. Eventually we'll want to package
   // this app up into a single JavaScript file and minify it.
   $path = drupal_get_path('module', 'layout');
-  drupal_add_css($path . '/prototype/assets/css/application.css');
-  drupal_add_css($path . '/prototype/assets/css/grid.css');
-  drupal_add_css($path . '/prototype/assets/css/layout.admin.css');
-  drupal_add_js($path . '/prototype/app/main.js');
-  drupal_add_js($path . '/prototype/app/libs/LayoutManager/LayoutManager.js');
-  drupal_add_js($path . '/prototype/app/libs/LayoutList/LayoutList.js');
-  drupal_add_js($path . '/prototype/app/libs/Layout/Layout.js');
-  drupal_add_js($path . '/prototype/app/libs/StepManager/StepManager.js');
-  drupal_add_js($path . '/prototype/app/libs/StepList/StepList.js');
-  drupal_add_js($path . '/prototype/app/libs/Step/Step.js');
-  drupal_add_js($path . '/prototype/app/libs/RegionList/RegionList.js');
-  drupal_add_js($path . '/prototype/app/libs/Region/Region.js');
-  drupal_add_js($path . '/prototype/app/libs/GridList/GridList.js');
-  drupal_add_js($path . '/prototype/app/libs/Grid/Grid.js');
-  // drupal_add_js($path . '/prototype/assets/js/layout.admin.js');
-
+  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
+  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Layout/Layout.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/RegionList/RegionList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Region/Region.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/GridList/GridList.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Grid/Grid.js');
   drupal_add_js($layout['path'] . '/responsive-admin.js');
 
   $default_regions = layout_region_load_all();
