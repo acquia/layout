@@ -1,65 +1,27 @@
-.panels-responsive-admin {
-  width: 320px;
-}
+/* @group Panels integration */
+
 .form-item-admin-description,
 .form-item-category,
 #panels-live-preview,
 #ctools-export-ui-edit-item-form h2,
-.form-item-layout-settings-layout-responsive-regions,
-#edit-layout-settings-layout-responsive-add {
+.form-item-layout-settings-layout-responsive-regions {
   display: none;
 }
-.panels-responsive-admin-regions .region {
-  position: relative;
-  height: 50px;
-  background-color: #484848;
-  color: #f5f5f5;
-  font-weight: bold;
-  padding: 10px;
-  margin: 1em 0;
-  cursor: move;
-}
-.panels-responsive-admin-regions .ui-state-highlight {
-  height: 50px;
-  padding: 10px;
-  margin: 1em 0;
-}
-.panels-responsive-admin-regions .region .drag-icon {
-  font-size: 2em;
-  margin-right: 1em;
-}
-.panels-responsive-admin-regions .region .remove-icon {
-  position: absolute;
-  right: 5px;
-  top: 20px;
-  background-color: #cdcdcd;
-  border-radius: 10px;
-  color: #484848;
-  padding: 4px;
-  cursor: default;
-}
-.panels-responsive-admin-regions .region input {
-  font-size: 1.2em;
-  display: block;
-  margin: 7px 7px 7px 2.5em;
-  line-height: 1.4em;
-}
-.form-item.form-item-layout-settings-layout-responsive-add-existing-region {
-  float: left;
-  margin-right: 30px;
-}
-.fieldset-wrapper .form-submit {
-  clear: both;
-  display: block;
-}
+
 .panels-dnd .panel-region {
   margin: 10px 0;
 }
+
+/* @end */
 
 /* @group ResponsiveLayoutDesigner */
 
 .rld-layouts {
   border: 1px solid #d0d0d1;
+}
+
+.rld-controls button {
+  display: none;
 }
 
 /* @end */
