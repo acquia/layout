@@ -59,6 +59,7 @@
   margin-bottom: 15px;
   padding: 0 1em;
   width: 100%; /* splitter def: 960px */
+  cursor: move;
 }
 .rld-placeholder {
   background-color: white;
@@ -70,8 +71,16 @@
 }
 .rld-region .rld-region-close {
   position: absolute;
-  right: 2em;
-  top: 5px;
+  right: 14px;
+  top: 7px;
+  background-color: #cdcdcd;
+  border-radius: 10px;
+  color: #484848;
+  padding: 4px;
+  cursor: default;
+  font-size: 0.8em;
+  line-height: 0.8em;
+  text-decoration: none;
 }
 .rld-splitter {
   background: #555 url('../images/grippie.png') center center no-repeat;
