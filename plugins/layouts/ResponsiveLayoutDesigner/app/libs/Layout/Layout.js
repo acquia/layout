@@ -93,12 +93,11 @@
         this.triggerEvent('regionRemoved', this, data.object);
         break;
       case 'regionResizeStarted':
-        var $this = data.$object;
-        var $currentRow = $this.closest('.rld-row');
+        var $region = data.$object;
+        var $currentRow = $region.closest('.rld-row');
+        // If no siblings exist, then we're on a row edge. Insert a placeholder.
         if (data.siblings['$' + data.side].length === 0) {
-          var $placeholder = this.buildPlaceholder();
-          $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($this);
-          data.siblings['$' + data.side] = $placeholder;
+          this.buildPlaceholder()[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
         }
         this.triggerEvent('regionResizeStarted', this);
         break;

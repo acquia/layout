@@ -167,7 +167,7 @@
       .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', fn);
       fn = $.proxy(startResize, this);
       this.$editor
-      .delegate('.rld-region .rld-splitter', 'mousedown.ResponsiveLayoutDesigner', fn);
+      .delegate('.rld-splitter', 'mousedown.ResponsiveLayoutDesigner', fn);
     
       return this.$editor;
     };
