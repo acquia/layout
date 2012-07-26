@@ -110,8 +110,8 @@
         var $this = data.$object;
         var $currentRow = $this.closest('.rld-row');
         var placeholders = {
-          '$left': $currentRow.find('.placeholder:first'),
-          '$right': $currentRow.find('.placeholder:last')
+          '$left': $currentRow.find('.rld-placeholder:first'),
+          '$right': $currentRow.find('.rld-placeholder:last')
         };
         var $nextRow = $currentRow.next('.rld-row');
         var $candidateRegion = $nextRow.find('.rld-region');
@@ -156,7 +156,7 @@
     
     Layout.prototype.buildPlaceholder = function () {
       return $('<div>', {
-        'class': 'rld-placeholder unit'
+        'class': 'rld-placeholder rld-nit'
       });
     };
     

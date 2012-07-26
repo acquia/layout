@@ -139,7 +139,7 @@
         'id': 'rld-region-' + this.label.split(' ').join('_'),
         'class': classes,
         'html': $('<p>', {
-          'text': 'Region ' + this.label
+          'text': this.label
         })
       })
       .prepend(
@@ -151,7 +151,8 @@
       .append($('<a>', {
         'class': 'rld-region-close',
         'href': '#',
-        'text': 'Close'
+        'text': 'X',
+        'title': 'Close',
       }))
       .append(
         $('<div>', {

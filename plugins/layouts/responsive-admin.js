@@ -11,6 +11,7 @@ function log (message, type) {
     }
   }
 }
+
 /**
  * Respond to app updates.  This is generic so we don't have to
  * a callback for each event we'd like to track during prototyping.
@@ -39,12 +40,10 @@ Drupal.behaviors.responsiveLayoutAdmin = {
  * Initialize responsive layout editor.
  */
 Drupal.responsiveLayout.init = function() {
-  // Add a wrapper to contain the regions.
-  $('.panels-responsive-admin').append('<div class="panels-responsive-admin-regions"></div>');
 
-  // For each region in the configuration, add the required markup.
   var regions = Drupal.responsiveLayout.getRegionList();
-  // Build a BreakPoint editor
+
+  // Instantiate a layout designer.
   this.editor = new ResponsiveLayoutDesigner({
     'regions': regions,
     /* A layout is a series of overrides on a basic RegionList. */
@@ -177,8 +176,11 @@ Drupal.responsiveLayout.init = function() {
       }
     ]
   });
+
   // var save = $.proxy(this.save, this);
-  // Register event listeners.
+
+  // Register event listeners. Just update our representation of the layout
+  // for any event for now.
   this.editor.registerEventListener({
     'regionOrderUpdated': ResponsiveLayoutDesignerEventHandler,
     'layoutSaved': ResponsiveLayoutDesignerEventHandler,
@@ -188,13 +190,16 @@ Drupal.responsiveLayout.init = function() {
     'regionResizing': ResponsiveLayoutDesignerEventHandler,
     'regionResizeStarted': ResponsiveLayoutDesignerEventHandler
   });
+
   // Insert the editor in the DOM.
   this.editor.build().appendTo('#responsive-layout-designer');
+
   // Save a reference to the editor to the DOM for development.
   window.RLDEditor = this.editor;
+
   // Intervene on form submit to get data from the app into the page.
   // @todo this form ID seems really generic. We need something more specific.
-  var that = this;
+  // var that = this;
   // $('#ctools-export-ui-edit-item-form').bind('submit', {'responsiveLayout': that}, Drupal.responsiveLayout.save);
 }
 
@@ -251,94 +256,6 @@ Drupal.responsiveLayout.setRegionList = function(regions) {
     regionsText += regions[i].info('machine_name') + '; ' + regions[i].info('label') + '; ' + regions[i].info('classes') + "\n";
   }
   return regionsText;
-}
-
-
-/**
- * Event handler for region remove icon.
- */
-Drupal.responsiveLayout.regionRemove = function() {
-  // Get machine name and admin title and add it to the list of regions to add (back).
-  var name = $(this).parent().data('region-name');
-  var adminTitle = $(this).parent().data('region-admin-title');
-  $('#edit-layout-settings-layout-responsive-add-existing-region').append(new Option(adminTitle, name));
-
-  // Slide up the region when the remove icon is clicked. This will hide it
-  // from view and will make it not being saved. Register the saving function
-  // for when the region is already hidden.
-  $(this).parent().slideUp(400, Drupal.responsiveLayout.setRegionList);
-
-  // Stop click event from propagating.
-  return false;
-}
-
-/**
- * Add new region to the DOM based on form input and save it in our local list.
- */
-Drupal.responsiveLayout.regionAdd = function() {
-  // Look at the existing regions select list.
-  var regionSelected = $('#edit-layout-settings-layout-responsive-add-existing-region :selected');
-  if ($(regionSelected).attr('value').length) {
-    // An existing region was selected. Get admin title from there.
-    var adminTitle = $(regionSelected).text();
-    var name = $(regionSelected).attr('value');
-
-    // Remove this region from the region select list, trigger change event.
-    $(regionSelected).remove();
-    $('#edit-layout-settings-layout-responsive-add-existing-region :first').attr('selected', true);
-    $('#edit-layout-settings-layout-responsive-add-existing-region').change();
-  }
-  else {
-    // Get the name and admin title from the input fields.
-    var name = $('#edit-layout-settings-layout-responsive-add-name').val();
-    var adminTitle = $('#edit-layout-settings-layout-responsive-add-admin-title').val();
-
-    // Clear admin title input and trigger change event that will clear out the
-    // machine name too due to the behavior in machine-name.js.
-    $('#edit-layout-settings-layout-responsive-add-admin-title').val('').change();
-  }
-
-  // Add new region if details were provided.
-  if (name.length && adminTitle.length) {
-    // Actually add the region to the DOM.
-    Drupal.responsiveLayout.regionAddtoDOM('prepend', name, {'adminTitle': adminTitle, 'classes': ''}, true);
-    // Save the new region list/order in our local list.
-    Drupal.responsiveLayout.setRegionList();
-  }
-
-  // Stop click event from propagating.
-  return false;
-}
-
-/**
- * Add region to the DOM, attach metadata and animate.
- */
-Drupal.responsiveLayout.regionAddtoDOM = function(placement, name, data, animate) {
-
-  // Add region related markup. Hide by default if revealing with animation.
-  var regions = $('.panels-responsive-admin-regions');
-  var markup = '<div class="region region-' + name + '"' + (animate ? ' style="display: none;"' : '') + '"><span class="drag-icon">&#8597;</span>' + data.adminTitle + '<input type="text" placeholder="classnames" value="' + data.classes + '" /><span class="remove-icon">X</span></div>';
-
-  // When used interactively, we prepend to the list since that is more
-  // visible. When used as an API function in initialization, we append in
-  // order of intended appearance.
-  if (placement == 'prepend') {
-    $(regions).prepend(markup);
-  }
-  else {
-    $(regions).append(markup);
-  }
-
-  // Add metadata to the region and attach remove icon event.
-  var region = $(regions).find('.region-' + name);
-  $(region).data('region-name', name).data('region-admin-title', data.adminTitle);
-  $(region).find('.remove-icon').click(Drupal.responsiveLayout.regionRemove);
-  $(region).find('input').change(Drupal.responsiveLayout.setRegionList);
-
-  // Animate the region showing up if needed.
-  if (animate) {
-    $(region).slideDown();
-  }
 }
 
 })(jQuery, ResponsiveLayoutDesigner);

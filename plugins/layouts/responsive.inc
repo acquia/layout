@@ -53,52 +53,6 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     '#default_value' => $regions_text,
   );
 
-  // Form section used to support the local system.
-  $form['layout_responsive_add'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Add a region'),
-  );
-
-  // Build a list of unused regions to provide to the user.
-  $unused_regions = array();
-  foreach ($default_regions as $region) {
-    if (!isset($layout_settings['regions'][$region->name])) {
-      $unused_regions[$region->name] = $region->admin_title;
-    }
-  }
-
-  $form['layout_responsive_add']['existing_region'] = array(
-    '#title' => t('Region label'),
-    '#type' => 'select',
-    '#options' => $unused_regions,
-    '#empty_value' => '',
-    '#empty_option' => t('- New region -'),
-  );
-  $form['layout_responsive_add']['admin_title'] = array(
-    '#title' => t('New region label'),
-    '#type' => 'textfield',
-    '#size' => 30,
-    '#states' => array(
-      'visible' => array(
-        'select[name="layout_settings[layout_responsive_add][existing_region]"]' => array('value' => ''),
-      ),
-    ),
-  );
-  $form['layout_responsive_add']['name'] = array(
-    '#title' => t('New region machine name'),
-    '#type' => 'machine_name',
-    '#maxlength' => 32,
-    '#machine_name' => array(
-      'exists' => 'layout_region_load',
-      'source' => array('layout_settings', 'layout_responsive_add', 'admin_title'),
-    ),
-    '#required' => FALSE,
-  );
-  $form['layout_responsive_add']['button'] = array(
-    '#type' => 'button',
-    '#value' => t('Add region')
-  );
-
   return $form;
 }
 
@@ -291,10 +245,11 @@ function theme_layout_responsive_admin($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
-
   // Add the ResponsiveLayoutDesigner application.
+
   // This is a messy, messy list of files. Eventually we'll want to package
-  // this app up into a single JavaScript file and minify it.
+  // this app up into a single JavaScript file or wrap it in a Drupal library
+  // indirection. And minify it for inclusion on the release.
   $path = drupal_get_path('module', 'layout');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
@@ -309,13 +264,16 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Region/Region.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/GridList/GridList.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Grid/Grid.js');
+
+  // Add integration code for Drupal.
   drupal_add_js($layout['path'] . '/responsive-admin.js');
 
+  // Add data about the layout and global list of regions.
   $default_regions = layout_region_load_all();
   drupal_add_js(array('responsiveLayout' => array('settings' => $settings, 'defaultRegions' => $default_regions)), 'setting');
 
   drupal_add_library('system', 'ui.sortable');
 
   // This is filled in on the client side.
-  return '<div id="responsive-layout-designer"></div>'; // <div class="panels-responsive-admin"></div>
+  return '<div id="responsive-layout-designer"></div>';
 }
