@@ -198,6 +198,8 @@ function theme_layout_responsive($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
+  $breakpoints = layout_breakpoint_load_all();
+
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
   foreach ($content as $name => $rendered) {
@@ -207,7 +209,7 @@ function theme_layout_responsive($vars) {
       $classes = array();
       $classes[] = 'layout-responsive-region';
       $classes[] = 'layout-responsive-region-' . $name;
-      $classes[] = 'col';
+      $classes[] = 'rld-col';
       if (!empty($settings['regions'][$name])) {
         $classes[] = $settings['regions'][$name];
       }
@@ -220,11 +222,16 @@ function theme_layout_responsive($vars) {
   // Embed the grid css inline for now. Yeah, I know this is evil.
   // It is just a prototype for now, ok? I know it is evil. Yes.
   $grid_css = layout_breakpoint_get_css();
-  return '<div class="panel-responsive clearfix"><style type="text/css">' . $grid_css . '</style>' . $output . '</div>';
+  drupal_add_css($grid_css, array('type' => 'inline'));
+
+  return '<div class="panel-responsive clearfix">' . $output . '</div>';
 }
 
 /**
  * Draw the responsive layout admin interface.
+ *
+ * @todo
+ *   Embeddig the grid CSS inline is evil. Fix it.
  */
 function theme_layout_responsive_admin($vars) {
   $css_id = $vars['css_id'];
@@ -270,9 +277,24 @@ function theme_layout_responsive_admin($vars) {
 
   // Add data about the layout and global list of regions.
   $default_regions = layout_region_load_all();
-  drupal_add_js(array('responsiveLayout' => array('settings' => $settings, 'defaultRegions' => $default_regions)), 'setting');
+  $default_breakpoints = layout_breakpoint_load_all();
+  $default_grids = gridbuilder_load_all();
+
+  drupal_add_js(array(
+    'responsiveLayout' => array(
+      'settings' => $settings,
+      'defaultRegions' => $default_regions,
+      'defaultBreakpoints' => $default_breakpoints,
+      'defaultGrids' => $default_grids,
+    )
+  ), 'setting');
 
   drupal_add_library('system', 'ui.sortable');
+
+  // Embed the grid css inline for now. Yeah, I know this is evil.
+  // It is just a prototype for now, ok? I know it is evil. Yes.
+  $grid_css = layout_breakpoint_get_css(FALSE);
+  drupal_add_css($grid_css, array('type' => 'inline'));
 
   // This is filled in on the client side.
   return '<div id="responsive-layout-designer"></div>';

@@ -275,3 +275,30 @@
   // Expose ResponsiveLayoutDesigner to the global object
   return (window.ResponsiveLayoutDesigner = RLD);
 }(window, jQuery));
+/**
+ * supplantClass() jQuery plugin
+ *
+ * Adds the replacement class string to each element.
+ *
+ * If a class or classes contain the needle, they are removed from the element.
+ */
+(function ($) {
+	// Add the plugin as a property of the jQuery fn object.
+	$.fn['supplantClass'] = function (needle, replacement) {
+	  return this.each(function (index, element) {
+      var $this = $(this);
+      var cl = [];
+      // Get an array of classes the excludes any that contain the needle.
+      var classes = $this.attr('class').split(' ');
+      for (var i = 0; i < classes.length; i++) {
+        if (classes[i].indexOf(needle) === -1) {
+          cl.push(classes[i]);
+        }
+      }
+      // Push the replacement in all cases.
+      $.merge(cl, replacement.split(' '));
+      // Create a string and assign it to the object.
+      $this.removeAttr('class').addClass(cl.join(' '));
+    });
+	};
+}(jQuery));

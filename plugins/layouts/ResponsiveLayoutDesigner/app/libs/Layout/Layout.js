@@ -32,7 +32,7 @@
       var grid = this.grid;
       var count = 0;
       // The size of a region may be overridden in this step.
-      var regionOverrides = step.info('regions');
+      var regionOverrides = step.info('regionList').info('items');
       var $row;
       var i, k, fn, region;
       // Build rows and regions.
@@ -179,6 +179,8 @@
         $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
         data.siblings['$' + data.side] = $placeholder;
       }
+      // Calculate the column size so regions can be snapped to grid columns.
+      data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
       data.regionX = 0;
@@ -188,6 +190,7 @@
       });
       data.regionX += (data.side === 'right') ? data.width : 0;
       data.mouseX = event.pageX;
+      // Calculate the left and right bounds for the resizing.
       data.bounds = {};
       data.bounds.width = $row.width();
       data.bounds.left = $row.position().left;
@@ -207,34 +210,45 @@
       event.stopImmediatePropagation();
       var data = event.data;
       if (event.pageX <= data.bounds.left || event.pageX >= data.bounds.right) {
-        return false;
+        //return false;
       }
       var region = data.region;
       var $region = region.info('$editor');
       var side = data.side;
       var deltaX = event.pageX - data.mouseX;
-      
-      if (data.side === 'left') {
-        // Resize the region.
-        $region.css({
-          'width': data.width - deltaX
-        });
-        // Resize the left siblings.
-        data.siblings.$left.css({
-          'width': data.regionX + deltaX
-        });
+      if (Math.abs(deltaX) > (data.frame)) {
+        if (data.side === 'left') {
+          var needle = 'rld-span';
+          // Get the region from the columns override from the span object
+          // for this region.  
+          var overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
+          // If no override exists, assume full width.
+          var override = (overrideRegion) ? overrideRegion.columns : this.grid.info('columns');
+          // Calculate the number of grid columns the mouse has traversed.
+          var deltaFrames = Math.floor(Math.abs(data.regionX + deltaX) / data.frame);
+          // The numer of grid columns to assign to the region is the difference of the span
+          // it already consumes minus the delta.
+          var deltaSpan = override - deltaFrames;
+          // Create a new class list with the grid span class.
+          $region.supplantClass(needle, 'rld-span_' + deltaSpan);
+          // Resize the left siblings.
+          // The number of grids columns to assign to the region/placeholder is equal to the
+          // number of grid columns removed from the region being resized.
+          data.siblings.$left.supplantClass(needle, 'rld-span_' + deltaFrames);
+        }
+        if (data.side === 'right') {
+          /*
+          // Resize the region.
+          $region.css({
+            'width': data.width + deltaX
+          });
+          // Resize the left siblings.
+          data.siblings.$right.css({
+            'width': data.bounds.width - (data.regionX + deltaX)
+          }); */
+        }
       }
-      if (data.side === 'right') {
-        // Resize the region.
-        $region.css({
-          'width': data.width + deltaX
-        });
-        // Resize the left siblings.
-        data.siblings.$right.css({
-          'width': data.bounds.width - (data.regionX + deltaX)
-        }); 
-      }
-      this.triggerEvent('regionResizing', this);
+      // this.triggerEvent('regionResizing', this);
     };
     /**
      *
@@ -250,8 +264,10 @@
       // Clean up the DOM.
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
+      // Update the override. If the region is now full width, remove the override.
+      // If no override exists, create one.
       // Move the next available region up to the placeholder.
-      var $row = $region.closest('.rld-row');
+      /* var $row = $region.closest('.rld-row');
       var placeholders = {
         '$left': $row.find('.rld-placeholder:first'),
         '$right': $row.find('.rld-placeholder:last')
@@ -268,7 +284,7 @@
           })
         );
         this.updateRow($nextRow);
-      }
+      } */
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
     }

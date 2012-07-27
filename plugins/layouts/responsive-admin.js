@@ -40,141 +40,11 @@ Drupal.behaviors.responsiveLayoutAdmin = {
  * Initialize responsive layout editor.
  */
 Drupal.responsiveLayout.init = function() {
-
-  var regions = Drupal.responsiveLayout.getRegionList();
-
   // Instantiate a layout designer.
   this.editor = new ResponsiveLayoutDesigner({
-    'regions': regions,
-    /* A layout is a series of overrides on a basic RegionList. */
-    'steps': [
-      {
-        'label': 'Phone',
-        'machine_name': 'small',
-        'breakpoint': '0',
-        'grid': 'gridpak_3',
-        'regions':[
-          {
-            'machine_name': 'header_a',
-            'columns': 1
-          },
-          {
-            'machine_name': 'header_b',
-            'columns': 2
-          },
-          {
-            'machine_name': 'subheader_a',
-            'columns': 1
-          },
-          {
-            'machine_name': 'subheader_b',
-            'columns': 1
-          },
-          {
-            'machine_name': 'subheader_c',
-            'columns': 1
-          }
-        ]
-      },
-      {
-        'label': 'Phone Landscape',
-        'machine_name': 'landscape',
-        'breakpoint': '320',
-        'grid': 'gridpak_6',
-        'regions':[
-          {
-            'machine_name': 'header_a',
-            'columns': 4
-          },
-          {
-            'machine_name': 'header_b',
-            'columns': 2
-          }
-        ]
-      },
-      {
-        'label': 'Tablet',
-        'machine_name': 'tablet',
-        'breakpoint': '720',
-        'grid': 'gridpak_10',
-        'regions':[
-          {
-            'machine_name': 'header_a',
-            'columns': 4
-          },
-          {
-            'machine_name': 'header_b',
-            'columns': 4
-          },
-          {
-            'machine_name': 'header_c',
-            'columns': 2
-          }
-        ]
-      },
-      {
-        'label': 'Desktop',
-        'machine_name': 'desktop',
-        'breakpoint': '940',
-        'grid': 'gridpak_12',
-        'regions':[
-          {
-            'machine_name': 'header_a',
-            'columns': 4
-          },
-          {
-            'machine_name': 'header_b',
-            'columns': 4
-          },
-          {
-            'machine_name': 'header_c',
-            'columns': 4
-          },
-          {
-            'machine_name': 'sidebar_a',
-            'columns': 2
-          },
-          {
-            'machine_name': 'body',
-            'columns': 8
-          },
-          {
-            'machine_name': 'sidebar_b',
-            'columns': 2
-          }
-        ]
-      }
-    ],
-    'grids': [
-      {
-        'machine_name': 'gridpak_3',
-        'columns': 3,
-        'classes': [
-          'rld-container-3'
-        ]
-      },
-      {
-        'machine_name': 'gridpak_6',
-        'columns': 6,
-        'classes': [
-          'rld-container-6'
-        ]
-      },
-      {
-        'machine_name': 'gridpak_10',
-        'columns': 10,
-        'classes': [
-          'rld-container-10'
-        ]
-      },
-      {
-        'machine_name': 'gridpak_12',
-        'columns': 12,
-        'classes': [
-          'rld-container-12'
-        ]
-      }
-    ]
+    'regions': Drupal.responsiveLayout.getRegionList(),
+    'steps': Drupal.responsiveLayout.getLayoutConfig(),
+    'grids': Drupal.responsiveLayout.getGridList(),
   });
 
   // var save = $.proxy(this.save, this);
@@ -239,6 +109,47 @@ Drupal.responsiveLayout.getRegionList = function() {
     }
   }
   return regionList;
+}
+
+/**
+ * Returned processed list of grids to present to the layout editor.
+ */
+Drupal.responsiveLayout.getGridList = function() {
+  var gridList = [];
+  for (g in Drupal.settings.responsiveLayout.defaultGrids) {
+    gridList.push({
+      'machine_name': Drupal.settings.responsiveLayout.defaultGrids[g].name,
+      'columns': Drupal.settings.responsiveLayout.defaultGrids[g].columns,
+      'classes': ['rld-container-' + Drupal.settings.responsiveLayout.defaultGrids[g].name],
+    });
+  }
+  return gridList;
+}
+
+/**
+ * Returned processed list of breakpoints/steps to present to the layout editor.
+ */
+Drupal.responsiveLayout.getLayoutConfig = function() {
+  var breakpointList = [];
+  for (b in Drupal.settings.responsiveLayout.defaultBreakpoints) {
+    breakpointList.push({
+      'label': Drupal.settings.responsiveLayout.defaultBreakpoints[b].admin_title,
+      'machine_name': Drupal.settings.responsiveLayout.defaultBreakpoints[b].name,
+      'breakpoint': parseInt(Drupal.settings.responsiveLayout.defaultBreakpoints[b].width),
+      'grid': Drupal.settings.responsiveLayout.defaultBreakpoints[b].grid_name,
+      'regions': [
+        {
+          'machine_name': 'header_a',
+          'columns': 1
+        },
+        {
+          'machine_name': 'header_b',
+          'columns': 2
+        },
+      ],
+    });
+  }
+  return breakpointList;
 }
 
 /**

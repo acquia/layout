@@ -112,13 +112,13 @@
     /**
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    LayoutManager.prototype.registerLayout = function (step, gridList) {
+    LayoutManager.prototype.registerLayout = function (step) {
       // Add the Layout to the LayoutList.
       var fn = $.proxy(this.eventBroadcaster, this);
       this.layoutList.addItem({
         'step': step,
         'regionList': this.regionList,
-        'grid': this.gridList.getItem(step.grid)
+        'grid': this.gridList.getItem(step.grid.info('machine_name'))
       });
       // Add the Step to the StepManager.
       this.stepManager.addItem(step);
@@ -198,7 +198,7 @@
         'opacity': 0.4545
       })
       .css({
-        'z-index': 1
+        'z-index': 100
       });
       
     };
