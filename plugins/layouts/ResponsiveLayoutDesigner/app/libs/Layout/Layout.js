@@ -231,8 +231,7 @@
         });
         // Resize the left siblings.
         data.siblings.$right.css({
-          'width': data.bounds.width - (data.regionX + deltaX),
-          'outline': '1px dotted red'
+          'width': data.bounds.width - (data.regionX + deltaX)
         }); 
       }
       this.triggerEvent('regionResizing', this);
