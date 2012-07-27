@@ -32,7 +32,7 @@
       var grid = this.grid;
       var count = 0;
       // The size of a region may be overridden in this step.
-      var regionOverrides = step.info('regions');
+      var regionOverrides = step.info('regionList').info('items');
       var $row;
       var i, k, fn, region;
       // Build rows and regions.
@@ -179,6 +179,8 @@
         $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
         data.siblings['$' + data.side] = $placeholder;
       }
+      // Calculate the column size so regions can be snapped to grid columns.
+      data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
       data.regionX = 0;
@@ -188,6 +190,7 @@
       });
       data.regionX += (data.side === 'right') ? data.width : 0;
       data.mouseX = event.pageX;
+      // Calculate the left and right bounds for the resizing.
       data.bounds = {};
       data.bounds.width = $row.width();
       data.bounds.left = $row.position().left;
@@ -207,34 +210,61 @@
       event.stopImmediatePropagation();
       var data = event.data;
       if (event.pageX <= data.bounds.left || event.pageX >= data.bounds.right) {
-        return false;
+        //return false;
       }
       var region = data.region;
       var $region = region.info('$editor');
       var side = data.side;
       var deltaX = event.pageX - data.mouseX;
-      
-      if (data.side === 'left') {
-        // Resize the region.
-        $region.css({
-          'width': data.width - deltaX
-        });
-        // Resize the left siblings.
-        data.siblings.$left.css({
-          'width': data.regionX + deltaX
-        });
+      if (Math.abs(deltaX) > (data.frame)) {
+        if (data.side === 'left') {
+          var needle = 'rld-span';
+          // Get an array of the regions classes
+          var classes = $region.attr('class').split(' ');
+          // Create a new class list with the grid span class.
+          var cl = [];
+          for (var i = 0; i < classes.length; i++) {
+            if (classes[i].indexOf(needle) === -1) {
+              cl.push(classes[i]);
+            }
+            // Replace this previous grid span class with a new one.
+            else {
+              // Get the region from the columns override from the span object
+              // for this region.  Update the override. If the region is now 
+              // full width, remove the override.
+              // var override = this.layout.step.regionList.getItem(region).columns;
+              // If no override exists, create one.
+              // cl.push('rld-span_' + (deltaX > 0) ? override - 1 : override + 1);
+              cl.push('rld-span_' + Math.floor(Math.abs(data.regionX + deltaX) / data.frame));
+            }
+          }
+          classes = cl;
+          // Put in the new grid class.
+          // Create a string and assign it to the region.
+          $region.removeAttr('class').addClass(classes.join(' '));
+          /*
+          // Resize the region.
+          $region.css({
+            'width': data.width - deltaX
+          });
+          // Resize the left siblings.
+          data.siblings.$left.css({
+            'width': data.regionX + deltaX
+          });*/
+        }
+        if (data.side === 'right') {
+          /*
+          // Resize the region.
+          $region.css({
+            'width': data.width + deltaX
+          });
+          // Resize the left siblings.
+          data.siblings.$right.css({
+            'width': data.bounds.width - (data.regionX + deltaX)
+          }); */
+        }
       }
-      if (data.side === 'right') {
-        // Resize the region.
-        $region.css({
-          'width': data.width + deltaX
-        });
-        // Resize the left siblings.
-        data.siblings.$right.css({
-          'width': data.bounds.width - (data.regionX + deltaX)
-        }); 
-      }
-      this.triggerEvent('regionResizing', this);
+      // this.triggerEvent('regionResizing', this);
     };
     /**
      *
@@ -251,7 +281,7 @@
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
       // Move the next available region up to the placeholder.
-      var $row = $region.closest('.rld-row');
+      /* var $row = $region.closest('.rld-row');
       var placeholders = {
         '$left': $row.find('.rld-placeholder:first'),
         '$right': $row.find('.rld-placeholder:last')
@@ -268,7 +298,7 @@
           })
         );
         this.updateRow($nextRow);
-      }
+      } */
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
     }

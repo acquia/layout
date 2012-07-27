@@ -39,8 +39,12 @@
           'label': items[i].label,
           'machine_name': items[i].machine_name,
           'breakpoint': items[i].breakpoint,
-          'regions': items[i].regions,
-          'grid': items[i].grid
+          'regionList': new RLD.RegionList({
+            'regions': items[i].regions
+          }),
+          'grid': new RLD.Grid({
+            'machine_name': items[i].grid
+          })
         }));
       }
     };
