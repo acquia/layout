@@ -169,7 +169,7 @@
         'class': 'rld-grid-overlay clearfix rld-container-' + columns,
       });
       var cols = Number(columns);
-      var i;
+      var fn;
       while (cols) {
         $overlay.append(
           $('<div>', {
@@ -178,9 +178,43 @@
         );
         cols -= 1;
       }
-      
+      fn = $.proxy(this.expandGridOverlay, $overlay);
+      $overlay
+      .bind('mouseover.ResponsiveLayoutDesigner', fn);
+      fn = $.proxy(this.contractGridOverlay, $overlay);
+      $overlay
+      .bind('mouseleave.ResponsiveLayoutDesigner', fn);
       
       return $overlay;
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.expandGridOverlay = function (event) {
+      var $overlay = this;
+      var height = $overlay.parent().innerHeight();
+      $overlay.animate({
+        height: height,
+        'opacity': 0.4545
+      })
+      .css({
+        'z-index': 1
+      });
+      
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.contractGridOverlay = function (event) {
+      var $overlay = this;
+      var height = $overlay.parent().innerHeight();
+      $overlay.animate({
+        height: 0,
+        'opacity': 1
+      })
+      .css({
+        'z-index': 0
+      });
     };
 
     return LayoutManager;
