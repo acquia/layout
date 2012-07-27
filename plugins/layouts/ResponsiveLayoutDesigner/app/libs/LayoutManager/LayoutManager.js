@@ -198,7 +198,7 @@
         'opacity': 0.4545
       })
       .css({
-        'z-index': 1
+        'z-index': 100
       });
       
     };
