@@ -45,7 +45,7 @@
             });
             count = 0;
           }
-          var classes = ['rld-col'];
+          var classes = ['rld-col rld-unit'];
           region = regions[i];
           if (regionOverrides.length > 0) {
             for (k = 0; k < regionOverrides.length; k++) {         
@@ -168,7 +168,7 @@
       // pass this information into the handlers.
       // Determine if the splitter is on the left or right side of region.
       data.side = $splitter.data('RLD/Region/Splitter-side');
-      data.width = $region.outerWidth();
+      data.width = $region.outerWidth(true);
       data.siblings = {
         '$left': $region.prevAll('.rld-region'),
         '$right': $region.nextAll('.rld-region')
@@ -184,7 +184,7 @@
       data.regionX = 0;
       data.siblings.$left.each(function () {
         var $this = $(this);
-        data.regionX += $this.outerWidth();
+        data.regionX += $this.outerWidth(true);
       });
       data.regionX += (data.side === 'right') ? data.width : 0;
       data.mouseX = event.pageX;
@@ -231,8 +231,7 @@
         });
         // Resize the left siblings.
         data.siblings.$right.css({
-          'width': data.bounds.width - (data.regionX + deltaX),
-          'outline': '1px dotted red'
+          'width': data.bounds.width - (data.regionX + deltaX)
         }); 
       }
       this.triggerEvent('regionResizing', this);
@@ -251,13 +250,14 @@
       // Clean up the DOM.
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
+      // Move the next available region up to the placeholder.
       var $row = $region.closest('.rld-row');
       var placeholders = {
         '$left': $row.find('.rld-placeholder:first'),
         '$right': $row.find('.rld-placeholder:last')
       };
       var $nextRow = $row.next('.rld-row');
-      var $candidateRegion = $nextRow.find('.rld-region');
+      var $candidateRegion = $nextRow.find('.rld-region:first');
       if ($candidateRegion.length > 0) {
         var $shiftedRegion = $candidateRegion.detach();
         var width = placeholders['$' + data.side].width();
