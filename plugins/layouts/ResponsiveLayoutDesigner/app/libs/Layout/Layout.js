@@ -83,8 +83,7 @@
         // list in our local list.
         deactivate: fn
       });
-      
-      // Return the editor as a DOM fragment.
+      // Return the $editor as a jQuery object.
       return this.$editor;
     };
     
@@ -95,49 +94,6 @@
         break;
       case 'regionRemoved':
         this.triggerEvent('regionRemoved', this, data.object);
-        break;
-      case 'regionResizeStarted':
-        var region = data.object;
-        var $region = region.info('$editor');
-        var $row = $region.closest('.rld-row');
-        
-        // If no siblings exist, then we're on a row edge. Insert a placeholder.
-        if (data.siblings['$' + data.side].length === 0) {
-          this.buildPlaceholder()[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
-        }
-        this.triggerEvent('regionResizeStarted', this);
-        break;
-      case 'regionResizing':
-        // Turn this on to test, but not for production.
-        // this.triggerEvent('regionResizing', this);
-        break;
-      case 'regionResized':
-        var region = data.object;
-        var $region = region.info('$editor');
-        // Reenable sortable when resize is finished.
-        var $delegator = $(event.getDelegator());
-        if ('sortable' in $delegator) {
-          $delegator.sortable('enable');
-        }
-        var $row = $region.closest('.rld-row');
-        var placeholders = {
-          '$left': $row.find('.rld-placeholder:first'),
-          '$right': $row.find('.rld-placeholder:last')
-        };
-        var $nextRow = $row.next('.rld-row');
-        var $candidateRegion = $nextRow.find('.rld-region');
-        if ($candidateRegion.length > 0) {
-          var $shiftedRegion = $candidateRegion.detach();
-          var width = placeholders['$' + data.side].width();
-          placeholders['$' + data.side].replaceWith(
-            $shiftedRegion
-            .css({
-              width: width
-            })
-          );
-          this.updateRow($nextRow);
-        }
-        this.triggerEvent('regionResized', this);
         break;
       case 'sortdeactivate':
         var regionList = [];
@@ -167,7 +123,7 @@
     
     Layout.prototype.buildPlaceholder = function () {
       return $('<div>', {
-        'class': 'rld-placeholder rld-nit'
+        'class': 'rld-placeholder rld-unit'
       });
     };
     
@@ -188,10 +144,9 @@
         })
         .data('RLD/Region/Splitter-side', 'right')
       );
-      
-      fn = $.proxy(this.startResize, this);
-      this.$editor
-      .delegate('.rld-region .rld-splitter', {'region': region}, 'mousedown.ResponsiveLayoutDesigner', fn);
+      // Return the editor as a DOM fragment.
+      fn = $.proxy(this.startRegionResize, this);
+      $region.find('.rld-splitter').bind('mousedown.ResponsiveLayoutDesigner', {'region': region}, fn);
       
       return $region
     };
@@ -199,11 +154,13 @@
      *
      */
     Layout.prototype.startRegionResize = function (event) {
+      this.$editor.sortable('disable');
       event.stopImmediatePropagation();
       var data = event.data;
       var region = data.region;
       var $region = region.info('$editor');
       var $splitter = $(event.target);
+      var $row = $region.closest('.rld-row');
       // Mark the splitter active.
       $splitter.addClass('splitter-active');
       // Since the resize function will be called on mousemove, we don't want
@@ -216,6 +173,12 @@
         '$left': $region.prevAll('.rld-region'),
         '$right': $region.nextAll('.rld-region')
       };
+      // If no siblings exist, then we're on a row edge. Insert a placeholder.
+      if (data.siblings['$' + data.side].length === 0) {
+        var $placeholder = this.buildPlaceholder()
+        $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
+        data.siblings['$' + data.side] = $placeholder;
+      }
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
       data.regionX = 0;
@@ -229,14 +192,13 @@
       data.bounds.width = $row.width();
       data.bounds.left = $row.position().left;
       data.bounds.right = $row.position().left + data.bounds.width;
-      data.$delegator = $delegator;
       // Add behaviors.
       fn = $.proxy(this.resizeRegion, this);
       $(document).bind('mousemove.regionResize', data, fn);
       fn = $.proxy(this.finishRegionResize, this);
       $(document).bind('mouseup.regionResize', data, fn);
       // Call listeners.
-      this.triggerEvent('regionResizeStarted', data);
+      this.triggerEvent('regionResizeStarted', this);
     };
     /**
      *
@@ -248,7 +210,7 @@
         return false;
       }
       var region = data.region;
-      var $region = this.info('$editor');
+      var $region = region.info('$editor');
       var side = data.side;
       var deltaX = event.pageX - data.mouseX;
       
@@ -269,26 +231,46 @@
         });
         // Resize the left siblings.
         data.siblings.$right.css({
-          'width': data.bounds.width - (data.regionX + deltaX)
+          'width': data.bounds.width - (data.regionX + deltaX),
+          'outline': '1px dotted red'
         }); 
       }
-      this.triggerEvent('regionResizing', data);
+      this.triggerEvent('regionResizing', this);
     };
     /**
      *
      */
     Layout.prototype.finishRegionResize = function (event) {
+      this.$editor.sortable('enable');
       event.stopImmediatePropagation();
       var data = event.data;
       var region = data.region;
-      var $region = this.info('$editor');
+      var $region = region.info('$editor');
       // Perform a final resize.
       this.resizeRegion.apply(this, arguments);
       // Clean up the DOM.
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
+      var $row = $region.closest('.rld-row');
+      var placeholders = {
+        '$left': $row.find('.rld-placeholder:first'),
+        '$right': $row.find('.rld-placeholder:last')
+      };
+      var $nextRow = $row.next('.rld-row');
+      var $candidateRegion = $nextRow.find('.rld-region');
+      if ($candidateRegion.length > 0) {
+        var $shiftedRegion = $candidateRegion.detach();
+        var width = placeholders['$' + data.side].width();
+        placeholders['$' + data.side].replaceWith(
+          $shiftedRegion
+          .css({
+            width: width
+          })
+        );
+        this.updateRow($nextRow);
+      }
       // Call listeners for this event.
-      this.triggerEvent('regionResized', event.data);
+      this.triggerEvent('regionResized', this);
     }
     /**
      *
