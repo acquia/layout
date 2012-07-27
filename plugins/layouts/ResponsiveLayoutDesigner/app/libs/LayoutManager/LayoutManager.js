@@ -133,7 +133,7 @@
       var $layout = $('<div>', {
         'class': 'rld-layout'
       });
-      var i, layout;
+      var i, layout, grid, gridColumns, gridClasses;
       // Clear out the current screen.
       $screen.children('.rld-layout').slideUp(80, function () {
         $(this).remove();
@@ -141,8 +141,10 @@
       // Get the active step and layout.
       for (i = 0; i < this.layoutList.info('items').length; i++) {
         layout = this.layoutList.info('items')[i];
-        if (layout.step.info('machine_name') === activeStep.info('machine_name')) {          
-          var gridClasses = layout.info('grid').info('classes') || [];
+        if (layout.step.info('machine_name') === activeStep.info('machine_name')) {
+          grid = layout.info('grid');
+          gridColumns = grid.info('columns');
+          gridClasses = grid.info('classes') || [];
           if (gridClasses.length > 0) {
             $screen.addClass();
           }
@@ -153,11 +155,32 @@
           $screen
           .append(
             $layout
+            .empty()
             .addClass(gridClasses.join(' '))
-            .html(layout.build())
+            .append(this.buildGridOverlay(gridColumns))
+            .append(layout.build())
           );
         }
       }
+    };
+    
+    LayoutManager.prototype.buildGridOverlay = function (columns) {
+      var $overlay = $('<div>', {
+        'class': 'rld-grid-overlay clearfix rld-container-' + columns,
+      });
+      var cols = Number(columns);
+      var i;
+      while (cols) {
+        $overlay.append(
+          $('<div>', {
+            'class': 'rld-span_1 rld-col rld-grid-col'
+          })
+        );
+        cols -= 1;
+      }
+      
+      
+      return $overlay;
     };
 
     return LayoutManager;
