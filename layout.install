@@ -95,36 +95,36 @@ function layout_schema() {
       'name' => array('name'),
     ),
   );
-  $schema['layout_grid'] = array(
-    'description' => 'Information about common grids for responsive layouts.',
+  $schema['layout_breakpoint'] = array(
+    'description' => 'Information about common breakpoints for responsive layouts.',
     'export' => array(
       'key' => 'name',
-      'identifier' => 'layout_grid', // Exports will be defined as $layout_grid.
-      'default hook' => 'default_layout_grid',  // Function hook name.
+      'identifier' => 'layout_breakpoint', // Exports will be defined as $layout_breakpoint.
+      'default hook' => 'default_layout_breakpoint',  // Function hook name.
       'api' => array(
         'owner' => 'layout',
-        'api' => 'default_layout_grid',  // Base name for api include files.
+        'api' => 'default_layout_breakpoint',  // Base name for api include files.
         'minimum_version' => 1,
         'current_version' => 1,
       ),
     ),
     'fields' => array(
-      'grid_id' => array(
-        'description' => 'Serial ID for this grid.',
+      'breakpoint_id' => array(
+        'description' => 'Serial ID for this breakpoint.',
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE,
         'no export' => TRUE,
       ),
       'name' => array(
-        'description' => 'Machine name for this grid.',
+        'description' => 'Machine name for this breakpoint.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
         'default' => '',
       ),
       'admin_title' => array(
-        'description' => 'User visible label for this grid.',
+        'description' => 'User visible label for this breakpoint.',
         'type' => 'varchar',
         'length' => 255,
         'not null' => TRUE,
@@ -137,13 +137,15 @@ function layout_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'css' => array(
-        'description' => 'Grid CSS style.',
-        'type' => 'text',
+      'grid_name' => array(
+        'description' => 'Grid applied at this breakpoint. References {gridbuilder}.name.',
+        'type' => 'varchar',
+        'length' => 255,
         'not null' => TRUE,
+        'default' => '',
       ),
     ),
-    'primary key' => array('grid_id'),
+    'primary key' => array('breakpoint_id'),
     'unique keys' => array(
       'name' => array('name'),
     ),
