@@ -13,7 +13,7 @@ function layout_menu() {
 
   // Regions.
   $items['admin/structure/panels/layouts/regions'] = array(
-    'title' => 'Responsive regions',
+    'title' => 'Regions',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'layout_admin_region_list',
     'access arguments' => array('administer layouts'),
@@ -52,8 +52,8 @@ function layout_menu() {
  */
 function layout_menu_alter(&$items) {
   // Convert the automatically created ctools menu item to a local task.
-  if (isset($items['admin/structure/panels/layouts/grids'])) {
-    $items['admin/structure/panels/layouts/grids']['type'] = MENU_LOCAL_TASK;
+  if (isset($items['admin/structure/panels/layouts/breakpoints'])) {
+    $items['admin/structure/panels/layouts/breakpoints']['type'] = MENU_LOCAL_TASK;
   }
 }
 
@@ -192,117 +192,117 @@ function layout_get_layouts_using_region($name) {
   return $layouts_using_region;
 }
 
-// == Grids ===================================================================
+// == Breakpoints =============================================================
 
 /**
  * Implementation of hook_ctools_plugin_api().
  *
- * Tell CTools that we support the default_layout_grid API.
+ * Tell CTools that we support the default_layout_breakpoint API.
  */
 function layout_ctools_plugin_api($owner, $api) {
-  if ($owner == 'layout' && $api == 'default_layout_grid') {
+  if ($owner == 'layout' && $api == 'default_layout_breakpoint') {
     return array('version' => 1);
   }
 }
 
 /**
- * Implementation of hook_default_layout_grid().
+ * Implementation of hook_default_layout_breakpoint().
  *
- * Provide a couple of default grids.
+ * Provide a couple of default breakpoints.
  */
-function layout_default_layout_grid() {
+function layout_default_layout_breakpoint() {
   $export = array();
 
-  $grid = new stdClass;
-  $grid->api_version = 1;
-  $grid->name = 'smartphone';
-  $grid->admin_title = 'Smartphone';
-  $grid->width = '320px';
-  $grid->css = '.panel-responsive { background-color: yellow; }';
-  $export['smatphone'] = $grid;
+  $breakpoint = new stdClass;
+  $breakpoint->api_version = 1;
+  $breakpoint->name = 'smartphone';
+  $breakpoint->admin_title = 'Smartphone';
+  $breakpoint->width = '320px';
+  $breakpoint->grid_name = 'three_column_fluid';
+  $export['smatphone'] = $breakpoint;
 
-  $grid = new stdClass;
-  $grid->api_version = 1;
-  $grid->name = 'tablet';
-  $grid->admin_title = 'Tablet';
-  $grid->width = '760px';
-  $grid->css = '.panel-responsive { background-color: green; }';
-  $export['tablet'] = $grid;
+  $breakpoint = new stdClass;
+  $breakpoint->api_version = 1;
+  $breakpoint->name = 'tablet';
+  $breakpoint->admin_title = 'Tablet';
+  $breakpoint->width = '760px';
+  $breakpoint->grid_name = 'six_column_fluid';
+  $export['tablet'] = $breakpoint;
 
-  $grid = new stdClass;
-  $grid->api_version = 1;
-  $grid->name = 'standard';
-  $grid->admin_title = 'Standard';
-  $grid->width = '960px';
-  $grid->css = '.panel-responsive { background-color: blue; }';
-  $export['standard'] = $grid;
+  $breakpoint = new stdClass;
+  $breakpoint->api_version = 1;
+  $breakpoint->name = 'standard';
+  $breakpoint->admin_title = 'Standard';
+  $breakpoint->width = '960px';
+  $breakpoint->grid_name = 'twelve_column_fluid';
+  $export['standard'] = $breakpoint;
 
   return $export;
 }
 
 /**
- * API function to get all responsive grids on the site.
+ * API function to get all responsive breakpoint on the site.
  */
-function layout_grid_load_all() {
+function layout_breakpoint_load_all() {
   ctools_include('export');
-  $grids = ctools_export_crud_load_all('layout_grid');
-  uasort($grids, 'layout_grid_item_sort_by_width');
-  return $grids;
+  $breakpoints = ctools_export_crud_load_all('layout_breakpoint');
+  uasort($breakpoints, 'layout_breakpoint_sort_by_width');
+  return $breakpoints;
 }
 
 /**
- * Look up one grid setup based on machine name.
+ * Look up one breakpoint setup based on machine name.
  */
-function layout_grid_load($name) {
+function layout_breakpoint_load($name) {
   ctools_include('export');
-  return ctools_export_crud_load('layout_grid', $name);
+  return ctools_export_crud_load('layout_breakpoint', $name);
 }
 
 /**
- * Build CSS for the grids with media queries.
+ * Build CSS for the breakpoints with media queries.
  *
  * @todo
  *   Figure out a good way to avoid equal max/min-weights in subsequent
- *   grids if that is a problem.
+ *   breakpoints if that is a problem.
  */
-function layout_grid_get_css() {
-  $grids = layout_grid_load_all();
+function layout_breakpoint_get_css() {
+  $breakpoints = layout_breakpoint_load_all();
 
-  $grid_css = array();
+  $breakpoint_css = array();
   $min_width = 0;
 
-  $grid_count = count($grids);
-  $grid_index = 0;
-  foreach ($grids as $name => $grid) {
-    $first_grid = $grid_index == 0;
-    $last_grid = ($grid_index == ($grid_count - 1));
+  $breakpoint_count = count($breakpoints);
+  $breakpoint_index = 0;
+  foreach ($breakpoints as $name => $breakpoint) {
+    $first_breakpoint = $breakpoint_index == 0;
+    $last_breakpoint = ($breakpoint_index == ($breakpoint_count - 1));
 
-    // Build the media query for this grid. The first item should not have a
-    // min-width (open ended to 0), and the last item should have no max-width
+    // Build the media query for this breakpoint. The first item should not have
+    // a min-width (open ended to 0), and the last item should have no max-width
     // (open-ended to infinity). Mid-items should both have a min-width and a
     // max-width.
-    $grid_css[] =
+    $breakpoint_css[] =
       '@media screen and (' .
-      ($first_grid ? '' : 'min-width:' . $min_width) .
-      ((!$first_grid && !$last_grid) ? ') and (' : '') .
-      ($last_grid ? '' : 'max-width:' . $grid->width) .
+      ($first_breakpoint ? '' : 'min-width:' . $min_width) .
+      ((!$first_breakpoint && !$last_breakpoint) ? ') and (' : '') .
+      ($last_breakpoint ? '' : 'max-width:' . $breakpoint->width) .
       ') {';
-    $grid_css[] = $grid->css;
-    $grid_css[] = '}';
+    $breakpoint_css[] = $breakpoint->css;
+    $breakpoint_css[] = '}';
 
-    // Remember min-width for next grid if applicable. The grids are in
-    // ascending width order, so we can rely on this sequence.
-    $min_width = $grid->width;
-    $grid_index++;
+    // Remember min-width for next breakpoint if applicable. The breakpoints
+    // are in ascending width order, so we can rely on this sequence.
+    $min_width = gridbuilder_get_css($breakpoint->grid_name);
+    $breakpoint_index++;
   }
 
-  return join("\n", $grid_css);
+  return join("\n", $breakpoint_css);
 }
 
 /**
- * Sort the grids in ascending order by their width.
+ * Sort the breakpoints in ascending order by their width.
  */
-function layout_grid_item_sort_by_width($a, $b) {
+function layout_breakpoint_sort_by_width($a, $b) {
   // Cast the width to int. Whether it provided as px or em, the cast should
   // result in a relevant number. It will not sort mixed em/px numbers properly
   // but that sounds like a broken setup. Not desigining for that.

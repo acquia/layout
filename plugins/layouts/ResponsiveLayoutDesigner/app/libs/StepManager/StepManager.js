@@ -20,7 +20,6 @@
     StepManager.prototype.setup = function (options) {
       // UI objects.
       this.$stepContainer = $('<div>', {});
-      this.$layoutContainer = $('<div>', {});
     };
     /**
      *
@@ -32,7 +31,6 @@
       this.$stepContainer = ($stepContainer.length > 0) ? $stepContainer : this.$stepContainer;
       // Clear the UI.
       this.$stepContainer.children().remove();
-      this.$layoutContainer.children().remove();
       // Build the list of steps.
       for (i = 0; i < this.steps.length; i++) {
         step = this.steps[i];
