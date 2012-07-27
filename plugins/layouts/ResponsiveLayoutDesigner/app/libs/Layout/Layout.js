@@ -223,6 +223,7 @@
           var classes = $region.attr('class').split(' ');
           // Create a new class list with the grid span class.
           var cl = [];
+          var deltaFrames;
           for (var i = 0; i < classes.length; i++) {
             if (classes[i].indexOf(needle) === -1) {
               cl.push(classes[i]);
@@ -232,25 +233,22 @@
               // Get the region from the columns override from the span object
               // for this region.  Update the override. If the region is now 
               // full width, remove the override.
-              // var override = this.layout.step.regionList.getItem(region).columns;
+              var overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
+              var override = (overrideRegion) ? overrideRegion.columns : this.grid.info('columns');
               // If no override exists, create one.
               // cl.push('rld-span_' + (deltaX > 0) ? override - 1 : override + 1);
-              cl.push('rld-span_' + Math.floor(Math.abs(data.regionX + deltaX) / data.frame));
+              deltaFrames = Math.floor(Math.abs(data.regionX + deltaX) / data.frame);
+              
+              var deltaSpan = override - deltaFrames;
+              cl.push('rld-span_' + deltaSpan);
             }
           }
           classes = cl;
           // Put in the new grid class.
           // Create a string and assign it to the region.
           $region.removeAttr('class').addClass(classes.join(' '));
-          /*
-          // Resize the region.
-          $region.css({
-            'width': data.width - deltaX
-          });
           // Resize the left siblings.
-          data.siblings.$left.css({
-            'width': data.regionX + deltaX
-          });*/
+          data.siblings.$left.addClass('rld-span_' + deltaFrames);
         }
         if (data.side === 'right') {
           /*
