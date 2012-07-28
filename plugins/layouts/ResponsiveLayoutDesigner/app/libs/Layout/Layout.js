@@ -184,6 +184,9 @@
           $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
           data.siblings['$' + data.side] = $placeholder;
         }
+        else {
+          data.siblings['$' + data.side] = $region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder');
+        }
       }
       // Calculate the column size so regions can be snapped to grid columns.
       data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
@@ -240,7 +243,7 @@
         // Resize the left siblings.
         // The number of grids columns to assign to the region/placeholder is equal to the
         // number of grid columns removed from the region being resized.
-        data.siblings.$left.supplantClass(data.needle, 'rld-span_' + deltaColumns);
+        data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + deltaColumns);
       }
       // this.triggerEvent('regionResizing', this);
     };
