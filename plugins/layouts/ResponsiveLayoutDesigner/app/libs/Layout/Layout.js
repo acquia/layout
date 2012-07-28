@@ -6,8 +6,7 @@
 
     // Layout Class
     function Layout() {
-      this.deltaColumns = NaN;
-      this.deltaSpan = NaN;
+      this.deltaColumns = 0;
       this.overrideRegion = null;
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -37,7 +36,7 @@
       // The size of a region may be overridden in this step.
       var regionOverrides = step.info('regionList').info('items');
       var $row;
-      var i, k, fn, region;
+      var i, k, fn, region, span;
       // Build rows and regions.
       for (i = 0; i < regions.length; i++) {
         var override = undefined;
@@ -85,12 +84,12 @@
         }
         // If an override for this region exists, use it.
         if (override !== undefined) {
-          classes.push('rld-span_' + override.columns);
+          span = override.columns;
           count += override.columns;
         }
         // Otherwise the region is assumed to be full width.
         else {
-          classes.push('rld-span_' + grid.columns);
+          span = grid.columns;
           count = grid.columns;
         }
         // Build the region and append it to the row.
@@ -99,6 +98,9 @@
             regions[i].build({
               'classes': classes
             })
+            .data('RLD/Region')
+            // Get the Region object and update its span.
+            .alterSpan(span)
           )
         );
       }
@@ -237,40 +239,26 @@
     Layout.prototype.resizeRegion = function (event) {
       event.stopImmediatePropagation();
       var data = event.data;
-      if (event.pageX <= data.bounds.left || event.pageX >= data.bounds.right) {
-        //return false;
-      }
       var region = data.region;
-      var $region = region.info('$editor');
       // Calculate the number of grid columns the mouse has traversed.
-      var deltaCoulumns = 0;
-      var mouseDelta = event.pageX - data.mouseX;
-      deltaColumns = Math.floor((event.pageX - data.mouseX) / data.frame);
-      // Math.floor causes a negative deltaColumn to expand when we hit the leading edge.
-      // To expand on the trailing edge, we add one.
-      if (deltaColumns < 0) {
-        deltaColumns += 1;
+      var columnsTraversed = Math.floor((event.pageX - data.mouseX) / data.frame);
+      // We want regions resized from the right to resize on the trailing
+      // edge of the column, not the leading edge.
+      if (columnsTraversed < 0 ) {
+        columnsTraversed += 1;
       }
-      // Keep track of the deltaFrame and only resize the region if the frame changes.
-      if (deltaColumns !== this.deltaColumns) {
-        this.deltaColumns = deltaColumns;
+      // Get the difference between the distance we know we've covered in previous loops,
+      // and where the mouse is in this loop.
+      var traversedChunk = columnsTraversed - this.deltaColumns;
+      // Keep track of the current number of traversed columns
+      // and only resize the region if the frame changes.
+      if (columnsTraversed !== this.deltaColumns) {
+        this.deltaColumns += traversedChunk;
         // Get an object of two regions: the one to be expanded and the one to be contracted.
         var affectedRegions = this.getAffectedRegions(region, data);
-        // The numer of grid columns to assign to the region is the difference of the span
-        // it already consumes minus the delta.
-        if (data.side === 'left') {
-          this.deltaSpan = data.overrideColumns - deltaColumns;
-        }
-        else {
-          this.deltaSpan = data.overrideColumns + deltaColumns;
-        }
-        // Create a new class list with the grid span class.
-        $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
-        this.log(this.deltaColumns);
-        // Resize the left siblings.
-        // The number of grids columns to assign to the region/placeholder is equal to the
-        // number of grid columns removed from the region being resized.
-        // data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + (data.totalColumns - this.deltaSpan));
+        //
+        affectedRegions.right.alterSpan((traversedChunk * -1), true);
+        affectedRegions.left.alterSpan(traversedChunk, true);
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -299,8 +287,7 @@
       }
       // Clean up state.
       region.info('active', null);
-      this.deltaColumns = NaN;
-      this.deltaSpan = NaN;
+      this.deltaColumns = 0;
       this.overrideRegion = null;
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
