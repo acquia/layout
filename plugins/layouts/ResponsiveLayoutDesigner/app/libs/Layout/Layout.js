@@ -39,43 +39,41 @@
       var $row;
       var i, k, fn, region;
       // Build rows and regions.
-      if (regions.length > 0) {
-        for (i = 0; i < regions.length; i++) {
-          var override = undefined;
-          if ((count === 0) || (count >= grid.columns)) {
-            $row = $('<div>', {
-              'class': 'rld-row clearfix'
-            });
-            count = 0;
-          }
-          var classes = ['rld-col rld-unit'];
-          region = regions[i];
-          if (regionOverrides.length > 0) {
-            for (k = 0; k < regionOverrides.length; k++) {         
-              if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
-                override = regionOverrides[k];
-                break;
-              }
+      for (i = 0; i < regions.length; i++) {
+        var override = undefined;
+        if ((count === 0) || (count >= grid.columns)) {
+          $row = $('<div>', {
+            'class': 'rld-row clearfix'
+          });
+          count = 0;
+        }
+        var classes = ['rld-col rld-unit'];
+        region = regions[i];
+        if (regionOverrides.length > 0) {
+          for (k = 0; k < regionOverrides.length; k++) {         
+            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+              override = regionOverrides[k];
+              break;
             }
           }
-          if (override !== undefined) {
-            classes.push('rld-span_' + override.columns);
-            count += override.columns;
-          }
-          else {
-            classes.push('rld-span_' + grid.columns);
-            count = 0;
-          }
-          
-          $row.append(
-            this.modifyRegionBuild(
-              regions[i].build({
-                'classes': classes
-              })
-            )
-          )
-          .appendTo(this.$editor);
         }
+        if (override !== undefined) {
+          classes.push('rld-span_' + override.columns);
+          count += override.columns;
+        }
+        else {
+          classes.push('rld-span_' + grid.columns);
+          count = 0;
+        }
+        
+        $row.append(
+          this.modifyRegionBuild(
+            regions[i].build({
+              'classes': classes
+            })
+          )
+        )
+        .appendTo(this.$editor);
       }
       // Bind behaviors.
       fn = $.proxy(this.processEvent, this);
@@ -157,7 +155,11 @@
       var region = data.region;
       var $region = region.info('$editor');
       var $splitter = $(event.target);
+      // @todo eventually the row should be stored in state, not structure.
       var $row = $region.closest('.rld-row');
+      var i;
+      // Mark the region as active.
+      region.info('active', true);
       // Mark the splitter active.
       $splitter.addClass('splitter-active');
       // Since the resize function will be called on mousemove, we don't want
@@ -284,6 +286,7 @@
         this.step.regionList.addItem(r);
       }
       // Clean up globals.
+      region.info('active', null);
       this.deltaColumns = NaN;
       this.deltaSpan = NaN;
       this.overrideRegion = null;
