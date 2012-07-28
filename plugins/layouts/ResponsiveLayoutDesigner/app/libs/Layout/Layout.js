@@ -186,7 +186,7 @@
       var $splitter = $(event.target);
       // @todo eventually the row should be stored in state, not structure.
       var $row = $region.closest('.rld-row');
-      var i;
+      var i, widthOffset, originalColumn;
       // Mark the region as active.
       region.info('active', true);
       // Mark the splitter active.
@@ -203,28 +203,21 @@
       });
       // Calculate the column size so regions can be snapped to grid columns.
       data.totalColumns = Number(this.grid.info('columns'));
-      data.frame = Number(this.step.info('size')) / data.totalColumns;
-      data.needle = 'rld-span';
+      data.frame = Math.floor(Number(this.step.info('size')) / data.totalColumns);
       // Get the region from the columns override from the span object
       // for this region.
       this.overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
       // If no override exists, assume full width.
       data.overrideColumns = (this.overrideRegion) ? this.overrideRegion.columns : this.grid.info('columns');
-      // Calculate the X origin. This is either the left or right edge of the active
-      // region, depending on which splitter is clicked.
-      // @todo no used any more, but might be useful in the future.
-      /* data.regionX = 0;
-      data.siblings.$left.each(function () {
-        var $this = $(this);
-        data.regionX += $this.outerWidth(true);
-      });
-      data.regionX += (data.side === 'right') ? data.width : 0; */
-      data.mouseX = event.pageX; 
+      // Store the X origin of the original click.
+      data.originX = event.pageX;
+      // Get the column the resize started in.
+      widthOffset = (data.side === 'right') ? data.width : 0;
+      originalColumn = Math.floor(($region.position().left + widthOffset) / data.frame);
+      data.originColumn = (data.side === 'left') ? ++originalColumn : originalColumn;
       // Calculate the left and right bounds for the resizing.
-      data.bounds = {};
-      data.bounds.width = $row.width();
-      data.bounds.left = $row.position().left;
-      data.bounds.right = $row.position().left + data.bounds.width;
+      data.rightMaxTraversal = data.totalColumns - data.originColumn;
+      data.leftMaxTraversal = (data.originColumn -1) * -1;
       // Add behaviors.
       fn = $.proxy(this.resizeRegion, this);
       $(document).bind('mousemove.regionResize', data, fn);
@@ -241,7 +234,7 @@
       var data = event.data;
       var region = data.region;
       // Calculate the number of grid columns the mouse has traversed.
-      var columnsTraversed = Math.floor((event.pageX - data.mouseX) / data.frame);
+      var columnsTraversed = Math.floor((event.pageX - data.originX) / data.frame);
       // We want regions resized from the right to resize on the trailing
       // edge of the column, not the leading edge.
       if (columnsTraversed < 0 ) {
@@ -250,10 +243,14 @@
       // Get the difference between the distance we know we've covered in previous loops,
       // and where the mouse is in this loop.
       var traversedChunk = columnsTraversed - this.deltaColumns;
+      var proposedDelta = this.deltaColumns + traversedChunk;
       // Keep track of the current number of traversed columns
       // and only resize the region if the frame changes.
+      if (proposedDelta < data.leftMaxTraversal || proposedDelta > data.rightMaxTraversal) {
+        return;
+      }
       if (columnsTraversed !== this.deltaColumns) {
-        this.deltaColumns += traversedChunk;
+        this.deltaColumns = proposedDelta;
         // Get an object of two regions: the one to be expanded and the one to be contracted.
         var affectedRegions = this.getAffectedRegions(region, data, traversedChunk);
         // Resize the affected regions by the amount traversed chunk of columns.
@@ -363,8 +360,7 @@
           }
           // Don't allow the candidate region to contract smaller than one column or expand more than the total number of columns.
           if ((candidate.span === 1 && isCandidateContracting) || ((candidate.span === data.totalColumns) && isCandidateExpanding)) {
-            // This might need to be a break instead of continue.
-            continue;
+            return regions;
           }
           // The candidate can be manipulated.
           regions[candidateSide] = candidate;
