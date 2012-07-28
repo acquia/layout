@@ -41,14 +41,40 @@
       // Build rows and regions.
       for (i = 0; i < regions.length; i++) {
         var override = undefined;
+        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
         if ((count === 0) || (count >= grid.columns)) {
+          // Append a placeholder to the end of a row.
+          if (count >= grid.columns) {
+            $row.append(
+              new RLD.Region({
+                'type': 'placeholder'
+              })
+              .build({
+                'classes': ['rld-placeholder']
+              })
+            );
+          }
+          // Create a new row.
           $row = $('<div>', {
             'class': 'rld-row clearfix'
-          });
+          })
+          // Append a placeholder to the start of the row.
+          .append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': ['rld-placeholder']
+            })
+          )
+          // Append the row to the editor.
+          .appendTo(this.$editor);
+          // Restart the row span count.
           count = 0;
         }
         var classes = ['rld-col rld-unit'];
         region = regions[i];
+        // If this step has region overrides, get the override that matches this region, if any.
         if (regionOverrides.length > 0) {
           for (k = 0; k < regionOverrides.length; k++) {         
             if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
@@ -57,23 +83,24 @@
             }
           }
         }
+        // If an override for this region exists, use it.
         if (override !== undefined) {
           classes.push('rld-span_' + override.columns);
           count += override.columns;
         }
+        // Otherwise the region is assumed to be full width.
         else {
           classes.push('rld-span_' + grid.columns);
           count = 0;
         }
-        
+        // Build the region and append it to the row.
         $row.append(
           this.modifyRegionBuild(
             regions[i].build({
               'classes': classes
             })
           )
-        )
-        .appendTo(this.$editor);
+        );
       }
       // Bind behaviors.
       fn = $.proxy(this.processEvent, this);
