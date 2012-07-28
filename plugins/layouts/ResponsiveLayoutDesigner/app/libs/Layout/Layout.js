@@ -6,7 +6,9 @@
 
     // Layout Class
     function Layout() {
-      this.deltaFrames = NaN;
+      this.deltaColumns = NaN;
+      this.deltaSpan = NaN;
+      this.overrideRegion = null;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -185,6 +187,12 @@
       }
       // Calculate the column size so regions can be snapped to grid columns.
       data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
+      data.needle = 'rld-span';
+      // Get the region from the columns override from the span object
+      // for this region.
+      this.overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
+      // If no override exists, assume full width.
+      data.overrideColumns = (this.overrideRegion) ? this.overrideRegion.columns : this.grid.info('columns');
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
       // @todo no used any more, but might be useful in the future.
@@ -220,25 +228,19 @@
       var region = data.region;
       var $region = region.info('$editor');
       // Calculate the number of grid columns the mouse has traversed.
-      var deltaFrames = Math.floor(Math.abs(event.pageX - data.mouseX) / data.frame);
-      // Keep track of the deltaFrame and only resize the region if the new frame changes.
-      if (deltaFrames !== this.deltaFrames) {
-        this.deltaFrames = deltaFrames;
-        var needle = 'rld-span';
-        // Get the region from the columns override from the span object
-        // for this region.  
-        var overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
-        // If no override exists, assume full width.
-        var override = (overrideRegion) ? overrideRegion.columns : this.grid.info('columns');
+      var deltaColumns = Math.floor(Math.abs(event.pageX - data.mouseX) / data.frame);
+      // Keep track of the deltaFrame and only resize the region if the frame changes.
+      if (deltaColumns !== this.deltaColumns) {
+        this.deltaColumns = deltaColumns;
         // The numer of grid columns to assign to the region is the difference of the span
         // it already consumes minus the delta.
-        var deltaSpan = override - deltaFrames;
+        this.deltaSpan = data.overrideColumns - deltaColumns;
         // Create a new class list with the grid span class.
-        $region.supplantClass(needle, 'rld-span_' + deltaSpan);
+        $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
         // Resize the left siblings.
         // The number of grids columns to assign to the region/placeholder is equal to the
         // number of grid columns removed from the region being resized.
-        data.siblings.$left.supplantClass(needle, 'rld-span_' + deltaFrames);
+        data.siblings.$left.supplantClass(data.needle, 'rld-span_' + deltaColumns);
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -253,11 +255,26 @@
       var $region = region.info('$editor');
       // Perform a final resize.
       this.resizeRegion.apply(this, arguments);
-      // Clean up globals.
-      this.deltaFrames = NaN;
       // Clean up the DOM.
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
+      // Save any changes to regions.
+      // If the region already has an override, update it.
+      if (this.overrideRegion) {
+        this.step.regionList.getItem(this.overrideRegion.info('machine_name')).info('columns', this.deltaSpan);
+      }
+      // If the region doesn't have an override yet, create one. This can't be a reference to the
+      // canonical regionList regions, it needs to be a new object.
+      else {
+        var r = region.snapshot();
+        r.columns = this.deltaSpan;
+        this.step.regionList.addItem(r);
+      }
+      // Clean up globals.
+      this.deltaColumns = NaN;
+      this.deltaSpan = NaN;
+      this.overrideRegion = null;
+
       // Update the override. If the region is now full width, remove the override.
       // If no override exists, create one.
       // Move the next available region up to the placeholder.
