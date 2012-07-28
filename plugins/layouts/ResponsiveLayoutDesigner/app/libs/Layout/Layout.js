@@ -186,7 +186,7 @@
       var $splitter = $(event.target);
       // @todo eventually the row should be stored in state, not structure.
       var $row = $region.closest('.rld-row');
-      var i;
+      var i, widthOffset, originalColumn;
       // Mark the region as active.
       region.info('active', true);
       // Mark the splitter active.
@@ -203,28 +203,21 @@
       });
       // Calculate the column size so regions can be snapped to grid columns.
       data.totalColumns = Number(this.grid.info('columns'));
-      data.frame = Number(this.step.info('size')) / data.totalColumns;
-      data.needle = 'rld-span';
+      data.frame = Math.floor(Number(this.step.info('size')) / data.totalColumns);
       // Get the region from the columns override from the span object
       // for this region.
       this.overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
       // If no override exists, assume full width.
       data.overrideColumns = (this.overrideRegion) ? this.overrideRegion.columns : this.grid.info('columns');
-      // Calculate the X origin. This is either the left or right edge of the active
-      // region, depending on which splitter is clicked.
-      // @todo no used any more, but might be useful in the future.
-      /* data.regionX = 0;
-      data.siblings.$left.each(function () {
-        var $this = $(this);
-        data.regionX += $this.outerWidth(true);
-      });
-      data.regionX += (data.side === 'right') ? data.width : 0; */
-      data.mouseX = event.pageX; 
+      // Store the X origin of the original click.
+      data.originX = event.pageX;
+      // Get the column the resize started in.
+      widthOffset = (data.side === 'right') ? data.width : 0;
+      originalColumn = Math.floor(($region.position().left + widthOffset) / data.frame);
+      data.originColumn = (data.side === 'left') ? ++originalColumn : originalColumn;
       // Calculate the left and right bounds for the resizing.
-      data.bounds = {};
-      data.bounds.width = $row.width();
-      data.bounds.left = $row.position().left;
-      data.bounds.right = $row.position().left + data.bounds.width;
+      data.rightMaxTraversal = data.totalColumns - data.originColumn;
+      data.leftMaxTraversal = (data.originColumn -1) * -1;
       // Add behaviors.
       fn = $.proxy(this.resizeRegion, this);
       $(document).bind('mousemove.regionResize', data, fn);
@@ -241,7 +234,7 @@
       var data = event.data;
       var region = data.region;
       // Calculate the number of grid columns the mouse has traversed.
-      var columnsTraversed = Math.floor((event.pageX - data.mouseX) / data.frame);
+      var columnsTraversed = Math.floor((event.pageX - data.originX) / data.frame);
       // We want regions resized from the right to resize on the trailing
       // edge of the column, not the leading edge.
       if (columnsTraversed < 0 ) {
@@ -250,15 +243,23 @@
       // Get the difference between the distance we know we've covered in previous loops,
       // and where the mouse is in this loop.
       var traversedChunk = columnsTraversed - this.deltaColumns;
+      var proposedDelta = this.deltaColumns + traversedChunk;
       // Keep track of the current number of traversed columns
       // and only resize the region if the frame changes.
+      if (proposedDelta < data.leftMaxTraversal || proposedDelta > data.rightMaxTraversal) {
+        return;
+      }
       if (columnsTraversed !== this.deltaColumns) {
-        this.deltaColumns += traversedChunk;
+        this.deltaColumns = proposedDelta;
         // Get an object of two regions: the one to be expanded and the one to be contracted.
-        var affectedRegions = this.getAffectedRegions(region, data);
-        //
-        affectedRegions.right.alterSpan((traversedChunk * -1), true);
-        affectedRegions.left.alterSpan(traversedChunk, true);
+        var affectedRegions = this.getAffectedRegions(region, data, traversedChunk);
+        // Resize the affected regions by the amount traversed chunk of columns.
+        if (affectedRegions.right) {
+          affectedRegions.right.alterSpan((traversedChunk * -1), true);
+        }
+        if (affectedRegions.left) {
+          affectedRegions.left.alterSpan(traversedChunk, true);
+        }
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -319,21 +320,58 @@
     /**
      *
      */
-    Layout.prototype.getAffectedRegions = function (region, data) {
+    Layout.prototype.getAffectedRegions = function (region, data, traversedChunk) {
+      var units = data.units;
+      var activeSide = (data.side === 'left') ? 'right' : 'left';
+      var candidateSide = (data.side === 'left') ? 'left' : 'right';
       var regions = {};
-      var i, index;
-      
+      // Expanding and contracting checks for the active and candidate regions.
+      var isActiveContracting = ((activeSide === 'left' && traversedChunk < 0) || (activeSide === 'right' && traversedChunk > 0));
+      var isActiveExpanding = ((activeSide === 'left' && traversedChunk > 0) || (activeSide === 'right' && traversedChunk < 0));
+      var isCandidateContracting = ((candidateSide === 'left' && traversedChunk < 0) || (candidateSide === 'right' && traversedChunk > 0));
+      var isCandidateExpanding = ((candidateSide === 'left' && traversedChunk > 0) || (candidateSide === 'right' && traversedChunk < 0));
+      var i, index, candidate;
+      // Assume nothing is changing.
+      regions[activeSide] = null;
+      regions[candidateSide] = null;
+      // Don't allow the active region to contract smaller than one column or expand more than the total number of columns.
+      if ((region.span === 1 && isActiveContracting) || ((region.span === data.totalColumns) && isActiveExpanding)) {
+        return regions;
+      }
+      // If the active region can be altered, then determine which unit will be the passive unit.
+      // This is a zero-sum game. Someone has to make room or take room.
       // Get the index of the active region from the units.
-      for (i = 0; i < data.units.length; i++) {
-        if ('active' in data.units[i] && data.units[i].active) {
+      for (i = 0; i < units.length; i++) {
+        if ('active' in units[i] && units[i].active) {
           index = i;
           break;
         }
       }
-      // Find the affected units.
-      regions[(data.side === 'left') ? 'right' : 'left'] = region;
-      regions[(data.side === 'left') ? 'left' : 'right'] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
-      
+      // Try candidate units until one can be manipulated.
+      for (i = (data.side === 'left') ? (i - 1) : (i + 1); i > 0 || i < (units.length - 1); (data.side === 'left') ? i-- : i++) {
+        // The try-catch is here to make sure we don't access an index of units
+        // that doesn't exist and blow up the application.
+        try {
+          candidate = units[i];
+          // If the candidate is a placeholder, just use it.
+          if (candidate.type === 'placeholder') {
+            regions[candidateSide] = candidate;
+            break;
+          }
+          // Don't allow the candidate region to contract smaller than one column or expand more than the total number of columns.
+          if ((candidate.span === 1 && isCandidateContracting) || ((candidate.span === data.totalColumns) && isCandidateExpanding)) {
+            return regions;
+          }
+          // The candidate can be manipulated.
+          regions[candidateSide] = candidate;
+          break;
+        }
+        catch (error) {
+          regions[candidateSide] = null;
+        }
+      }
+      // The region can be resized. We should have a candidate as well.
+      regions[activeSide] = region;
       return regions;
     }
     /**
