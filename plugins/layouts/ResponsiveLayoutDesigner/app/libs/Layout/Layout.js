@@ -189,7 +189,8 @@
         }
       }
       // Calculate the column size so regions can be snapped to grid columns.
-      data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
+      data.totalColumns = Number(this.grid.info('columns'));
+      data.frame = Number(this.step.info('size')) / data.totalColumns;
       data.needle = 'rld-span';
       // Get the region from the columns override from the span object
       // for this region.
@@ -231,19 +232,29 @@
       var region = data.region;
       var $region = region.info('$editor');
       // Calculate the number of grid columns the mouse has traversed.
-      var deltaColumns = Math.floor(Math.abs(event.pageX - data.mouseX) / data.frame);
+      var deltaCoulumns = 0;
+      var mouseDelta = event.pageX - data.mouseX;
+      deltaColumns = Math.floor((event.pageX - data.mouseX) / data.frame);
+      if (deltaColumns < 0) {
+        deltaColumns += 1;
+      }
       // Keep track of the deltaFrame and only resize the region if the frame changes.
       if (deltaColumns !== this.deltaColumns) {
         this.deltaColumns = deltaColumns;
         // The numer of grid columns to assign to the region is the difference of the span
         // it already consumes minus the delta.
-        this.deltaSpan = data.overrideColumns - deltaColumns;
+        if (data.side === 'left') {
+          this.deltaSpan = data.overrideColumns - deltaColumns;
+        }
+        else {
+          this.deltaSpan = data.overrideColumns + deltaColumns;
+        }
         // Create a new class list with the grid span class.
         $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
         // Resize the left siblings.
         // The number of grids columns to assign to the region/placeholder is equal to the
         // number of grid columns removed from the region being resized.
-        data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + deltaColumns);
+        data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + (data.totalColumns - this.deltaSpan));
       }
       // this.triggerEvent('regionResizing', this);
     };
