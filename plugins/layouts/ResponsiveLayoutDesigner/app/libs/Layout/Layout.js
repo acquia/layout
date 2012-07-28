@@ -41,6 +41,7 @@
       // Build rows and regions.
       for (i = 0; i < regions.length; i++) {
         var override = undefined;
+        var classes = ['rld-col rld-unit'];
         // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
         if ((count === 0) || (count >= grid.columns)) {
           // Append a placeholder to the end of a row.
@@ -50,7 +51,7 @@
                 'type': 'placeholder'
               })
               .build({
-                'classes': ['rld-placeholder']
+                'classes': classes
               })
             );
           }
@@ -64,7 +65,7 @@
               'type': 'placeholder'
             })
             .build({
-              'classes': ['rld-placeholder']
+              'classes': classes
             })
           )
           // Append the row to the editor.
@@ -72,7 +73,6 @@
           // Restart the row span count.
           count = 0;
         }
-        var classes = ['rld-col rld-unit'];
         region = regions[i];
         // If this step has region overrides, get the override that matches this region, if any.
         if (regionOverrides.length > 0) {
@@ -91,7 +91,7 @@
         // Otherwise the region is assumed to be full width.
         else {
           classes.push('rld-span_' + grid.columns);
-          count = 0;
+          count = grid.columns;
         }
         // Build the region and append it to the row.
         $row.append(
@@ -297,9 +297,6 @@
       var $region = region.info('$editor');
       // Perform a final resize.
       this.resizeRegion.apply(this, arguments);
-      // Clean up the DOM.
-      $region.find('.splitter').removeClass('splitter-active');
-      $(document).unbind('.regionResize');
       // Save any changes to regions.
       // If the region already has an override, update it.
       if (this.overrideRegion) {
@@ -312,11 +309,13 @@
         r.columns = this.deltaSpan;
         this.step.regionList.addItem(r);
       }
-      // Clean up globals.
+      // Clean up state.
       region.info('active', null);
       this.deltaColumns = NaN;
       this.deltaSpan = NaN;
       this.overrideRegion = null;
+      $region.find('.splitter').removeClass('splitter-active');
+      $(document).unbind('.regionResize');
 
       // Update the override. If the region is now full width, remove the override.
       // If no override exists, create one.
