@@ -255,10 +255,14 @@
       if (columnsTraversed !== this.deltaColumns) {
         this.deltaColumns += traversedChunk;
         // Get an object of two regions: the one to be expanded and the one to be contracted.
-        var affectedRegions = this.getAffectedRegions(region, data);
-        //
-        affectedRegions.right.alterSpan((traversedChunk * -1), true);
-        affectedRegions.left.alterSpan(traversedChunk, true);
+        var affectedRegions = this.getAffectedRegions(region, data, traversedChunk);
+        // Resize the affected regions by the amount traversed chunk of columns.
+        if (affectedRegions.right) {
+          affectedRegions.right.alterSpan((traversedChunk * -1), true);
+        }
+        if (affectedRegions.left) {
+          affectedRegions.left.alterSpan(traversedChunk, true);
+        }
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -319,10 +323,21 @@
     /**
      *
      */
-    Layout.prototype.getAffectedRegions = function (region, data) {
+    Layout.prototype.getAffectedRegions = function (region, data, traversedChunk) {
       var regions = {};
+      var activeSide = (data.side === 'left') ? 'right' : 'left';
+      var passiveSide = (data.side === 'left') ? 'left' : 'right';
+      var isActiveContracting = ((activeSide === 'left' && traversedChunk < 0) || (activeSide === 'right' && traversedChunk > 0));
+      var isActiveExpanding = ((activeSide === 'left' && traversedChunk > 0) || (activeSide === 'right' && traversedChunk < 0));
       var i, index;
-      
+      // Don't allow the active region to contract smaller than one column or expand more than the total number of columns.
+      if ((region.span === 1 && isActiveContracting) || ((region.span === data.totalColumns) && isActiveExpanding)) {
+        regions[activeSide] = null;
+        regions[passiveSide] = null;
+        return regions;
+      }
+      // If the active region can be altered, then determine which until will the passive unit.
+      // This is a zero-sum game. Someone has to make room or take room.
       // Get the index of the active region from the units.
       for (i = 0; i < data.units.length; i++) {
         if ('active' in data.units[i] && data.units[i].active) {
@@ -330,9 +345,14 @@
           break;
         }
       }
+      // Don't allow units with only one column of width to collapses, unless they are placedholers.
+      // Don't allow units to be size greater than the number of columns in the grid.
+      // data.totalColumns
       // Find the affected units.
-      regions[(data.side === 'left') ? 'right' : 'left'] = region;
-      regions[(data.side === 'left') ? 'left' : 'right'] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
+      
+      // A normal resizing.
+      regions[activeSide] = region;
+      regions[passiveSide] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
       
       return regions;
     }
