@@ -243,13 +243,18 @@
       // Get the difference between the distance we know we've covered in previous loops,
       // and where the mouse is in this loop.
       var traversedChunk = columnsTraversed - this.deltaColumns;
+      // This is the amount that the region might be changed by.
       var proposedDelta = this.deltaColumns + traversedChunk;
-      // Keep track of the current number of traversed columns
-      // and only resize the region if the frame changes.
-      if (proposedDelta < data.leftMaxTraversal || proposedDelta > data.rightMaxTraversal) {
-        return;
+      // Check to see if the region needs to be sized up to the edge.
+      if (proposedDelta === data.leftMaxTraversal || proposedDelta === data.rightMaxTraversal) {
+        bypass = true;
       }
-      if (columnsTraversed !== this.deltaColumns) {
+      // Check to see if we are totally off the screen.
+      if (proposedDelta <= data.leftMaxTraversal || proposedDelta >= data.rightMaxTraversal) {
+        proposedDelta = (proposedDelta > 0) ? data.rightMaxTraversal : (proposedDelta < 0) ? data.leftMaxTraversal : proposedDelta;
+      }
+      // Only resize the region if the frame changes.
+      if (bypass || columnsTraversed !== this.deltaColumns) {
         this.deltaColumns = proposedDelta;
         // Get an object of two regions: the one to be expanded and the one to be contracted.
         var affectedRegions = this.getAffectedRegions(region, data, traversedChunk);
