@@ -195,27 +195,10 @@
       // Determine if the splitter is on the left or right side of region.
       data.side = $splitter.data('RLD/Region/Splitter-side');
       data.width = $region.outerWidth(true);
-      data.siblings = {
-        '$left': $region.prevAll('.rld-region'),
-        '$right': $region.nextAll('.rld-region')
-      };
-      // If no siblings exist, then we're on a row edge. Insert a placeholder.
-      if (data.siblings['$' + data.side].length === 0) {
-        // Only place a placeholder if one doesn't already exist.
-        if ($region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder').length === 0) {
-          var $placeholder = new RLD.Region({
-            'type': 'placeholder'
-          })
-          .build({
-            'classes': ['rld-placeholder']
-          });
-          $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
-          data.siblings['$' + data.side] = $placeholder;
-        }
-        else {
-          data.siblings['$' + data.side] = $region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder');
-        }
-      }
+      // Find all the regions/placeholders in this row.
+      data.units = $row.find('.rld-unit').map(function (index, element) {
+        return $(this).data('RLD/Region');
+      });
       // Calculate the column size so regions can be snapped to grid columns.
       data.totalColumns = Number(this.grid.info('columns'));
       data.frame = Number(this.step.info('size')) / data.totalColumns;
@@ -263,12 +246,16 @@
       var deltaCoulumns = 0;
       var mouseDelta = event.pageX - data.mouseX;
       deltaColumns = Math.floor((event.pageX - data.mouseX) / data.frame);
+      // Math.floor causes a negative deltaColumn to expand when we hit the leading edge.
+      // To expand on the trailing edge, we add one.
       if (deltaColumns < 0) {
         deltaColumns += 1;
       }
       // Keep track of the deltaFrame and only resize the region if the frame changes.
       if (deltaColumns !== this.deltaColumns) {
         this.deltaColumns = deltaColumns;
+        // Get an object of two regions: the one to be expanded and the one to be contracted.
+        var affectedRegions = this.getAffectedRegions(region, data);
         // The numer of grid columns to assign to the region is the difference of the span
         // it already consumes minus the delta.
         if (data.side === 'left') {
@@ -279,10 +266,11 @@
         }
         // Create a new class list with the grid span class.
         $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
+        this.log(this.deltaColumns);
         // Resize the left siblings.
         // The number of grids columns to assign to the region/placeholder is equal to the
         // number of grid columns removed from the region being resized.
-        data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + (data.totalColumns - this.deltaSpan));
+        // data.siblings['$' + data.side].supplantClass(data.needle, 'rld-span_' + (data.totalColumns - this.deltaSpan));
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -340,6 +328,26 @@
       } */
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
+    }
+    /**
+     *
+     */
+    Layout.prototype.getAffectedRegions = function (region, data) {
+      var regions = {};
+      var i, index;
+      
+      // Get the index of the active region from the units.
+      for (i = 0; i < data.units.length; i++) {
+        if ('active' in data.units[i] && data.units[i].active) {
+          index = i;
+          break;
+        }
+      }
+      // Find the affected units.
+      regions[(data.side === 'left') ? 'right' : 'left'] = region;
+      regions[(data.side === 'left') ? 'left' : 'right'] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
+      
+      return regions;
     }
     /**
      *
