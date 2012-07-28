@@ -37,12 +37,19 @@
       var i, item, region;
       for (i = 0; i < items.length; i++) {
         item = items[i];
-        region = new RLD.Region({
-          'label': ('label' in item) ? item['label'] : 'No label',
-          'machine_name': ('machine_name' in item) ? item['machine_name'] : 'no_machine_name',
-          'classes': ('classes' in item) ? item['classes'] : [],
-          'columns': ('columns' in item) ? item['columns'] : null
-        });
+        // Check if this item is already an item.
+        if ('init' in item && typeof item['init'] === 'function') {
+          region = item;
+          region.clearEventListeners();
+        }
+        else {
+          region = new RLD.Region({
+            'label': ('label' in item) ? item['label'] : 'No label',
+            'machine_name': ('machine_name' in item) ? item['machine_name'] : 'no_machine_name',
+            'classes': ('classes' in item) ? item['classes'] : [],
+            'columns': ('columns' in item) ? item['columns'] : null
+          });
+        }
         region.registerEventListener({
           'regionAdded': fn,
           'regionRemoved': fn,
@@ -54,6 +61,12 @@
         this.items.push(region);
       }
     };
+    /**
+     *
+     */
+    RegionList.prototype.addItem = function (item) {
+      this.processList([item]);
+    }
     /**
      *
      */

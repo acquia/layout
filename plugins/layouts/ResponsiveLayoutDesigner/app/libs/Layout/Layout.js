@@ -6,6 +6,9 @@
 
     // Layout Class
     function Layout() {
+      this.deltaColumns = NaN;
+      this.deltaSpan = NaN;
+      this.overrideRegion = null;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -175,21 +178,31 @@
       };
       // If no siblings exist, then we're on a row edge. Insert a placeholder.
       if (data.siblings['$' + data.side].length === 0) {
-        var $placeholder = this.buildPlaceholder()
-        $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
-        data.siblings['$' + data.side] = $placeholder;
+        // Only place a placeholder if one doesn't already exist.
+        if ($region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder').length === 0) {
+          var $placeholder = this.buildPlaceholder();
+          $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
+          data.siblings['$' + data.side] = $placeholder;
+        }
       }
       // Calculate the column size so regions can be snapped to grid columns.
       data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
+      data.needle = 'rld-span';
+      // Get the region from the columns override from the span object
+      // for this region.
+      this.overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
+      // If no override exists, assume full width.
+      data.overrideColumns = (this.overrideRegion) ? this.overrideRegion.columns : this.grid.info('columns');
       // Calculate the X origin. This is either the left or right edge of the active
       // region, depending on which splitter is clicked.
-      data.regionX = 0;
+      // @todo no used any more, but might be useful in the future.
+      /* data.regionX = 0;
       data.siblings.$left.each(function () {
         var $this = $(this);
         data.regionX += $this.outerWidth(true);
       });
-      data.regionX += (data.side === 'right') ? data.width : 0;
-      data.mouseX = event.pageX;
+      data.regionX += (data.side === 'right') ? data.width : 0; */
+      data.mouseX = event.pageX; 
       // Calculate the left and right bounds for the resizing.
       data.bounds = {};
       data.bounds.width = $row.width();
@@ -214,39 +227,20 @@
       }
       var region = data.region;
       var $region = region.info('$editor');
-      var side = data.side;
-      var deltaX = event.pageX - data.mouseX;
-      if (Math.abs(deltaX) > (data.frame)) {
-        if (data.side === 'left') {
-          var needle = 'rld-span';
-          // Get the region from the columns override from the span object
-          // for this region.  
-          var overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
-          // If no override exists, assume full width.
-          var override = (overrideRegion) ? overrideRegion.columns : this.grid.info('columns');
-          // Calculate the number of grid columns the mouse has traversed.
-          var deltaFrames = Math.floor(Math.abs(data.regionX + deltaX) / data.frame);
-          // The numer of grid columns to assign to the region is the difference of the span
-          // it already consumes minus the delta.
-          var deltaSpan = override - deltaFrames;
-          // Create a new class list with the grid span class.
-          $region.supplantClass(needle, 'rld-span_' + deltaSpan);
-          // Resize the left siblings.
-          // The number of grids columns to assign to the region/placeholder is equal to the
-          // number of grid columns removed from the region being resized.
-          data.siblings.$left.supplantClass(needle, 'rld-span_' + deltaFrames);
-        }
-        if (data.side === 'right') {
-          /*
-          // Resize the region.
-          $region.css({
-            'width': data.width + deltaX
-          });
-          // Resize the left siblings.
-          data.siblings.$right.css({
-            'width': data.bounds.width - (data.regionX + deltaX)
-          }); */
-        }
+      // Calculate the number of grid columns the mouse has traversed.
+      var deltaColumns = Math.floor(Math.abs(event.pageX - data.mouseX) / data.frame);
+      // Keep track of the deltaFrame and only resize the region if the frame changes.
+      if (deltaColumns !== this.deltaColumns) {
+        this.deltaColumns = deltaColumns;
+        // The numer of grid columns to assign to the region is the difference of the span
+        // it already consumes minus the delta.
+        this.deltaSpan = data.overrideColumns - deltaColumns;
+        // Create a new class list with the grid span class.
+        $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
+        // Resize the left siblings.
+        // The number of grids columns to assign to the region/placeholder is equal to the
+        // number of grid columns removed from the region being resized.
+        data.siblings.$left.supplantClass(data.needle, 'rld-span_' + deltaColumns);
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -264,6 +258,23 @@
       // Clean up the DOM.
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
+      // Save any changes to regions.
+      // If the region already has an override, update it.
+      if (this.overrideRegion) {
+        this.step.regionList.getItem(this.overrideRegion.info('machine_name')).info('columns', this.deltaSpan);
+      }
+      // If the region doesn't have an override yet, create one. This can't be a reference to the
+      // canonical regionList regions, it needs to be a new object.
+      else {
+        var r = region.snapshot();
+        r.columns = this.deltaSpan;
+        this.step.regionList.addItem(r);
+      }
+      // Clean up globals.
+      this.deltaColumns = NaN;
+      this.deltaSpan = NaN;
+      this.overrideRegion = null;
+
       // Update the override. If the region is now full width, remove the override.
       // If no override exists, create one.
       // Move the next available region up to the placeholder.

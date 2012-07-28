@@ -99,6 +99,19 @@
         return null;
       };
       /**
+       *
+       */
+      InitClass.prototype.snapshot = function (index) {
+        var snapshot = {};
+        var prop;
+        for (prop in this) {
+          if (this.hasOwnProperty(prop)) {
+            snapshot[prop] = this[prop];
+          }
+        }
+        return snapshot;
+      };
+      /**
        * Pushes a supplied function into the list of functions.
        */
       InitClass.prototype.registerEventListener = function (event, handler) {
@@ -122,7 +135,13 @@
             this.listeners[e] = [fn];   
           }
         }
-      };    
+      };  
+      /**
+       *
+       */
+      InitClass.prototype.clearEventListeners = function () {
+        this.listeners = []; 
+      }; 
       /**
        * Iterate through the callbacks and invoke them.
        */
