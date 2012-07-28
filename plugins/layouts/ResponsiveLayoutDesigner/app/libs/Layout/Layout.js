@@ -363,7 +363,7 @@
           }
           // Don't allow the candidate region to contract smaller than one column or expand more than the total number of columns.
           if ((candidate.span === 1 && isCandidateContracting) || ((candidate.span === data.totalColumns) && isCandidateExpanding)) {
-            candidate.info('$editor').css({'outline': '1px dotted red'});
+            // This might need to be a break instead of continue.
             continue;
           }
           // The candidate can be manipulated.
