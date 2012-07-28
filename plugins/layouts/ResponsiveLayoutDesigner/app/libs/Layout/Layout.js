@@ -324,36 +324,58 @@
      *
      */
     Layout.prototype.getAffectedRegions = function (region, data, traversedChunk) {
-      var regions = {};
+      var units = data.units;
       var activeSide = (data.side === 'left') ? 'right' : 'left';
-      var passiveSide = (data.side === 'left') ? 'left' : 'right';
+      var candidateSide = (data.side === 'left') ? 'left' : 'right';
+      var regions = {};
+      // Expanding and contracting checks for the active and candidate regions.
       var isActiveContracting = ((activeSide === 'left' && traversedChunk < 0) || (activeSide === 'right' && traversedChunk > 0));
       var isActiveExpanding = ((activeSide === 'left' && traversedChunk > 0) || (activeSide === 'right' && traversedChunk < 0));
-      var i, index;
+      var isCandidateContracting = ((candidateSide === 'left' && traversedChunk < 0) || (candidateSide === 'right' && traversedChunk > 0));
+      var isCandidateExpanding = ((candidateSide === 'left' && traversedChunk > 0) || (candidateSide === 'right' && traversedChunk < 0));
+      var i, index, candidate;
+      // Assume nothing is changing.
+      regions[activeSide] = null;
+      regions[candidateSide] = null;
       // Don't allow the active region to contract smaller than one column or expand more than the total number of columns.
       if ((region.span === 1 && isActiveContracting) || ((region.span === data.totalColumns) && isActiveExpanding)) {
-        regions[activeSide] = null;
-        regions[passiveSide] = null;
         return regions;
       }
-      // If the active region can be altered, then determine which until will the passive unit.
+      // If the active region can be altered, then determine which unit will be the passive unit.
       // This is a zero-sum game. Someone has to make room or take room.
       // Get the index of the active region from the units.
-      for (i = 0; i < data.units.length; i++) {
-        if ('active' in data.units[i] && data.units[i].active) {
+      for (i = 0; i < units.length; i++) {
+        if ('active' in units[i] && units[i].active) {
           index = i;
           break;
         }
       }
-      // Don't allow units with only one column of width to collapses, unless they are placedholers.
-      // Don't allow units to be size greater than the number of columns in the grid.
-      // data.totalColumns
-      // Find the affected units.
-      
-      // A normal resizing.
+      // Try candidate units until one can be manipulated.
+      for (i = (data.side === 'left') ? (i - 1) : (i + 1); i > 0 || i < (units.length - 1); (data.side === 'left') ? i-- : i++) {
+        // The try-catch is here to make sure we don't access an index of units
+        // that doesn't exist and blow up the application.
+        try {
+          candidate = units[i];
+          // If the candidate is a placeholder, just use it.
+          if (candidate.type === 'placeholder') {
+            regions[candidateSide] = candidate;
+            break;
+          }
+          // Don't allow the candidate region to contract smaller than one column or expand more than the total number of columns.
+          if ((candidate.span === 1 && isCandidateContracting) || ((candidate.span === data.totalColumns) && isCandidateExpanding)) {
+            candidate.info('$editor').css({'outline': '1px dotted red'});
+            continue;
+          }
+          // The candidate can be manipulated.
+          regions[candidateSide] = candidate;
+          break;
+        }
+        catch (error) {
+          regions[candidateSide] = null;
+        }
+      }
+      // The region can be resized. We should have a candidate as well.
       regions[activeSide] = region;
-      regions[passiveSide] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
-      
       return regions;
     }
     /**
