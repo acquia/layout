@@ -24,6 +24,9 @@
      */
     function Region() {
       this.visibility;
+      this.type = 'region';
+      this.span = 0;
+      this.spanClass = 'rld-span_';
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -34,26 +37,35 @@
     /**
      *
      */
+    Region.prototype.setup = function () {};
+    /**
+     *
+     */
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
-      var classes = ['rld-region'];
+      var classes = [];
+      classes.push('rld-' + this.type);
       var fn;
-      if ('classes' in options && 'length' in options.classes && options.classes.length > 0) {
+      if (options && 'classes' in options && 'length' in options.classes && options.classes.length > 0) {
         classes = classes.concat(options.classes).join(' ');
       }
       this.$editor = $('<div>', {
-        'id': 'rld-region-' + this.label.split(' ').join('_'),
+        'id': ('label' in this) ? 'rld-region-' + this.label.split(' ').join('_') : '',
         'class': classes,
         'html': $('<p>', {
           'text': this.label
         })
-      })
-      .append($('<a>', {
-        'class': 'rld-region-close',
-        'href': '#',
-        'text': 'X',
-        'title': 'Close',
-      }))
+      });
+      if (this.type === 'region') {
+        this.$editor
+        .append($('<a>', {
+          'class': 'rld-region-close',
+          'href': '#',
+          'text': 'X',
+          'title': 'Close',
+        }));
+      }
+      this.$editor
       .data('RLD/Region', this);
       // Region behaviors.
       fn = $.proxy(close, this);
@@ -62,6 +74,21 @@
     
       return this.$editor;
     };
+    /**
+     *
+     */
+    Region.prototype.alterSpan = function (span, isRelative) {
+      if (isRelative) {
+        this.span += span;
+      }
+      else {
+        this.span = span;
+      }
+
+      this.$editor.supplantClass(this.spanClass, this.spanClass + this.span);
+
+      return this.$editor;
+    }
   
     return Region;
     

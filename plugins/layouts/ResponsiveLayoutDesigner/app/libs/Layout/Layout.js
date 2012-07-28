@@ -6,8 +6,7 @@
 
     // Layout Class
     function Layout() {
-      this.deltaColumns = NaN;
-      this.deltaSpan = NaN;
+      this.deltaColumns = 0;
       this.overrideRegion = null;
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -37,45 +36,73 @@
       // The size of a region may be overridden in this step.
       var regionOverrides = step.info('regionList').info('items');
       var $row;
-      var i, k, fn, region;
+      var i, k, fn, region, span;
       // Build rows and regions.
-      if (regions.length > 0) {
-        for (i = 0; i < regions.length; i++) {
-          var override = undefined;
-          if ((count === 0) || (count >= grid.columns)) {
-            $row = $('<div>', {
-              'class': 'rld-row clearfix'
-            });
-            count = 0;
-          }
-          var classes = ['rld-col rld-unit'];
-          region = regions[i];
-          if (regionOverrides.length > 0) {
-            for (k = 0; k < regionOverrides.length; k++) {         
-              if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
-                override = regionOverrides[k];
-                break;
-              }
-            }
-          }
-          if (override !== undefined) {
-            classes.push('rld-span_' + override.columns);
-            count += override.columns;
-          }
-          else {
-            classes.push('rld-span_' + grid.columns);
-            count = 0;
-          }
-          
-          $row.append(
-            this.modifyRegionBuild(
-              regions[i].build({
+      for (i = 0; i < regions.length; i++) {
+        var override = undefined;
+        var classes = ['rld-col rld-unit'];
+        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
+        if ((count === 0) || (count >= grid.columns)) {
+          // Append a placeholder to the end of a row.
+          if (count >= grid.columns) {
+            $row.append(
+              new RLD.Region({
+                'type': 'placeholder'
+              })
+              .build({
                 'classes': classes
               })
-            )
+            );
+          }
+          // Create a new row.
+          $row = $('<div>', {
+            'class': 'rld-row clearfix'
+          })
+          // Append a placeholder to the start of the row.
+          .append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': classes
+            })
           )
+          // Append the row to the editor.
           .appendTo(this.$editor);
+          // Restart the row span count.
+          count = 0;
         }
+        region = regions[i];
+        // If this step has region overrides, get the override that matches this region, if any.
+        if (regionOverrides.length > 0) {
+          for (k = 0; k < regionOverrides.length; k++) {         
+            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+              override = regionOverrides[k];
+              break;
+            }
+          }
+        }
+        // If an override for this region exists, use it.
+        if (override !== undefined) {
+          span = override.columns;
+          count += override.columns;
+        }
+        // Otherwise the region is assumed to be full width.
+        else {
+          span = grid.columns;
+          count = grid.columns;
+        }
+        // Build the region and append it to the row.
+        $row.append(
+          this.modifyRegionBuild(
+            regions[i].build({
+              'classes': classes
+            })
+            .data('RLD/Region')
+            // Get the Region object and update its span.
+            .alterSpan(span)
+          )
+        );
       }
       // Bind behaviors.
       fn = $.proxy(this.processEvent, this);
@@ -124,12 +151,6 @@
       if ($regions.length > 1) {}
     };
     
-    Layout.prototype.buildPlaceholder = function () {
-      return $('<div>', {
-        'class': 'rld-placeholder rld-unit'
-      });
-    };
-    
     Layout.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
       var fn;
@@ -163,7 +184,11 @@
       var region = data.region;
       var $region = region.info('$editor');
       var $splitter = $(event.target);
+      // @todo eventually the row should be stored in state, not structure.
       var $row = $region.closest('.rld-row');
+      var i;
+      // Mark the region as active.
+      region.info('active', true);
       // Mark the splitter active.
       $splitter.addClass('splitter-active');
       // Since the resize function will be called on mousemove, we don't want
@@ -172,21 +197,13 @@
       // Determine if the splitter is on the left or right side of region.
       data.side = $splitter.data('RLD/Region/Splitter-side');
       data.width = $region.outerWidth(true);
-      data.siblings = {
-        '$left': $region.prevAll('.rld-region'),
-        '$right': $region.nextAll('.rld-region')
-      };
-      // If no siblings exist, then we're on a row edge. Insert a placeholder.
-      if (data.siblings['$' + data.side].length === 0) {
-        // Only place a placeholder if one doesn't already exist.
-        if ($region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder').length === 0) {
-          var $placeholder = this.buildPlaceholder();
-          $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
-          data.siblings['$' + data.side] = $placeholder;
-        }
-      }
+      // Find all the regions/placeholders in this row.
+      data.units = $row.find('.rld-unit').map(function (index, element) {
+        return $(this).data('RLD/Region');
+      });
       // Calculate the column size so regions can be snapped to grid columns.
-      data.frame = Number(this.step.info('size')) / Number(this.grid.info('columns'));
+      data.totalColumns = Number(this.grid.info('columns'));
+      data.frame = Number(this.step.info('size')) / data.totalColumns;
       data.needle = 'rld-span';
       // Get the region from the columns override from the span object
       // for this region.
@@ -222,25 +239,26 @@
     Layout.prototype.resizeRegion = function (event) {
       event.stopImmediatePropagation();
       var data = event.data;
-      if (event.pageX <= data.bounds.left || event.pageX >= data.bounds.right) {
-        //return false;
-      }
       var region = data.region;
-      var $region = region.info('$editor');
       // Calculate the number of grid columns the mouse has traversed.
-      var deltaColumns = Math.floor(Math.abs(event.pageX - data.mouseX) / data.frame);
-      // Keep track of the deltaFrame and only resize the region if the frame changes.
-      if (deltaColumns !== this.deltaColumns) {
-        this.deltaColumns = deltaColumns;
-        // The numer of grid columns to assign to the region is the difference of the span
-        // it already consumes minus the delta.
-        this.deltaSpan = data.overrideColumns - deltaColumns;
-        // Create a new class list with the grid span class.
-        $region.supplantClass(data.needle, 'rld-span_' + this.deltaSpan);
-        // Resize the left siblings.
-        // The number of grids columns to assign to the region/placeholder is equal to the
-        // number of grid columns removed from the region being resized.
-        data.siblings.$left.supplantClass(data.needle, 'rld-span_' + deltaColumns);
+      var columnsTraversed = Math.floor((event.pageX - data.mouseX) / data.frame);
+      // We want regions resized from the right to resize on the trailing
+      // edge of the column, not the leading edge.
+      if (columnsTraversed < 0 ) {
+        columnsTraversed += 1;
+      }
+      // Get the difference between the distance we know we've covered in previous loops,
+      // and where the mouse is in this loop.
+      var traversedChunk = columnsTraversed - this.deltaColumns;
+      // Keep track of the current number of traversed columns
+      // and only resize the region if the frame changes.
+      if (columnsTraversed !== this.deltaColumns) {
+        this.deltaColumns += traversedChunk;
+        // Get an object of two regions: the one to be expanded and the one to be contracted.
+        var affectedRegions = this.getAffectedRegions(region, data);
+        //
+        affectedRegions.right.alterSpan((traversedChunk * -1), true);
+        affectedRegions.left.alterSpan(traversedChunk, true);
       }
       // this.triggerEvent('regionResizing', this);
     };
@@ -255,9 +273,6 @@
       var $region = region.info('$editor');
       // Perform a final resize.
       this.resizeRegion.apply(this, arguments);
-      // Clean up the DOM.
-      $region.find('.splitter').removeClass('splitter-active');
-      $(document).unbind('.regionResize');
       // Save any changes to regions.
       // If the region already has an override, update it.
       if (this.overrideRegion) {
@@ -270,10 +285,12 @@
         r.columns = this.deltaSpan;
         this.step.regionList.addItem(r);
       }
-      // Clean up globals.
-      this.deltaColumns = NaN;
-      this.deltaSpan = NaN;
+      // Clean up state.
+      region.info('active', null);
+      this.deltaColumns = 0;
       this.overrideRegion = null;
+      $region.find('.splitter').removeClass('splitter-active');
+      $(document).unbind('.regionResize');
 
       // Update the override. If the region is now full width, remove the override.
       // If no override exists, create one.
@@ -298,6 +315,26 @@
       } */
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
+    }
+    /**
+     *
+     */
+    Layout.prototype.getAffectedRegions = function (region, data) {
+      var regions = {};
+      var i, index;
+      
+      // Get the index of the active region from the units.
+      for (i = 0; i < data.units.length; i++) {
+        if ('active' in data.units[i] && data.units[i].active) {
+          index = i;
+          break;
+        }
+      }
+      // Find the affected units.
+      regions[(data.side === 'left') ? 'right' : 'left'] = region;
+      regions[(data.side === 'left') ? 'left' : 'right'] = data.units[(data.side === 'left') ? (i - 1) : (i + 1)];
+      
+      return regions;
     }
     /**
      *

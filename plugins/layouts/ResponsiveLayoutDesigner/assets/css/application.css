@@ -86,6 +86,9 @@
   line-height: 0.8em;
   text-decoration: none;
 }
+.rld-col.rld-region {
+  padding: 0 1%;
+}
 .rld-grid-overlay {
   margin: 0.25em 0;
   min-height: 20px;
