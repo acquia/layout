@@ -25,8 +25,8 @@
     function Region() {
       this.visibility;
       this.type = 'region';
-      this.span = 0;
-      this.spanClass = 'rld-span_';
+      this.columns = 0;
+      this.columnClass = 'rld-span_';
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -77,15 +77,15 @@
     /**
      *
      */
-    Region.prototype.alterSpan = function (span, isRelative) {
+    Region.prototype.alterSpan = function (columns, isRelative) {
       if (isRelative) {
-        this.span += span;
+        this.columns += columns;
       }
       else {
-        this.span = span;
+        this.columns = columns;
       }
 
-      this.$editor.supplantClass(this.spanClass, this.spanClass + this.span);
+      this.$editor.supplantClass(this.columnClass, this.columnClass + this.columns);
 
       return this.$editor;
     }

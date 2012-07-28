@@ -281,15 +281,18 @@
       this.resizeRegion.apply(this, arguments);
       // Save any changes to regions.
       // If the region already has an override, update it.
-      if (this.overrideRegion) {
-        this.step.regionList.getItem(this.overrideRegion.info('machine_name')).info('columns', this.deltaSpan);
-      }
-      // If the region doesn't have an override yet, create one. This can't be a reference to the
-      // canonical regionList regions, it needs to be a new object.
-      else {
-        var r = region.snapshot();
-        r.columns = this.deltaSpan;
-        this.step.regionList.addItem(r);
+      if (region.columns < data.totalColumns) {
+        var item = this.step.regionList.getItem(region.info('machine_name'))
+        if (item) {
+          item.info('columns', r.columns);
+        }
+        // If the region doesn't have an override yet, create one. This can't be a reference to the
+        // canonical regionList regions, it needs to be a new object.
+        else {
+          var r = region.snapshot();
+          r.columns = r.columns;
+          this.step.regionList.addItem(r);
+        }
       }
       // Clean up state.
       region.info('active', null);
@@ -301,7 +304,7 @@
       // Update the override. If the region is now full width, remove the override.
       // If no override exists, create one.
       // Move the next available region up to the placeholder.
-      /* var $row = $region.closest('.rld-row');
+      var $row = $region.closest('.rld-row');
       var placeholders = {
         '$left': $row.find('.rld-placeholder:first'),
         '$right': $row.find('.rld-placeholder:last')
@@ -318,7 +321,7 @@
           })
         );
         this.updateRow($nextRow);
-      } */
+      }
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
     }
@@ -340,7 +343,7 @@
       regions[activeSide] = null;
       regions[candidateSide] = null;
       // Don't allow the active region to contract smaller than one column or expand more than the total number of columns.
-      if ((region.span === 1 && isActiveContracting) || ((region.span === data.totalColumns) && isActiveExpanding)) {
+      if ((region.columns === 1 && isActiveContracting) || ((region.columns === data.totalColumns) && isActiveExpanding)) {
         return regions;
       }
       // If the active region can be altered, then determine which unit will be the passive unit.
@@ -364,7 +367,7 @@
             break;
           }
           // Don't allow the candidate region to contract smaller than one column or expand more than the total number of columns.
-          if ((candidate.span === 1 && isCandidateContracting) || ((candidate.span === data.totalColumns) && isCandidateExpanding)) {
+          if ((candidate.columns === 1 && isCandidateContracting) || ((candidate.columns === data.totalColumns) && isCandidateExpanding)) {
             return regions;
           }
           // The candidate can be manipulated.
