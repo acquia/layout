@@ -124,12 +124,6 @@
       if ($regions.length > 1) {}
     };
     
-    Layout.prototype.buildPlaceholder = function () {
-      return $('<div>', {
-        'class': 'rld-placeholder rld-unit'
-      });
-    };
-    
     Layout.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
       var fn;
@@ -180,7 +174,12 @@
       if (data.siblings['$' + data.side].length === 0) {
         // Only place a placeholder if one doesn't already exist.
         if ($region[(data.side === 'left') ? 'prev' : 'next']('.rld-placeholder').length === 0) {
-          var $placeholder = this.buildPlaceholder();
+          var $placeholder = new RLD.Region({
+            'type': 'placeholder'
+          })
+          .build({
+            'classes': ['rld-placeholder']
+          });
           $placeholder[(data.side === 'left') ? 'insertBefore' : 'insertAfter']($region);
           data.siblings['$' + data.side] = $placeholder;
         }
