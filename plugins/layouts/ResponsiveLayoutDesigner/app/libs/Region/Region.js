@@ -84,6 +84,9 @@
       else {
         this.columns = columns;
       }
+      if (this.columns < 0) {
+        this.columns = 0;
+      }
 
       this.$editor.supplantClass(this.columnClass, this.columnClass + this.columns);
 

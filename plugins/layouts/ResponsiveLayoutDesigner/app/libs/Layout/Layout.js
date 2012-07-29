@@ -141,16 +141,6 @@
         break;
       }
     };
-    
-    Layout.prototype.updateRow = function ($row) {
-      var $regions = $row.find('.rld-region');
-      if ($regions.length === 0) {
-        $row.slideUp(function () {$(this).remove()});
-      }
-      if ($regions.length === 1) {}
-      if ($regions.length > 1) {}
-    };
-    
     Layout.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
       var fn;
@@ -195,6 +185,7 @@
       // to calculate the state of the row's region more than once. So we
       // pass this information into the handlers.
       // Determine if the splitter is on the left or right side of region.
+      data.$row = $row;
       data.side = $splitter.data('RLD/Region/Splitter-side');
       data.width = $region.outerWidth(true);
       // Find all the regions/placeholders in this row.
@@ -284,7 +275,7 @@
       if (region.columns < data.totalColumns) {
         var item = this.step.regionList.getItem(region.info('machine_name'))
         if (item) {
-          item.info('columns', r.columns);
+          item.info('columns', region.columns);
         }
         // If the region doesn't have an override yet, create one. This can't be a reference to the
         // canonical regionList regions, it needs to be a new object.
@@ -294,34 +285,60 @@
           this.step.regionList.addItem(r);
         }
       }
+      // Move the next available region up to the placeholder.
+      var placeholder = this.getActivePlaceholder(data);
+      if (placeholder) {
+        var $placeholder = placeholder.info('$editor');
+        var $nextRow = data.$row.next('.rld-row');
+        var $candidateRegion = $nextRow.find('.rld-region:first');
+        if ($candidateRegion.length > 0) {
+          var size = placeholder.columns;
+          $candidateRegion.animate({
+            width: 0
+          });
+          $candidateRegion.queue(function (next) {
+            var $shiftedRegion = $candidateRegion.detach();
+            var shiftedRegion = $shiftedRegion.data('RLD/Region');
+            $placeholder.animate({
+              width: 0
+            });
+            $placeholder.queue(function (next) {
+              $(this).data('RLD/Region').alterSpan(0).removeAttr('style');
+              next();
+            });
+            $placeholder.queue(function (next) {
+              $shiftedRegion[(data.side === 'left') ? 'insertAfter' : 'insertBefore']($placeholder);
+              $shiftedRegion.animate({
+                'width': size * data.frame
+              });
+              $shiftedRegion.queue(function (next) {
+                $(this).data('RLD/Region').alterSpan(size).removeAttr('style');
+                next();
+              });
+              $shiftedRegion.queue(function (next) {
+                var $regions = $nextRow.find('.rld-region');
+                if ($regions.length === 0) {
+                  $nextRow.slideUp(function () {$(this).remove()});
+                }
+                if ($regions.length === 1) {}
+                if ($regions.length > 1) {}
+                next();
+              });
+              next();
+            });
+            next();
+          });
+        }
+      }
+      
+      
+      
       // Clean up state.
       region.info('active', null);
       this.deltaColumns = 0;
       this.overrideRegion = null;
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
-
-      // Update the override. If the region is now full width, remove the override.
-      // If no override exists, create one.
-      // Move the next available region up to the placeholder.
-      var $row = $region.closest('.rld-row');
-      var placeholders = {
-        '$left': $row.find('.rld-placeholder:first'),
-        '$right': $row.find('.rld-placeholder:last')
-      };
-      var $nextRow = $row.next('.rld-row');
-      var $candidateRegion = $nextRow.find('.rld-region:first');
-      if ($candidateRegion.length > 0) {
-        var $shiftedRegion = $candidateRegion.detach();
-        var width = placeholders['$' + data.side].width();
-        placeholders['$' + data.side].replaceWith(
-          $shiftedRegion
-          .css({
-            width: width
-          })
-        );
-        this.updateRow($nextRow);
-      }
       // Call listeners for this event.
       this.triggerEvent('regionResized', this);
     }
@@ -349,14 +366,9 @@
       // If the active region can be altered, then determine which unit will be the passive unit.
       // This is a zero-sum game. Someone has to make room or take room.
       // Get the index of the active region from the units.
-      for (i = 0; i < units.length; i++) {
-        if ('active' in units[i] && units[i].active) {
-          index = i;
-          break;
-        }
-      }
+      index = this.getActiveRegionIndex(units);
       // Try candidate units until one can be manipulated.
-      for (i = (data.side === 'left') ? (i - 1) : (i + 1); i > 0 || i < (units.length - 1); (data.side === 'left') ? i-- : i++) {
+      for (i = (data.side === 'left') ? (index - 1) : (index + 1); i >= 0 && i < units.length; (data.side === 'left') ? i-- : i++) {
         // The try-catch is here to make sure we don't access an index of units
         // that doesn't exist and blow up the application.
         try {
@@ -382,6 +394,39 @@
       regions[activeSide] = region;
       return regions;
     }
+    /**
+     *
+     */
+    Layout.prototype.getActivePlaceholder = function (data) {
+      var units = data.units;
+      var activeRegionIndex = this.getActiveRegionIndex(units);
+      var placeHolderIndex = (activeRegionIndex === 1 && data.side === 'left') ? 0 : (units.length - 1);
+      var placeholder = units[placeHolderIndex];
+      if (placeholder.type === 'placeholder') {
+        if (units[placeHolderIndex].columns > 0) {
+          return units[placeHolderIndex];
+        }
+      }
+      return null;
+    };
+    /**
+     *
+     */
+    Layout.prototype.getActiveRegion = function (units) {
+      return units[this.getActiveRegionIndex(units)];
+    };
+    /**
+     *
+     */
+    Layout.prototype.getActiveRegionIndex = function (units) {
+      var i;
+      for (i = 0; i < units.length; i++) {
+        if ('active' in units[i] && units[i].active) {
+          return i;
+        }
+      }
+      return null;
+    };
     /**
      *
      */
