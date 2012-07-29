@@ -82,12 +82,6 @@
         $('<div>', {
           'class': 'rld-controls'
         })
-        .append(
-          $('<button>', {
-            'class': 'save',
-            'text': 'Save layouts'
-          })
-        )
       )
       .append(
         this.$stepSelector
