@@ -180,10 +180,10 @@
       }
       fn = $.proxy(this.expandGridOverlay, $overlay);
       $overlay
-      .bind('mouseover.ResponsiveLayoutDesigner', fn);
+      .bind('mousedown.ResponsiveLayoutDesigner', fn);
       fn = $.proxy(this.contractGridOverlay, $overlay);
       $overlay
-      .bind('mouseleave.ResponsiveLayoutDesigner', fn);
+      .bind('mouseup.ResponsiveLayoutDesigner', fn);
       
       return $overlay;
     };
