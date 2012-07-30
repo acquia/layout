@@ -40,17 +40,23 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
     return;
   }
 
-  $form = array();
-  $default_regions = layout_region_load_all();
   layout_responsive_merge_default_settings($layout_settings, $layout);
-  $regions_text = '';
-  foreach ($layout_settings['regions'] as $name => $classes) {
-    $regions_text .= $name . '; ' . $default_regions[$name]->admin_title . '; ' . $classes . "\n";
+
+  $layoutdata = array();
+  $default_regions = layout_region_load_all();
+  foreach ($layout_settings['regions'] as $name => $overrides) {
+    $layoutdata['regions'][] = array(
+      'name' => $name,
+      'admin_title' => $default_regions[$name]->admin_title,
+    );
   }
+  $layoutdata['overrides'] = $layout_settings['overrides'];
+
+  $form = array();
   $form['layout_responsive_regions'] = array(
     '#type' => 'textarea',
-    '#title' => t('Regions in order of appearance'),
-    '#default_value' => $regions_text,
+    '#title' => t('Region and breakpoint configuration'),
+    '#default_value' => drupal_json_encode($layoutdata),
   );
 
   return $form;
@@ -141,7 +147,7 @@ function layout_responsive_panels($display, $settings, $layout) {
   // Resolve machine names to names for visual presentation in panels.
   $default_regions = layout_region_load_all();
   $region_names = array();
-  foreach ($settings['regions'] as $name => $classes) {
+  foreach ($settings['regions'] as $name => $overrides) {
     $region_names[$name] = $default_regions[$name]->admin_title;
   }
 
@@ -174,9 +180,10 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
     );
     foreach ($default_regions as $region) {
       if (!$region->custom) {
-        $settings['regions'][$region->name] = '';
+        $settings['regions'][$region->name] = array();
       }
     }
+    $settings['overrides'] = array();
   }
 
   return $settings;

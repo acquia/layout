@@ -3,8 +3,8 @@
 .form-item-admin-description,
 .form-item-category,
 #panels-live-preview,
-#ctools-export-ui-edit-item-form h2,
-.form-item-layout-settings-layout-responsive-regions {
+#ctools-export-ui-edit-item-form h2
+/*, .form-item-layout-settings-layout-responsive-regions*/ {
   display: none;
 }
 
