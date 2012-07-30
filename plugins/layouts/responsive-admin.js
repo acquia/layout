@@ -126,7 +126,7 @@ Drupal.responsiveLayout.eventHandler = function(event) {
   var stepList = layoutManager.info('stepList');
   var steps = stepList.info('items');
   for (var i = 0; i < steps.length; i++) {
-    layoutSettings.overrides[steps[i].machine_name] = {};
+    layoutSettings.overrides[steps[i].machine_name] = [];
     if (steps[i].regionList.items.length) {
       for (var r = 0; r < steps[i].regionList.items.length; r++) {
         layoutSettings.overrides[steps[i].machine_name].push({

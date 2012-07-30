@@ -224,6 +224,7 @@
       event.stopImmediatePropagation();
       var data = event.data;
       var region = data.region;
+      var bypass= false;
       // Calculate the number of grid columns the mouse has traversed.
       var columnsTraversed = Math.floor((event.pageX - data.originX) / data.frame);
       // We want regions resized from the right to resize on the trailing
@@ -237,7 +238,7 @@
       // This is the amount that the region might be changed by.
       var proposedDelta = this.deltaColumns + traversedChunk;
       // Check to see if the region needs to be sized up to the edge.
-      if (proposedDelta === data.leftMaxTraversal || proposedDelta === data.rightMaxTraversal) {
+      if ((proposedDelta === data.leftMaxTraversal || proposedDelta === data.rightMaxTraversal) && proposedDelta !== 0) {
         bypass = true;
       }
       // Check to see if we are totally off the screen.

@@ -264,7 +264,6 @@ function theme_layout_responsive_admin($vars) {
   // This is a messy, messy list of files. Eventually we'll want to package
   // this app up into a single JavaScript file or wrap it in a Drupal library
   // indirection. And minify it for inclusion on the release.
-  $path = drupal_get_path('module', 'layout');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');

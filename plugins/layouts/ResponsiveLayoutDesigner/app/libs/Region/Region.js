@@ -79,10 +79,10 @@
      */
     Region.prototype.alterSpan = function (columns, isRelative) {
       if (isRelative) {
-        this.columns += columns;
+        this.columns += Number(columns);
       }
       else {
-        this.columns = columns;
+        this.columns = Number(columns);
       }
       if (this.columns < 0) {
         this.columns = 0;
