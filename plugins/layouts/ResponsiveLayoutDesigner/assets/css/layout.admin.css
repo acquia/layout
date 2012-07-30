@@ -53,6 +53,9 @@ body {
   margin: 0;
   padding: 0;
 }
+p {
+  margin: 0;
+}
 /* @group Responsive Layout Designer */
 
 #responsive-layout-designer {
@@ -74,20 +77,6 @@ body {
 .rld-layouts {
   border: 1px solid #d0d0d1;
   padding: 1em;
-}
-
-/* @end */
-
-/* @group Layouts */
-
-.rld-region {
-  background-color: #555;
-  color: white;
-}
-.rld-placeholder {
-  outline: 1px dashed #31cbff;
-  background-color: white;
-  color: #ccc;
 }
 
 /* @end */
