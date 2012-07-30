@@ -302,7 +302,7 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
       $breakpoint_index++;
     }
     else {
-      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name);
+      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, TRUE);
     }
   }
 

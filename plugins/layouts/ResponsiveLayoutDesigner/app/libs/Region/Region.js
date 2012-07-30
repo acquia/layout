@@ -52,8 +52,11 @@
       this.$editor = $('<div>', {
         'id': ('label' in this) ? 'rld-region-' + this.label.split(' ').join('_') : '',
         'class': classes,
-        'html': $('<p>', {
-          'text': this.label
+        'html': $('<div>', {
+          'class': 'rld-inner',
+          'html': $('<p>', {
+            'text': this.label
+          })
         })
       });
       if (this.type === 'region') {
@@ -79,10 +82,10 @@
      */
     Region.prototype.alterSpan = function (columns, isRelative) {
       if (isRelative) {
-        this.columns += columns;
+        this.columns += Number(columns);
       }
       else {
-        this.columns = columns;
+        this.columns = Number(columns);
       }
       if (this.columns < 0) {
         this.columns = 0;

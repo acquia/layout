@@ -150,7 +150,7 @@
           .append(
             $layout
             .empty()
-            .addClass(gridClasses.join(' '))
+            .addClass('rld-container-' + gridColumns)
             .append(this.buildGridOverlay(gridColumns))
             .append(layout.build())
           );
@@ -160,7 +160,7 @@
     
     LayoutManager.prototype.buildGridOverlay = function (columns) {
       var $overlay = $('<div>', {
-        'class': 'rld-grid-overlay clearfix rld-container-' + columns,
+        'class': 'rld-grid-overlay clearfix'
       });
       var cols = Number(columns);
       var fn;
