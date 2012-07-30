@@ -52,8 +52,11 @@
       this.$editor = $('<div>', {
         'id': ('label' in this) ? 'rld-region-' + this.label.split(' ').join('_') : '',
         'class': classes,
-        'html': $('<p>', {
-          'text': this.label
+        'html': $('<div>', {
+          'class': 'rld-inner',
+          'html': $('<p>', {
+            'text': this.label
+          })
         })
       });
       if (this.type === 'region') {
