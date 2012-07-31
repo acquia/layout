@@ -44,7 +44,7 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
 
   $layoutdata = array();
   $default_regions = layout_region_load_all();
-  foreach ($layout_settings['regions'] as $name => $overrides) {
+  foreach ($layout_settings['regions'] as $name => $name) {
     $layoutdata['regions'][] = array(
       'name' => $name,
       'admin_title' => $default_regions[$name]->admin_title,
@@ -66,31 +66,24 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
  * Form submission. Process the changes to the layout.
  */
 function layout_responsive_settings_form_submit(&$layout_settings, $display, $layout, $old_layout_settings) {
-  // Get region list and overwrite the whole settings array. This will later
-  // be saved by Panels to the display layout settings.
-  $region_list = explode("\n", $layout_settings['layout_responsive_regions']);
-  $layout_settings = array('regions' => array());
 
-  foreach ($region_list as $region_info) {
-    $region_info = trim($region_info);
-    if (!empty($region_info)) {
+  $default_regions = layout_region_load_all();
+  $new_layout_settings = drupal_json_decode($layout_settings['layout_responsive_regions']);
 
-      // Enforce machine name format for security/interoperability.
-      list($name, $admin_title, $classes) = explode('; ', $region_info . ' ');
-      if (!is_numeric($name) && preg_match('!^([a-z0-9_-])+$!', $name)) {
+  if (!empty($new_layout_settings)) {
+    foreach ($new_layout_settings['regions'] as $region) {
+      $layout_settings['regions'][$region['name']] = $region['name'];
 
-        // Save region for this layout.
-        $layout_settings['regions'][$name] = $classes;
-
-        // Save region in common regions list in case it is a new layout
-        // that we did not know before or the region admin_title was updated.
+      // Save region in common regions list in case it is new.
+      if (!isset($default_regions[$region['name']])) {
         $region = (object) array(
-          'name' => $name,
-          'admin_title' => $admin_title,
+          'name' => $region['name'],
+          'admin_title' => $region['admin_title'],
         );
         layout_region_save($region);
       }
     }
+    $layout_settings['overrides'] = $new_layout_settings['overrides'];
   }
 }
 
@@ -180,7 +173,7 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
     );
     foreach ($default_regions as $region) {
       if (!$region->custom) {
-        $settings['regions'][$region->name] = array();
+        $settings['regions'][$region->name] = $region->name;
       }
     }
     $settings['overrides'] = array();

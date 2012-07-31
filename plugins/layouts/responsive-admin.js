@@ -115,7 +115,7 @@ Drupal.responsiveLayout.eventHandler = function(event) {
     log(args[i], 'dir');
   }*/
 
-  var layoutSettings = {'regions' : [], 'overrides': []};
+  var layoutSettings = {'regions' : [], 'overrides': {}};
   var layoutManager = Drupal.responsiveLayout.editor.save();
   var regionList = layoutManager.info('regionList');
   var regions = regionList.info('items');
