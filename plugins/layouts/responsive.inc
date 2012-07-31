@@ -44,7 +44,7 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
 
   $layoutdata = array();
   $default_regions = layout_region_load_all();
-  foreach ($layout_settings['regions'] as $name => $overrides) {
+  foreach ($layout_settings['regions'] as $name => $name) {
     $layoutdata['regions'][] = array(
       'name' => $name,
       'admin_title' => $default_regions[$name]->admin_title,
@@ -66,32 +66,29 @@ function layout_responsive_settings_form($display, $layout, $layout_settings) {
  * Form submission. Process the changes to the layout.
  */
 function layout_responsive_settings_form_submit(&$layout_settings, $display, $layout, $old_layout_settings) {
-  // Get region list and overwrite the whole settings array. This will later
-  // be saved by Panels to the display layout settings.
-  $region_list = explode("\n", $layout_settings['layout_responsive_regions']);
-  $layout_settings = array('regions' => array());
 
-  foreach ($region_list as $region_info) {
-    $region_info = trim($region_info);
-    if (!empty($region_info)) {
+  $default_regions = layout_region_load_all();
+  $new_layout_settings = drupal_json_decode($layout_settings['layout_responsive_regions']);
 
-      // Enforce machine name format for security/interoperability.
-      list($name, $admin_title, $classes) = explode('; ', $region_info . ' ');
-      if (!is_numeric($name) && preg_match('!^([a-z0-9_-])+$!', $name)) {
+  if (!empty($new_layout_settings)) {
+    foreach ($new_layout_settings['regions'] as $region) {
+      $layout_settings['regions'][$region['name']] = $region['name'];
 
-        // Save region for this layout.
-        $layout_settings['regions'][$name] = $classes;
-
-        // Save region in common regions list in case it is a new layout
-        // that we did not know before or the region admin_title was updated.
+      // Save region in common regions list in case it is new.
+      if (!isset($default_regions[$region['name']])) {
         $region = (object) array(
-          'name' => $name,
-          'admin_title' => $admin_title,
+          'name' => $region['name'],
+          'admin_title' => $region['admin_title'],
         );
         layout_region_save($region);
       }
     }
+    $layout_settings['overrides'] = $new_layout_settings['overrides'];
   }
+
+  // Clean out this value that was only used for communication, so it is not
+  // saved with the layout.
+  unset($layout_settings['layout_responsive_regions']);
 }
 
 /**
@@ -173,17 +170,17 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
-    // Initialize default layout options with regions we know about.
-    $default_regions = layout_region_load_all();
-    $settings = array(
-      'regions' => array(),
-    );
-    foreach ($default_regions as $region) {
-      if (!$region->custom) {
-        $settings['regions'][$region->name] = array();
-      }
+    // "Clone" the regions and overrides from a default layout. This lets
+    // people edit the default layout as a base for all new layouts. The default
+    // implementation of the default layout is in an exported responsive layout
+    // in layout.module (see layout_default_panels_layout()).
+    ctools_include('plugins', 'panels');
+    $default_layout_name = variable_get('layout_default_responsive_layout', 'responsive:default');
+    $default_layout = panels_get_layout($default_layout_name);
+    if (!empty($default_layout)) {
+      $settings['regions'] = $default_layout['layout']->settings['regions'];
+      $settings['overrides'] = $default_layout['layout']->settings['overrides'];
     }
-    $settings['overrides'] = array();
   }
 
   return $settings;
@@ -206,6 +203,7 @@ function theme_layout_responsive($vars) {
   layout_responsive_merge_default_settings($settings, $layout);
 
   $breakpoints = layout_breakpoint_load_all();
+  $grids = gridbuilder_load_all();
 
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
@@ -217,8 +215,20 @@ function theme_layout_responsive($vars) {
       $classes[] = 'layout-responsive-region';
       $classes[] = 'layout-responsive-region-' . $name;
       $classes[] = 'rld-col';
-      if (!empty($settings['regions'][$name])) {
-        $classes[] = $settings['regions'][$name];
+      // Add breakpoint specific column number classes.
+      foreach ($settings['overrides'] as $breakpoint_name => $breakpoint_overrides) {
+        $found_breakpoint_override = FALSE;
+        foreach ($breakpoint_overrides as $region_override) {
+          if ($region_override['name'] == $name) {
+            $classes[] = 'rld-span-' . $breakpoint_name . '_' . $region_override['columns'];
+            $found_breakpoint_override = TRUE;
+          }
+        }
+        if (!$found_breakpoint_override) {
+          // If we have not found a breakpoint override for this column, apply
+          // the number of columns stored for this grid.
+          $classes[] = 'rld-span-' . $breakpoint_name . '_' . $grids[$breakpoints[$breakpoint_name]->grid_name]->columns;
+        }
       }
       $output .= '<div class="' . join(' ', $classes) . '">';
       $output .= $rendered;

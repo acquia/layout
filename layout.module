@@ -6,54 +6,15 @@
  */
 
 /**
- * Implements hook_menu().
- */
-function layout_menu() {
-  $items = array();
-
-  // Regions.
-  $items['admin/structure/panels/layouts/regions'] = array(
-    'title' => 'Regions',
-    'type' => MENU_LOCAL_TASK,
-    'page callback' => 'layout_admin_region_list',
-    'access arguments' => array('administer layouts'),
-    'weight' => 0,
-    'file' => 'layout.admin.regions.inc',
-  );
-  $items['admin/structure/panels/layouts/regions/add'] = array(
-    'title' => 'Add region',
-    'page callback' => 'layout_admin_region_edit',
-    'access arguments' => array('administer layouts'),
-    'type' => MENU_LOCAL_ACTION,
-    'file' => 'layout.admin.regions.inc',
-  );
-  $items['admin/structure/panels/layouts/regions/%layout_region/edit'] = array(
-    'title' => 'Edit region',
-    'page callback' => 'layout_admin_region_edit',
-    'page arguments' => array(5),
-    'access arguments' => array('administer layouts'),
-    'type' => MENU_CALLBACK,
-    'file' => 'layout.admin.regions.inc',
-  );
-  $items['admin/structure/panels/layouts/regions/%layout_region/delete'] = array(
-    'title' => 'Delete region',
-    'page callback' => 'layout_admin_region_delete',
-    'page arguments' => array(5),
-    'access arguments' => array('administer layouts'),
-    'type' => MENU_CALLBACK,
-    'file' => 'layout.admin.regions.inc',
-  );
-
-  return $items;
-}
-
-/**
  * Implementation of hook_menu_alter().
  */
 function layout_menu_alter(&$items) {
-  // Convert the automatically created ctools menu item to a local task.
+  // Convert the automatically created ctools menu items to local tasks.
   if (isset($items['admin/structure/panels/layouts/breakpoints'])) {
     $items['admin/structure/panels/layouts/breakpoints']['type'] = MENU_LOCAL_TASK;
+  }
+  if (isset($items['admin/structure/panels/layouts/regions'])) {
+    $items['admin/structure/panels/layouts/regions']['type'] = MENU_LOCAL_TASK;
   }
 }
 
@@ -70,18 +31,6 @@ function layout_permission() {
 }
 
 /**
- * Implements hook_theme().
- */
-function layout_theme() {
-  return array(
-    'layout_admin_region_list_form' => array(
-      'render element' => 'form',
-      'file' => 'layout.admin.regions.inc',
-    ),
-  );
-}
-
-/**
  * Implements hook_ctools_plugin_directory().
  */
 function layout_ctools_plugin_directory($owner, $plugin_type) {
@@ -90,34 +39,111 @@ function layout_ctools_plugin_directory($owner, $plugin_type) {
   }
 }
 
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_layout_breakpoint and
+ * default_panels_layout APIs.
+ */
+function layout_ctools_plugin_api($owner, $api) {
+  if (($owner == 'layout' && $api == 'default_layout_breakpoint') ||
+      ($owner == 'layout' && $api == 'default_layout_region') ||
+      ($owner == 'panels' && $api == 'layouts')) {
+    return array('version' => 1);
+  }
+}
+
+// == Layouts =================================================================
+
+/**
+ * Implementation of hook_default_panels_layout().
+ *
+ * Provide a couple default layouts.
+ */
+function layout_default_panels_layout() {
+  $export = array();
+
+  $layout = new stdClass();
+  $layout->disabled = FALSE;
+  $layout->api_version = 1;
+  $layout->name = 'default';
+  $layout->admin_title = 'Default responsive layout';
+  $layout->admin_description = '';
+  $layout->category = '';
+  $layout->plugin = 'responsive';
+  $layout->settings = array(
+    'regions' => array(
+      'header_a' => 'header_a',
+      'header_b' => 'header_b',
+      'header_c' => 'header_c',
+      'subheader_a' => 'subheader_a',
+      'subheader_b' => 'subheader_b',
+      'subheader_c' => 'subheader_c',
+      'navigation' => 'navigation',
+      'title' => 'title',
+      'body' => 'body',
+      'sidebar_a' => 'sidebar_a',
+      'sidebar_b' => 'sidebar_b',
+      'sidebar_c' => 'sidebar_c',
+      'footer_a' => 'footer_a',
+      'footer_b' => 'footer_b',
+      'footer_c' => 'footer_c',
+    ),
+    'overrides' => array(),
+  );
+  $export['default'] = $layout;
+
+  return $export;
+}
+
 // == Regions =================================================================
+
+/**
+ * Implementation of hook_default_layout_region().
+ *
+ * Provide a couple of default regions.
+ */
+function layout_default_layout_region() {
+  $export = array();
+
+  $base_regions = array(
+    'header_a' => 'Header A',
+    'header_b' => 'Header B',
+    'header_c' => 'Header C',
+    'subheader_a' => 'Subheader A',
+    'subheader_b' => 'Subheader B',
+    'subheader_c' => 'Subheader C',
+    'navigation' => 'Navigation',
+    'title' => 'Title',
+    'body' => 'Body',
+    'sidebar_a' => 'Sidebar A',
+    'sidebar_b' => 'Sidebar B',
+    'sidebar_c' => 'Sidebar C',
+    'footer_a' => 'Footer A',
+    'footer_b' => 'Footer B',
+    'footer_c' => 'Footer C',
+  );
+  foreach ($base_regions as $name => $admin_title) {
+    $region = new stdClass;
+    $region->api_version = 1;
+    $region->name = $name;
+    $region->admin_title = $admin_title;
+    $export[$name] = $region;
+  }
+
+  return $export;
+}
 
 /**
  * Add or update region in common set of regions.
  *
  * @param $region
- *   Region object with keys 'name' and 'admin_title'.
+ *   A fully populated region object.
  */
 function layout_region_save($region) {
-  $new_values = array(
-    'admin_title' => $region->admin_title,
-  );
-
-  // Only add the custom and weight keys if passed in. When updating existing
-  // items, they might not be provided, so we should not set them to overwrite
-  // existing values.
-  if (isset($region->custom)) {
-    $new_values['custom'] = $region->custom;
-  }
-  if (isset($region->weight)) {
-    $new_values['weight'] = $region->weight;
-  }
-
-  // Add or update the region with the given machine name.
-  return db_merge('layout_region')
-    ->key(array('name' => $region->name))
-    ->fields($new_values)
-    ->execute();
+  ctools_include('export');
+  $regions = ctools_export_crud_save('layout_region', $region);
+  return $regions;
 }
 
 /**
@@ -127,19 +153,8 @@ function layout_region_save($region) {
  *   All common regions in an associative array keyed by machine name.
  */
 function layout_region_load_all() {
-  // Get non-custom regions first in order of weights. Weight is not relevant
-  // for custom regions because we don't include them in the default layout.
-  $result = db_select('layout_region', 'lr')
-    ->fields('lr')
-    ->orderBy('custom')
-    ->orderBy('weight')
-    ->execute()
-    ->fetchAll();
-  // Re-format the results to be keyed by machine name.
-  $regions = array();
-  foreach ($result as $region) {
-    $regions[$region->name] = $region;
-  }
+  ctools_include('export');
+  $regions = ctools_export_crud_load_all('layout_region');
   return $regions;
 }
 
@@ -147,35 +162,8 @@ function layout_region_load_all() {
  * Load one layout based on its machine name.
  */
 function layout_region_load($name) {
-  return db_select('layout_region', 'lr')
-    ->fields('lr')
-    ->condition('name', $name)
-    ->execute()
-    ->fetchObject();
-}
-
-/**
- * Delete one layout based on its machine name.
- */
-function layout_region_delete($name) {
-  return db_delete('layout_region')
-    ->condition('name', $name)
-    ->execute();
-}
-
-/**
- * Get all responsive layout info arrays from panels.
- */
-function layout_get_responsive_layouts() {
-  ctools_include('plugins', 'panels');
-  $all_layouts = panels_get_layouts();
-  $responsive_layouts = array();
-  foreach ($all_layouts as $name => $data) {
-    if (empty($data['builder']) && isset($data['layout']->plugin) && ($data['layout']->plugin == 'responsive')) {
-      $responsive_layouts[$name] = $data;
-    }
-  }
-  return $responsive_layouts;
+  ctools_include('export');
+  return ctools_export_crud_load('layout_region', $name);
 }
 
 /**
@@ -193,17 +181,6 @@ function layout_get_layouts_using_region($name) {
 }
 
 // == Breakpoints =============================================================
-
-/**
- * Implementation of hook_ctools_plugin_api().
- *
- * Tell CTools that we support the default_layout_breakpoint API.
- */
-function layout_ctools_plugin_api($owner, $api) {
-  if ($owner == 'layout' && $api == 'default_layout_breakpoint') {
-    return array('version' => 1);
-  }
-}
 
 /**
  * Implementation of hook_default_layout_breakpoint().
@@ -293,7 +270,7 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
         ($last_breakpoint ? '' : 'max-width:' . $breakpoint->width) .
         ') {';
       // Get grid CSS from gridbuilder and apply some extra indentation.
-      $breakpoint_css[] = '  ' . str_replace("\n", "\n  ", gridbuilder_get_css($breakpoint->grid_name, '.panel-responsive'));
+      $breakpoint_css[] = '  ' . str_replace("\n", "\n  ", gridbuilder_get_css($breakpoint->grid_name, '.panel-responsive', '.rld-span-' . $name . '_'));
       $breakpoint_css[] = "\n}";
 
       // Remember min-width for next breakpoint if applicable. The breakpoints
@@ -302,7 +279,7 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
       $breakpoint_index++;
     }
     else {
-      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, TRUE);
+      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, NULL, TRUE);
     }
   }
 
@@ -320,4 +297,21 @@ function layout_breakpoint_sort_by_width($a, $b) {
     return 0;
   }
   return ((int) $a->width < (int) $b->width) ? -1 : 1;
+}
+
+// == Layouts =================================================================
+
+/**
+ * Get all responsive layout info arrays from panels.
+ */
+function layout_get_responsive_layouts() {
+  ctools_include('plugins', 'panels');
+  $all_layouts = panels_get_layouts();
+  $responsive_layouts = array();
+  foreach ($all_layouts as $name => $data) {
+    if (empty($data['builder']) && isset($data['layout']->plugin) && ($data['layout']->plugin == 'responsive')) {
+      $responsive_layouts[$name] = $data;
+    }
+  }
+  return $responsive_layouts;
 }

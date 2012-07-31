@@ -65,10 +65,16 @@
      */
     StepManager.prototype.activateStep = function (event) {
       event.preventDefault();
-      var $this = $(this);
-      var step = $this.data('RLD/Step');
-      event.data.manager.activeStep = step;
-      event.data.manager.triggerEvent('stepActivated', step);
+      var $stepLink = $(this);
+      var manager = event.data.manager;
+      var step = $stepLink.data('RLD/Step');
+      if (step === undefined) {
+        step = manager.steps[0];
+      }
+      manager.activeStep = step;
+      manager.info('$editor').find('a').removeClass('rld-active');
+      $stepLink.addClass('rld-active');
+      manager.triggerEvent('stepActivated', step);
     };
     
     return StepManager;
