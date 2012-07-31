@@ -256,6 +256,11 @@
     ResponsiveLayoutDesigner.prototype.build = function () {
       // Build the layoutManager and attach it to the $editor.
       this.layoutManager.build().appendTo(this.$editor);
+      // Activate the first step.
+      var firstStep = this.layoutManager.stepList.info('items')[0];
+      var simpleClick = $.Event('click');
+      simpleClick.data = {'manager': this.layoutManager.stepManager};
+      this.layoutManager.stepManager.activateStep.call(this.layoutManager.stepManager.info('$editor').find('a:first').get(0), simpleClick);
       return this.$editor;
     };
     /**

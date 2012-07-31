@@ -99,8 +99,6 @@
       );
       /*this.$editor
       .delegate('button.save', 'click.ResponsiveLayoutDesigner', {'type': 'save'}, this.update); */
-      // The editor is built and ready to be attached.
-      this.switchStep();
       return this.$editor;
     };
     /**
@@ -129,7 +127,7 @@
       });
       var i, layout, grid, gridColumns, gridClasses;
       // Clear out the current screen.
-      $screen.children('.rld-layout').slideUp(80, function () {
+      $screen.children('.rld-layout').hide(0, function () {
         $(this).remove();
       });
       // Get the active step and layout.
