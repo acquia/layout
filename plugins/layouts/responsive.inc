@@ -85,6 +85,10 @@ function layout_responsive_settings_form_submit(&$layout_settings, $display, $la
     }
     $layout_settings['overrides'] = $new_layout_settings['overrides'];
   }
+
+  // Clean out this value that was only used for communication, so it is not
+  // saved with the layout.
+  unset($layout_settings['layout_responsive_regions']);
 }
 
 /**
@@ -166,17 +170,17 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
   }
 
   if (empty($settings)) {
-    // Initialize default layout options with regions we know about.
-    $default_regions = layout_region_load_all();
-    $settings = array(
-      'regions' => array(),
-    );
-    foreach ($default_regions as $region) {
-      if (!$region->custom) {
-        $settings['regions'][$region->name] = $region->name;
-      }
+    // "Clone" the regions and overrides from a default layout. This lets
+    // people edit the default layout as a base for all new layouts. The default
+    // implementation of the default layout is in an exported responsive layout
+    // in layout.module (see layout_default_panels_layout()).
+    ctools_include('plugins', 'panels');
+    $default_layout_name = variable_get('layout_default_responsive_layout', 'responsive:default');
+    $default_layout = panels_get_layout($default_layout_name);
+    if (!empty($default_layout)) {
+      $settings['regions'] = $default_layout['layout']->settings['regions'];
+      $settings['overrides'] = $default_layout['layout']->settings['overrides'];
     }
-    $settings['overrides'] = array();
   }
 
   return $settings;

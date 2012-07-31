@@ -90,6 +90,61 @@ function layout_ctools_plugin_directory($owner, $plugin_type) {
   }
 }
 
+/**
+ * Implementation of hook_ctools_plugin_api().
+ *
+ * Tell CTools that we support the default_layout_breakpoint and
+ * default_panels_layout APIs.
+ */
+function layout_ctools_plugin_api($owner, $api) {
+  if (($owner == 'layout' && $api == 'default_layout_breakpoint') || ($owner == 'panels' && $api == 'layouts')) {
+    return array('version' => 1);
+  }
+}
+
+// == Layouts =================================================================
+
+/**
+ * Implementation of hook_default_panels_layout().
+ *
+ * Provide a couple default layouts.
+ */
+function layout_default_panels_layout() {
+  $export = array();
+
+  $layout = new stdClass();
+  $layout->disabled = FALSE;
+  $layout->api_version = 1;
+  $layout->name = 'default';
+  $layout->admin_title = 'Default responsive layout';
+  $layout->admin_description = '';
+  $layout->category = '';
+  $layout->plugin = 'responsive';
+  $layout->settings = array(
+    'regions' => array(
+      'header_a' => 'header_a',
+      'header_b' => 'header_b',
+      'header_c' => 'header_c',
+      'subheader_a' => 'subheader_a',
+      'subheader_b' => 'subheader_b',
+      'subheader_c' => 'subheader_c',
+      'navigation' => 'navigation',
+      'title' => 'title',
+      'body' => 'body',
+      'sidebar_a' => 'sidebar_a',
+      'sidebar_b' => 'sidebar_b',
+      'sidebar_c' => 'sidebar_c',
+      'footer_a' => 'footer_a',
+      'footer_b' => 'footer_b',
+      'footer_c' => 'footer_c',
+    ),
+    'overrides' => array(),
+  );
+  $export['default'] = $layout;
+
+  return $export;
+}
+
 // == Regions =================================================================
 
 /**
@@ -193,17 +248,6 @@ function layout_get_layouts_using_region($name) {
 }
 
 // == Breakpoints =============================================================
-
-/**
- * Implementation of hook_ctools_plugin_api().
- *
- * Tell CTools that we support the default_layout_breakpoint API.
- */
-function layout_ctools_plugin_api($owner, $api) {
-  if ($owner == 'layout' && $api == 'default_layout_breakpoint') {
-    return array('version' => 1);
-  }
-}
 
 /**
  * Implementation of hook_default_layout_breakpoint().
