@@ -199,6 +199,7 @@ function theme_layout_responsive($vars) {
   layout_responsive_merge_default_settings($settings, $layout);
 
   $breakpoints = layout_breakpoint_load_all();
+  $grids = gridbuilder_load_all();
 
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
@@ -210,8 +211,20 @@ function theme_layout_responsive($vars) {
       $classes[] = 'layout-responsive-region';
       $classes[] = 'layout-responsive-region-' . $name;
       $classes[] = 'rld-col';
-      if (!empty($settings['regions'][$name])) {
-        $classes[] = $settings['regions'][$name];
+      // Add breakpoint specific column number classes.
+      foreach ($settings['overrides'] as $breakpoint_name => $breakpoint_overrides) {
+        $found_breakpoint_override = FALSE;
+        foreach ($breakpoint_overrides as $region_override) {
+          if ($region_override['name'] == $name) {
+            $classes[] = 'rld-span-' . $breakpoint_name . '_' . $region_override['columns'];
+            $found_breakpoint_override = TRUE;
+          }
+        }
+        if (!$found_breakpoint_override) {
+          // If we have not found a breakpoint override for this column, apply
+          // the number of columns stored for this grid.
+          $classes[] = 'rld-span-' . $breakpoint_name . '_' . $grids[$breakpoints[$breakpoint_name]->grid_name]->columns;
+        }
       }
       $output .= '<div class="' . join(' ', $classes) . '">';
       $output .= $rendered;

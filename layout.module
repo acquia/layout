@@ -293,7 +293,7 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
         ($last_breakpoint ? '' : 'max-width:' . $breakpoint->width) .
         ') {';
       // Get grid CSS from gridbuilder and apply some extra indentation.
-      $breakpoint_css[] = '  ' . str_replace("\n", "\n  ", gridbuilder_get_css($breakpoint->grid_name, '.panel-responsive'));
+      $breakpoint_css[] = '  ' . str_replace("\n", "\n  ", gridbuilder_get_css($breakpoint->grid_name, '.panel-responsive', '.rld-span-' . $name . '_'));
       $breakpoint_css[] = "\n}";
 
       // Remember min-width for next breakpoint if applicable. The breakpoints
@@ -302,7 +302,7 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
       $breakpoint_index++;
     }
     else {
-      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, TRUE);
+      $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, NULL, TRUE);
     }
   }
 
