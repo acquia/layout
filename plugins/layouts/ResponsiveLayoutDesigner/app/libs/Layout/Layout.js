@@ -7,7 +7,6 @@
     // Layout Class
     function Layout() {
       this.deltaColumns = 0;
-      this.overrideRegion = null;
       // Initialize the object.
       this.init.apply(this, arguments);
     }
@@ -195,11 +194,6 @@
       // Calculate the column size so regions can be snapped to grid columns.
       data.totalColumns = Number(this.grid.info('columns'));
       data.frame = Math.floor(Number(this.step.info('size')) / data.totalColumns);
-      // Get the region from the columns override from the span object
-      // for this region.
-      this.overrideRegion = this.step.regionList.getItem(region.info('machine_name'));
-      // If no override exists, assume full width.
-      data.overrideColumns = (this.overrideRegion) ? this.overrideRegion.columns : this.grid.info('columns');
       // Store the X origin of the original click.
       data.originX = event.pageX;
       // Get the column the resize started in.
@@ -266,34 +260,21 @@
     Layout.prototype.finishRegionResize = function (event) {
       this.$editor.sortable('enable');
       event.stopImmediatePropagation();
+      var layout = this;
       var data = event.data;
       var region = data.region;
       var $region = region.info('$editor');
       // Perform a final resize.
       this.resizeRegion.apply(this, arguments);
-      // Save any changes to regions.
-      // If the region already has an override, update it.
-      if (region.columns < data.totalColumns) {
-        var item = this.step.regionList.getItem(region.info('machine_name'))
-        if (item) {
-          item.info('columns', region.columns);
-        }
-        // If the region doesn't have an override yet, create one. This can't be a reference to the
-        // canonical regionList regions, it needs to be a new object.
-        else {
-          var r = region.snapshot();
-          r.columns = r.columns;
-          this.step.regionList.addItem(r);
-        }
-      }
       // Move the next available region up to the placeholder.
       var placeholder = this.getActivePlaceholder(data);
       if (placeholder) {
+        var layout = this; // hack, hack, hack...
         var $placeholder = placeholder.info('$editor');
         var $nextRow = data.$row.next('.rld-row');
         var $candidateRegion = $nextRow.find('.rld-region:first');
         if ($candidateRegion.length > 0) {
-          var size = placeholder.columns;
+          var size = placeholder.info('span');
           $candidateRegion.animate({
             width: 0
           });
@@ -323,6 +304,28 @@
                 }
                 if ($regions.length === 1) {}
                 if ($regions.length > 1) {}
+                // Save any changes to regions.
+                // This doesn't belong here at all, but it's what we've got for the moment.
+                var r;
+                var regionList = layout.regionList.info('items');
+                for (r in regionList) {
+                  if (regionList.hasOwnProperty(r)) {
+                    // If the region already has an override, update it.
+                    if ('span' in regionList[r] && regionList[r].span > 0 && regionList[r].span < data.totalColumns) {
+                      var item = layout.step.regionList.getItem(regionList[r].info('machine_name'))
+                      if (item) {
+                        item.alterColumns(regionList[r].span);
+                      }
+                      // If the region doesn't have an override yet, create one. This can't be a reference to the
+                      // canonical regionList regions, it needs to be a new object.
+                      else {
+                        var temp = regionList[r].snapshot();
+                        temp.columns = temp.span;
+                        layout.step.regionList.addItem(temp);
+                      }
+                    }
+                  }
+                }
                 next();
               });
               next();
@@ -331,13 +334,9 @@
           });
         }
       }
-      
-      
-      
       // Clean up state.
       region.info('active', null);
       this.deltaColumns = 0;
-      this.overrideRegion = null;
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
       // Call listeners for this event.
@@ -404,7 +403,7 @@
       var placeHolderIndex = (activeRegionIndex === 1 && data.side === 'left') ? 0 : (units.length - 1);
       var placeholder = units[placeHolderIndex];
       if (placeholder.type === 'placeholder') {
-        if (units[placeHolderIndex].columns > 0) {
+        if (units[placeHolderIndex].span > 0) {
           return units[placeHolderIndex];
         }
       }
