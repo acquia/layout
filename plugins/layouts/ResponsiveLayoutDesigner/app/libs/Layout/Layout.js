@@ -326,11 +326,6 @@
                     }
                   }
                 }
-                // Clean up state.
-                region.info('active', null);
-                layout.deltaColumns = 0;
-                $region.find('.splitter').removeClass('splitter-active');
-                $(document).unbind('.regionResize');
                 // Call listeners for this event.
                 layout.triggerEvent('regionResized', layout);
                 next();
@@ -340,7 +335,12 @@
             next();
           });
         }
-      }
+      }      
+      // Clean up state.
+      region.info('active', null);
+      this.deltaColumns = 0;
+      $region.find('.splitter').removeClass('splitter-active');
+      $(document).unbind('.regionResize');
     }
     /**
      *
