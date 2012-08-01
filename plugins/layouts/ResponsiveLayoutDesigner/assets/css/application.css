@@ -74,6 +74,9 @@
 }
 .rld-region > .rld-inner {
   background-color: #555;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   color: white;
   height: 4em;
   margin: 0 2px;
@@ -102,7 +105,7 @@
   text-decoration: none;
 }
 .rld-col.rld-region {
-  padding: 0 1%;
+  padding: 0;
 }
 .rld-grid-overlay {
   margin: 0.25em 0;
@@ -120,21 +123,32 @@
   min-height: 1em;
 }
 .rld-splitter {
-  background: #555 url('../images/grippie.png') center center no-repeat;
+  background-attachment: scroll;
+  background-image: url('../images/grippie.png');
+  background-position: center center;
+  background-repeat: no-repeat;
   bottom: 0;
 	cursor: e-resize;	/* in case col-resize isn't supported */
 	cursor: col-resize;
 	height: 100%;
   position: absolute;
   top: 0;
-  width: 11px;
+  width: 12px;
   z-index: 1;
 }
 .rld-splitter-left {
-  left: 2px;
+  background-position: left center;
+  left: 3px;
+  -moz-border-radius: 5px 0 0 5px;
+  -webkit-border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px;
 }
 .rld-splitter-right {
-  right: 2px;
+  background-position: right center;
+  right: 3px;
+  -moz-border-radius: 0 5px 5px 0;
+  -webkit-border-radius: 0 5px 5px 0;
+  border-radius: 0 5px 5px 0;
 }
 .rld-splitter-active {
   background: url('../images/grippie-active.png') 0 -3px;
