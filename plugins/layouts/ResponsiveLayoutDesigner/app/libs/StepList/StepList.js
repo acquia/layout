@@ -75,7 +75,9 @@
             }
           }
           else {
-            size = '100%'; // First time I've used Infinity!
+            // The largest step should be at least 600. If it exceeds 600, it needs
+            // an uppder bound, so we add 100 to its breakpoint size.
+            size = (breakMin < 600) ? 600 : breakMin + 100;
           }
           this.items[i].info('size', size);
         }
