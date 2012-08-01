@@ -67,7 +67,7 @@
       // Create obects for each composite.
       for (i = 0; i < steps.length; i++) {
         // Save the composition elements into a unit.
-        this.registerLayout(steps[i]);
+        this.registerLayoutStep(steps[i]);
       }
     };
     /**
@@ -104,7 +104,7 @@
     /**
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
-    LayoutManager.prototype.registerLayout = function (step) {
+    LayoutManager.prototype.registerLayoutStep = function (step) {
       // Add the Layout to the LayoutList.
       var fn = $.proxy(this.eventBroadcaster, this);
       this.layoutList.addItem({

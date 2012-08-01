@@ -1,11 +1,11 @@
 (function (RLD, $) {
   
-  RLD['Layout'] = (function () {
+  RLD['LayoutStep'] = (function () {
 
-    var plugin = 'Layout';
+    var plugin = 'LayoutStep';
 
     // Layout Class
-    function Layout() {
+    function LayoutStep() {
       this.deltaColumns = 0;
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -13,9 +13,9 @@
     /**
      * Extend the InitClass Object.
      */
-    Layout.prototype = new RLD.InitClass();
+    LayoutStep.prototype = new RLD.InitClass();
     
-    Layout.prototype.setup = function () {
+    LayoutStep.prototype.setup = function () {
       var fn = $.proxy(this.processEvent, this);
       this.regionList.registerEventListener({
         'regionAdded': fn,
@@ -26,7 +26,7 @@
       });
     };
     
-    Layout.prototype.build = function (options) {
+    LayoutStep.prototype.build = function (options) {
       this.$editor = $('<div>', {});
       var regions = this.regionList.info('items');
       var step = this.step;
@@ -116,7 +116,7 @@
       return this.$editor;
     };
     
-    Layout.prototype.processEvent = function (event, data) {
+    LayoutStep.prototype.processEvent = function (event, data) {
       switch (event.type) {
       case 'regionAdded':
         this.triggerEvent('regionAdded', this, data.object);
@@ -140,7 +140,7 @@
         break;
       }
     };
-    Layout.prototype.modifyRegionBuild = function ($region) {
+    LayoutStep.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
       var fn;
       // Add splittrs to the regions.
@@ -166,7 +166,7 @@
     /**
      *
      */
-    Layout.prototype.startRegionResize = function (event) {
+    LayoutStep.prototype.startRegionResize = function (event) {
       this.$editor.sortable('disable');
       event.stopImmediatePropagation();
       var data = event.data;
@@ -214,7 +214,7 @@
     /**
      *
      */
-    Layout.prototype.resizeRegion = function (event) {
+    LayoutStep.prototype.resizeRegion = function (event) {
       event.stopImmediatePropagation();
       var data = event.data;
       var region = data.region;
@@ -257,7 +257,7 @@
     /**
      *
      */
-    Layout.prototype.finishRegionResize = function (event) {
+    LayoutStep.prototype.finishRegionResize = function (event) {
       this.$editor.sortable('enable');
       event.stopImmediatePropagation();
       var layout = this;
@@ -345,7 +345,7 @@
     /**
      *
      */
-    Layout.prototype.getAffectedRegions = function (region, data, traversedChunk) {
+    LayoutStep.prototype.getAffectedRegions = function (region, data, traversedChunk) {
       var units = data.units;
       var activeSide = (data.side === 'left') ? 'right' : 'left';
       var candidateSide = (data.side === 'left') ? 'left' : 'right';
@@ -397,7 +397,7 @@
     /**
      *
      */
-    Layout.prototype.getActivePlaceholder = function (data) {
+    LayoutStep.prototype.getActivePlaceholder = function (data) {
       var units = data.units;
       var activeRegionIndex = this.getActiveRegionIndex(units);
       var placeHolderIndex = (activeRegionIndex === 1 && data.side === 'left') ? 0 : (units.length - 1);
@@ -412,13 +412,13 @@
     /**
      *
      */
-    Layout.prototype.getActiveRegion = function (units) {
+    LayoutStep.prototype.getActiveRegion = function (units) {
       return units[this.getActiveRegionIndex(units)];
     };
     /**
      *
      */
-    Layout.prototype.getActiveRegionIndex = function (units) {
+    LayoutStep.prototype.getActiveRegionIndex = function (units) {
       var i;
       for (i = 0; i < units.length; i++) {
         if ('active' in units[i] && units[i].active) {
@@ -430,11 +430,11 @@
     /**
      *
      */
-    Layout.prototype.processRemove = function (event) {
+    LayoutStep.prototype.processRemove = function (event) {
       
     };
     
-    return Layout;
+    return LayoutStep;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

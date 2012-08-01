@@ -279,7 +279,7 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Layout/Layout.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutStep/LayoutStep.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');

@@ -44,7 +44,7 @@
       // Create obects for each composite.
       for (i = 0; i < items.length; i++) {
         // Save the layout elements into a unit.
-        layout = new RLD.Layout({
+        layout = new RLD.LayoutStep({
           'regionList': items[i].regionList,
           'step': items[i].step,
           'grid': items[i].grid
