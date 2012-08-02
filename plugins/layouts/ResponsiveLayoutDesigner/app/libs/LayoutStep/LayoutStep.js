@@ -15,16 +15,7 @@
      */
     LayoutStep.prototype = new RLD.InitClass();
     
-    LayoutStep.prototype.setup = function () {
-      var fn = $.proxy(this.processEvent, this);
-      this.regionList.registerEventListener({
-        'regionAdded': fn,
-        'regionRemoved': fn,
-        'regionResizeStarted': fn,
-        'regionResizing': fn,
-        'regionResized': fn
-      });
-    };
+    LayoutStep.prototype.setup = function () {};
     
     LayoutStep.prototype.build = function (options) {
       this.$editor = $('<div>', {});
@@ -104,7 +95,7 @@
         );
       }
       // Bind behaviors.
-      fn = $.proxy(this.processEvent, this);
+      fn = $.proxy(this.sortRows, this);
       this.$editor.sortable({
         // Make a placeholder visible when dragging.
         placeholder: "ui-state-highlight",
@@ -116,29 +107,17 @@
       return this.$editor;
     };
     
-    LayoutStep.prototype.processEvent = function (event, data) {
-      switch (event.type) {
-      case 'regionAdded':
-        this.triggerEvent('regionAdded', this, data.object);
-        break;
-      case 'regionRemoved':
-        this.triggerEvent('regionRemoved', this, data.object);
-        break;
-      case 'sortdeactivate':
-        var regionList = [];
-        var i;
-        // Get the region objects in their new order.
-        var $regions = data.sender.find('.rld-region');
-        for (i = 0; i < $regions.length; i++) {
-          regionList.push($($regions[i]).data('RLD/Region'));
-        }
-        this.regionList.update(regionList);
-        // 
-        this.triggerEvent('regionOrderUpdated', this);
-        break;
-      default:
-        break;
+    LayoutStep.prototype.sortRows = function (event, data) {
+      var regionList = [];
+      var i;
+      // Get the region objects in their new order.
+      var $regions = data.sender.find('.rld-region');
+      for (i = 0; i < $regions.length; i++) {
+        regionList.push($($regions[i]).data('RLD/Region'));
       }
+      this.regionList.update(regionList);
+      // 
+      this.triggerEvent('regionOrderUpdated', this);
     };
     LayoutStep.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
@@ -430,7 +409,13 @@
     /**
      *
      */
-    LayoutStep.prototype.processRemove = function (event) {
+    LayoutStep.prototype.processAddRegion = function (event) {
+      
+    };
+    /**
+     *
+     */
+    LayoutStep.prototype.processRemoveRegion = function (event) {
       
     };
     

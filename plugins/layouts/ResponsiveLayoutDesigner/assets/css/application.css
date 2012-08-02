@@ -122,6 +122,9 @@
   height: 100%;
   min-height: 1em;
 }
+.rld-layoutstep-controls {
+  margin-bottom: 5px;
+}
 .rld-splitter {
   background-attachment: scroll;
   background-image: url('../images/grippie.png');

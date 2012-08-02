@@ -33,7 +33,6 @@
      *
      */
     RegionList.prototype.processList = function (items) {
-      var fn = $.proxy(this.eventBroadcaster, this);
       var i, item, region;
       for (i = 0; i < items.length; i++) {
         item = items[i];
@@ -49,24 +48,30 @@
             'classes': ('classes' in item) ? item['classes'] : [],
             'columns': ('columns' in item) ? item['columns'] : null
           });
-        }
-        region.registerEventListener({
-          'regionAdded': fn,
-          'regionRemoved': fn,
-          'regionResizing': fn,
-          'regionResizeStarted': fn,
-          'regionResized': fn
-        });
+        };
         // Add the new region to the list.
         this.items.push(region);
       }
     };
     /**
-     *
+     * @todo, this method needs better argument type handling. It could
+     * be either an array or an object.
      */
     RegionList.prototype.addItem = function (item) {
       this.processList([item]);
-    }
+    };
+    /**
+     *
+     */
+    RegionList.prototype.insertItem = function (item) {
+      this.addItem(item);
+      this.triggerEvent('regionAdded');
+    };
+    /**
+     *
+     */
+    RegionList.prototype.removeItem = function (index) {
+    };
     /**
      *
      */

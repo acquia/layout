@@ -20,6 +20,7 @@
       this.$stepSelector = $();
       this.$steps = $();
       this.$layouts = $();
+      this.activeLayoutStep;
       // Setup
       this.init.apply(this, arguments);
     }
@@ -39,14 +40,17 @@
       this.stepManager.registerEventListener({
         'stepActivated': fn
       });
-      // Register for events on the LayoutList.
       // The broadcaster just pipes events through.
       fn = $.proxy(this.eventBroadcaster, this);
+      // Register for events on the RegionList.
+      this.regionList.registerEventListener({
+        'regionAdded': fn,
+        'regionRemoved': fn,
+      });
+      // Register for events on the LayoutList.
       this.layoutList.registerEventListener({
         'layoutSaved': fn,
         'regionOrderUpdated': fn,
-        'regionRemoved': fn,
-        'regionAdded': fn,
         'regionResized': fn,
         'regionResizing': fn,
         'regionResizeStarted': fn
@@ -107,6 +111,7 @@
     LayoutManager.prototype.registerLayoutStep = function (step) {
       // Add the Layout to the LayoutList.
       var fn = $.proxy(this.eventBroadcaster, this);
+      // Add the LayoutSteps to the LayoutList.
       this.layoutList.addItem({
         'step': step,
         'regionList': this.regionList,
@@ -150,7 +155,9 @@
             .empty()
             .addClass('rld-container-' + gridColumns)
             .append(this.buildGridOverlay(gridColumns))
+            .append(this.buildAddRegionButton('top'))
             .append(layout.build())
+            .append(this.buildAddRegionButton('bottom'))
           );
         }
       }
@@ -208,7 +215,40 @@
         'z-index': 0
       });
     };
-
+    /**
+     *
+     */
+    LayoutManager.prototype.buildAddRegionButton = function (location) {
+      var handler = $.proxy(this.addRegion, this);
+      var $controls = $('<div>', {
+        'class': 'rld-layoutstep-controls' + ' ' + location
+      })
+      .append(
+        $('<button>', {
+          'text': 'Add new region'
+        })
+        .bind('click', {'location': location}, handler)
+      );
+      return $controls;
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.addRegion = function (event) {
+      event.preventDefault();
+      var regionList = this.regionList;
+      this.regionList.insertItem({
+        'machine_name': 'some-new-region',
+        'label': 'My new region'
+      });
+      
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.getActiveLayoutStep = function () {
+    
+    };
     return LayoutManager;
     
   }());
