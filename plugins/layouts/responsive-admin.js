@@ -77,15 +77,14 @@ Drupal.responsiveLayout.init = function() {
 
   // Register event listeners. Just update our representation of the layout
   // for any event for now.
-  this.editor.registerEventListener({
-    'regionOrderUpdated': Drupal.responsiveLayout.eventHandler,
-    'layoutSaved': Drupal.responsiveLayout.eventHandler,
-    'regionRemoved': Drupal.responsiveLayout.eventHandler,
-    'regionAdded': Drupal.responsiveLayout.eventHandler,
-    'regionResized': Drupal.responsiveLayout.eventHandler,
-    'regionResizing': Drupal.responsiveLayout.eventHandler,
-    'regionResizeStarted': Drupal.responsiveLayout.eventHandler
-  });
+  this.editor.topic('regionOrderUpdated').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('layoutSaved').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionAdded').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionRemoved').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionResized').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionResizing').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionResizeStarted').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('stepActivated').subscribe(Drupal.responsiveLayout.eventHandler);
 
   // Insert the editor in the DOM.
   this.editor.build().appendTo('#responsive-layout-designer');
@@ -106,14 +105,15 @@ Drupal.responsiveLayout.init = function() {
  * to track during prototyping.
  */
 Drupal.responsiveLayout.eventHandler = function(event) {
-  /*var i;
+  var i;
   // Log the event type.
   log(event.type, 'info');
   var args = Array.prototype.slice.call(arguments);
   // Print the args as well.
   for (i = 0; i < args.length; i++) {
     log(args[i], 'dir');
-  }*/
+  }
+return;
 
   var layoutSettings = {'regions' : [], 'overrides': {}};
   var layoutManager = Drupal.responsiveLayout.editor.save();

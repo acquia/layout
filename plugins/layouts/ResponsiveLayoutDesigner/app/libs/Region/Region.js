@@ -17,7 +17,7 @@
       else {
         $region.remove();
       }
-      region.triggerEvent('regionRemoved', data);
+      region.topic('regionRemoved').publish(data);
     }
     /**
      *

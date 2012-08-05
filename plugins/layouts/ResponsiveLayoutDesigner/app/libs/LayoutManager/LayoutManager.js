@@ -33,28 +33,26 @@
      */
     LayoutManager.prototype.setup = function () {
       var fn, steps;
+      // Instantiate classes.
       this.stepManager = new RLD.StepManager();
       this.layoutList = new RLD.LayoutList();
-      // Register for events on the StepManager.
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('layoutSaved');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
+      this.topic('regionResized');
+      this.topic('regionResizing');
+      this.topic('regionResizeStarted');
+      // Transfer pass-through subscriptions.
+      this.transferSubscriptions([
+        this.stepManager,
+        this.regionList,
+        this.layoutList
+      ]);
+      // Register for events on the stepManager.
       fn = $.proxy(this.switchStep, this);
-      this.stepManager.registerEventListener({
-        'stepActivated': fn
-      });
-      // The broadcaster just pipes events through.
-      fn = $.proxy(this.eventBroadcaster, this);
-      // Register for events on the RegionList.
-      this.regionList.registerEventListener({
-        'regionAdded': fn,
-        'regionRemoved': fn,
-      });
-      // Register for events on the LayoutList.
-      this.layoutList.registerEventListener({
-        'layoutSaved': fn,
-        'regionOrderUpdated': fn,
-        'regionResized': fn,
-        'regionResizing': fn,
-        'regionResizeStarted': fn
-      });
+      this.stepManager.topic('stepActivated').subscribe(fn);
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.ui['class-layout']
@@ -123,7 +121,8 @@
     /**
      *
      */
-    LayoutManager.prototype.switchStep = function (event) {
+    LayoutManager.prototype.switchStep = function (event, step) {
+      var args = arguments;
       var activeStep = this.stepManager.info('activeStep');
       var id = activeStep.info('breakpoint');
       var $screen = this.$layouts.find('.rld-screen');
@@ -161,6 +160,7 @@
           );
         }
       }
+      this.topic('stepActivated').publish(step);
     };
     
     LayoutManager.prototype.buildGridOverlay = function (columns) {
@@ -227,7 +227,7 @@
         $('<button>', {
           'text': 'Add new region'
         })
-        .bind('click', {'location': location}, handler)
+        .bind('click', {'location': location, 'manager': this}, handler)
       );
       return $controls;
     };
@@ -241,7 +241,6 @@
         'machine_name': 'some-new-region',
         'label': 'My new region'
       });
-      
     };
     /**
      *

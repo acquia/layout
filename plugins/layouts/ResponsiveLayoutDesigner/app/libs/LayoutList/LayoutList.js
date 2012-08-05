@@ -25,6 +25,14 @@
       else {
         this.log('[RLD | ' + plugin + '] The list has no items at setup.');
       }
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('layoutSaved');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
+      this.topic('regionResized');
+      this.topic('regionResizing');
+      this.topic('regionResizeStarted');
     };
     /**
      *
@@ -49,9 +57,10 @@
           'step': items[i].step,
           'grid': items[i].grid
         });
-        layoutStep.registerEventListener(handlers);
         this.items.push(layoutStep);
       }
+      // Transfer pass-through subscriptions.
+      this.transferSubscriptions(this.items);
     };
     /**
      *

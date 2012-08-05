@@ -117,7 +117,7 @@
       }
       this.regionList.update(regionList);
       // 
-      this.triggerEvent('regionOrderUpdated', this);
+      this.topic('regionOrderUpdated').publish(this);
     };
     LayoutStep.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
@@ -188,7 +188,7 @@
       fn = $.proxy(this.finishRegionResize, this);
       $(document).bind('mouseup.regionResize', data, fn);
       // Call listeners.
-      this.triggerEvent('regionResizeStarted', this);
+      this.topic('regionResizeStarted').publish(this);
     };
     /**
      *
@@ -231,7 +231,7 @@
           affectedRegions.left.alterSpan(traversedChunk, true);
         }
       }
-      // this.triggerEvent('regionResizing', this);
+      // this.topic('regionResizing').publish(this);
     };
     /**
      *
@@ -306,7 +306,7 @@
                   }
                 }
                 // Call listeners for this event.
-                layout.triggerEvent('regionResized', layout);
+                layout.topic('regionResized').publish(layout);
                 next();
               });
               next();
@@ -410,7 +410,6 @@
      *
      */
     LayoutStep.prototype.processAddRegion = function (event) {
-      
     };
     /**
      *

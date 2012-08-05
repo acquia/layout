@@ -39,7 +39,6 @@
         // Check if this item is already an item.
         if ('init' in item && typeof item['init'] === 'function') {
           region = item;
-          region.clearEventListeners();
         }
         else {
           region = new RLD.Region({
@@ -65,7 +64,7 @@
      */
     RegionList.prototype.insertItem = function (item) {
       this.addItem(item);
-      this.triggerEvent('regionAdded');
+      this.topic('regionAdded').publish(this.items);
     };
     /**
      *

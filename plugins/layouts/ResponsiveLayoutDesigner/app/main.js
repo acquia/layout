@@ -12,6 +12,8 @@
       }
       return null;
     };
+    // Identify jQuery events from other objects.
+    $.Event.prototype.__marker = 'jQueryEvent';
     /**
      * Create the InitClass object that all other objects will extend.
      */
@@ -22,6 +24,7 @@
       function InitClass() {
         this.$editor = $('<div>', {});
         this.listeners = {};
+        this.topics = {};
         this.items = [];
       }
       /**
@@ -112,69 +115,51 @@
         return snapshot;
       };
       /**
-       * Pushes a supplied function into the list of functions.
+       *
        */
-      InitClass.prototype.registerEventListener = function (event, handler) {
-        var handlers = {};
-        var e, fn;
-        // Deal with event/handlers pass in an object.
-        if (typeof event === 'string') {
-          handlers[event] = handler;
-        }
-        else {
-          handlers = event;
-        }
-        for (e in handlers) {
-          if (handlers.hasOwnProperty(e)) {
-            fn = handlers[e];
-            if (e in this.listeners) {
-              this.listeners[e].push(fn);
-              return;
-            }
-            // This is the first time this event has a listener registerd against it.
-            this.listeners[e] = [fn];   
+      InitClass.prototype.topic = function(id) {
+        var callbacks;
+        var topic = id && this.topics[id];
+        if (!topic) {
+          callbacks = jQuery.Callbacks('unique');
+          topic = {
+            publish: function () {
+              // Create a jQuery Event for consistency and shift it into the arguments.
+              if (!(arguments.length > 0 && typeof arguments[0] === 'object' && '__marker' in arguments[0] && arguments[0].__marker === 'jQueryEvent')) {
+                var e = $.Event(id);
+                // Unshift in the original target for reference if this event bubbles.
+                e.type = id;
+                Array.prototype.unshift.call(arguments, e); 
+              }
+              callbacks.fireWith(this, arguments);
+            },
+            subscribe: callbacks.add,
+            unsubscribe: callbacks.remove
+          };
+          if (id) {
+            this.topics[id] = topic;
           }
         }
-      };  
+        return topic;
+      };
       /**
        *
        */
-      InitClass.prototype.clearEventListeners = function () {
-        this.listeners = []; 
-      }; 
-      /**
-       * Iterate through the callbacks and invoke them.
-       */
-      InitClass.prototype.triggerEvent = function (event) {
-        var args =  Array.prototype.slice.call(arguments);
-        var i, listeners, e, type;
-        if (typeof event === 'object') {
-          type = event.type;
+      InitClass.prototype.transferSubscriptions = function (subscribers) {
+        var subs = subscribers;
+        var topics = this.topics;
+        var i, k, top, id, sub;
+        if (!('length' in subscribers && subscribers.length > 0)) {
+          subs = [subscribers];
         }
-        else {
-          type = event;
-          // Create a jQuery Event for consistency and shift it into the arguments.
-          e = $.Event(type);
-          // Unshift in the original target for reference if this event bubbles.
-          e.target = this;
-          args.shift();
-          args.unshift(e);
-        }
-        if (type in this.listeners) {
-          listeners = this.listeners[type];
-          // Call the listeners.
-          for (i = 0; i < listeners.length; i++) {
-            if (typeof listeners[i] === 'function') {
-              listeners[i].apply(this, args);
+        for (i = 0; i < subs.length; i++) {
+          sub = subs[i];
+          for (top in topics) {
+            if (topics.hasOwnProperty(top)) {
+              sub.topic(top).subscribe(this.topic(top).publish); 
             }
-          } 
+          }
         }
-      };
-      /**
-       * Essentially an event pass-through.
-       */
-      InitClass.prototype.eventBroadcaster = function () {
-        this.triggerEvent.apply(this, arguments);
       };
       
       return InitClass;
@@ -247,6 +232,17 @@
         'regionList': regionList,
         'gridList': gridList
       });
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('layoutSaved');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
+      this.topic('regionResized');
+      this.topic('regionResizing');
+      this.topic('regionResizeStarted');
+      this.topic('stepActivated');
+      // Transfer pass-through subscriptions.
+      this.transferSubscriptions(this.layoutManager);
     };
     /**
      * Generate a view of the class instance.
@@ -262,30 +258,6 @@
       simpleClick.data = {'manager': this.layoutManager.stepManager};
       this.layoutManager.stepManager.activateStep.call(this.layoutManager.stepManager.info('$editor').find('a:first').get(0), simpleClick);
       return this.$editor;
-    };
-    /**
-     * Override the InitClass registerEventListener function.
-     *
-     * Push event listeners to the appropriate object to handle the callbacks.
-     *
-     * The ResponsiveLayoutDesigner is a facade for these sub-systems.
-     */
-    ResponsiveLayoutDesigner.prototype.registerEventListener = function (event, handler) {
-      var e, listeners;
-      // Accept both an object of listeners or a single event/handler combo.
-      if (typeof event !== 'object') {
-        listeners = {};
-        listeners[event] = handler;
-      }
-      else {
-        listeners = event;
-      }
-      // Loop through the listeners and register them.
-      for (e in listeners) {
-        if (listeners.hasOwnProperty(e)) {
-          this.layoutManager.registerEventListener(e, listeners[e]);
-        }
-      }
     };
 
     ResponsiveLayoutDesigner.prototype.save = function () {
