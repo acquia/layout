@@ -67,8 +67,8 @@
      * be either an array or an object.
      */
     RegionList.prototype.addItem = function (item, location) {
-      var newSet = this.processList([item], location);
-      this.topic('regionAdded').publish(this.items, newSet);
+      var newItems = this.processList([item], location);
+      this.topic('regionAdded').publish(this.items, newItems, location);
     };
     /**
      *

@@ -225,7 +225,7 @@
      *
      */
     LayoutManager.prototype.buildAddRegionButton = function (location) {
-      var handler = $.proxy(this.addRegion, this);
+      var handler = $.proxy(this.addRegionHandler, this);
       var $controls = $('<div>', {
         'class': 'rld-layoutstep-controls' + ' ' + location
       })
@@ -240,22 +240,31 @@
     /**
      *
      */
-    LayoutManager.prototype.addRegion = function (event) {
+    LayoutManager.prototype.addRegionHandler = function (event) {
       event.preventDefault();
       var regionList = this.regionList;
       this.regionList.addItem({
         'machine_name': 'some-new-region',
         'label': 'My new region'
       }, event.data.location);
+      
     };
     /**
      *
      */
-    LayoutManager.prototype.insertRegion = function (event, items, newSet) {
+    LayoutManager.prototype.insertRegion = function (event, updatedRegionList, newRegionItems, location) {
       var layout = this.getActiveLayout();
       var $editor = layout.info('$editor');
-      $editor.append(newSet[0].build());
-      this.topic('regionAdded').publish(items, newSet);
+      var i, region;
+      for (i = 0; i < newRegionItems.length; i++) {
+        region = newRegionItems[i].build()
+        region.hide()
+        [(location !== undefined && location === 'top') ? 'prependTo' : 'appendTo']($editor);
+        $editor
+        .find(region)
+        .slideDown(500);
+      }
+      this.topic('regionAdded').publish(event, updatedRegionList, newRegionItems);
     };
     /**
      *

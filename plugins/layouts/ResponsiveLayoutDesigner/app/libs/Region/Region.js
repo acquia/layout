@@ -47,11 +47,16 @@
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
       var classes = [];
+      var style = {};
       classes.push('rld-' + this.type);
       var fn;
       if (options && 'classes' in options && 'length' in options.classes && options.classes.length > 0) {
         classes = classes.concat(options.classes).join(' ');
       }
+      if (options && 'style' in options && typeof options.style === 'object') {
+        style = $.extend(style, options.style);
+      }
+      
       this.$editor = $('<div>', {
         'id': ('label' in this) ? 'rld-region-' + this.label.split(' ').join('_') : '',
         'class': classes,
@@ -61,7 +66,8 @@
             'text': this.label
           })
         })
-      });
+      })
+      .css(style);
       if (this.type === 'region') {
         this.$editor
         .append($('<a>', {
