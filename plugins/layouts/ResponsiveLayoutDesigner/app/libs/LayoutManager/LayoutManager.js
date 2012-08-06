@@ -81,11 +81,6 @@
         'class': 'rld-layout-manager'
       })
       .append(
-        $('<div>', {
-          'class': 'rld-controls'
-        })
-      )
-      .append(
         this.$stepSelector
         .append(
           this.stepManager.build(this.$steps)
@@ -153,8 +148,8 @@
             $layout
             .empty()
             .addClass('rld-container-' + gridColumns)
-            .append(this.buildGridOverlay(gridColumns))
             .append(this.buildAddRegionButton('top'))
+            .append(this.buildGridOverlay(gridColumns))
             .append(layout.build())
             .append(this.buildAddRegionButton('bottom'))
           );

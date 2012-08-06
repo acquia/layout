@@ -53,7 +53,6 @@
   position: relative;
 }
 .rld-layout {
-  padding-top: 20px;
   position: relative;
 }
 .rld-row {
@@ -111,8 +110,11 @@
   margin: 0.25em 0;
   min-height: 20px;
   position: absolute;
-  top: 0;
+  top: 24px;
   width: 100%;
+}
+.rld-grid-overlay + * {
+  margin-top: 24px;
 }
 .rld-grid-col {
   background-color: #59A;
