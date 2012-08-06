@@ -243,7 +243,7 @@
     LayoutManager.prototype.addRegionHandler = function (event) {
       event.preventDefault();
       var regionList = this.regionList;
-      this.regionList.addItem({
+      this.regionList.insertItem({
         'machine_name': 'some-new-region',
         'label': 'My new region'
       }, event.data.location);
@@ -253,17 +253,8 @@
      *
      */
     LayoutManager.prototype.insertRegion = function (event, updatedRegionList, newRegionItems, location) {
-      var layout = this.getActiveLayout();
-      var $editor = layout.info('$editor');
-      var i, region;
-      for (i = 0; i < newRegionItems.length; i++) {
-        region = newRegionItems[i].build()
-        region.hide()
-        [(location !== undefined && location === 'top') ? 'prependTo' : 'appendTo']($editor);
-        $editor
-        .find(region)
-        .slideDown(500);
-      }
+      this.getActiveLayout().insertRows(newRegionItems, location);
+      // Publish the regionAdded topic.
       this.topic('regionAdded').publish(event, updatedRegionList, newRegionItems);
     };
     /**

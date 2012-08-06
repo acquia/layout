@@ -67,7 +67,14 @@
      * be either an array or an object.
      */
     RegionList.prototype.addItem = function (item, location) {
-      var newItems = this.processList([item], location);
+      return this.processList([item], location)
+    };
+    /**
+     * @todo, this method needs better argument type handling. It could
+     * be either an array or an object.
+     */
+    RegionList.prototype.insertItem = function (item, location) {
+      var newItems = this.addItem(item, location);
       this.topic('regionAdded').publish(this.items, newItems, location);
     };
     /**

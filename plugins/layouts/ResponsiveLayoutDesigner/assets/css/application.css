@@ -141,6 +141,9 @@
   width: 12px;
   z-index: 1;
 }
+.rld-splitter:hover {
+  background-color: rgba(0, 0, 0, 0.3333);
+}
 .rld-splitter-left {
   background-position: left center;
   left: 3px;

@@ -25,83 +25,10 @@
       this.topic('regionResizeStarted');
     };
     
-    LayoutStep.prototype.build = function (items, options) {
+    LayoutStep.prototype.build = function (options, items) {
       this.$editor = $('<div>', {});
-      var regions = this.regionList.info('items');
-      var step = this.step;
-      var grid = this.grid;
-      var count = 0;
-      // The size of a region may be overridden in this step.
-      var regionOverrides = step.info('regionList').info('items');
-      var $row;
-      var i, k, fn, region, span;
-      // Build rows and regions.
-      for (i = 0; i < regions.length; i++) {
-        var override = undefined;
-        var classes = ['rld-col rld-unit'];
-        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
-        if ((count === 0) || (count >= grid.columns)) {
-          // Append a placeholder to the end of a row.
-          if (count >= grid.columns) {
-            $row.append(
-              new RLD.Region({
-                'type': 'placeholder'
-              })
-              .build({
-                'classes': classes
-              })
-            );
-          }
-          // Create a new row.
-          $row = $('<div>', {
-            'class': 'rld-row clearfix'
-          })
-          // Append a placeholder to the start of the row.
-          .append(
-            new RLD.Region({
-              'type': 'placeholder'
-            })
-            .build({
-              'classes': classes
-            })
-          )
-          // Append the row to the editor.
-          .appendTo(this.$editor);
-          // Restart the row span count.
-          count = 0;
-        }
-        region = regions[i];
-        // If this step has region overrides, get the override that matches this region, if any.
-        if (regionOverrides.length > 0) {
-          for (k = 0; k < regionOverrides.length; k++) {         
-            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
-              override = regionOverrides[k];
-              break;
-            }
-          }
-        }
-        // If an override for this region exists, use it.
-        if (override !== undefined) {
-          span = override.columns;
-          count += override.columns;
-        }
-        // Otherwise the region is assumed to be full width.
-        else {
-          span = grid.columns;
-          count = grid.columns;
-        }
-        // Build the region and append it to the row.
-        $row.append(
-          this.modifyRegionBuild(
-            regions[i].build({
-              'classes': classes
-            })
-            .data('RLD/Region')
-            // Get the Region object and update its span.
-            .alterSpan(span)
-          )
-        );
-      }
+      var regions = items || this.regionList.info('items');
+      this.$editor.append(this.buildRows(regions).contents());
       // Bind behaviors.
       fn = $.proxy(this.sortRows, this);
       this.$editor.sortable({
@@ -417,15 +344,110 @@
     /**
      *
      */
-    LayoutStep.prototype.processAddRegion = function (event) {
+    LayoutStep.prototype.buildRows = function (regions, options) {
+      var $container = $('<div>', {});
+      var step = this.step;
+      var grid = this.grid;
+      var count = 0;
+      // The size of a region may be overridden in this step.
+      var regionOverrides = step.info('regionList').info('items');
+      var $row;
+      var i, k, fn, region, span;
+      // Build rows and regions.
+      for (i = 0; i < regions.length; i++) {
+        var override = undefined;
+        var classes = ['rld-col rld-unit'];
+        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
+        if ((count === 0) || (count >= grid.columns)) {
+          // Append a placeholder to the end of a row.
+          if (count >= grid.columns) {
+            $row.append(
+              new RLD.Region({
+                'type': 'placeholder'
+              })
+              .build({
+                'classes': classes
+              })
+            );
+          }
+          // Create a new row.
+          $row = $('<div>', {
+            'class': 'rld-row clearfix'
+          })
+          // Append a placeholder to the start of the row.
+          .append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': classes
+            })
+          )
+          // Append the row to the editor.
+          .appendTo($container);
+          // Restart the row span count.
+          count = 0;
+        }
+        region = regions[i];
+        // If this step has region overrides, get the override that matches this region, if any.
+        if (regionOverrides.length > 0) {
+          for (k = 0; k < regionOverrides.length; k++) {         
+            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+              override = regionOverrides[k];
+              break;
+            }
+          }
+        }
+        // If an override for this region exists, use it.
+        if (override !== undefined) {
+          span = override.columns;
+          count += override.columns;
+        }
+        // Otherwise the region is assumed to be full width.
+        else {
+          span = grid.columns;
+          count = grid.columns;
+        }
+        // Build the region and append it to the row.
+        $row.append(
+          this.modifyRegionBuild(
+            regions[i].build({
+              'classes': classes
+            })
+            .data('RLD/Region')
+            // Get the Region object and update its span.
+            .alterSpan(span)
+          )
+        );
+        // Append a placeholder to the end of a row if this is the last item processed.
+        if (i === (regions.length - 1)) {
+          $row.append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': classes
+            })
+          );
+        }
+      }
+      return $container;
     };
     /**
      *
      */
-    LayoutStep.prototype.processRemoveRegion = function (event) {
-      
+    LayoutStep.prototype.insertRows = function (items, location) {
+      var $editor = this.$editor;
+      // Get a well-formed region, ready to insert into a layout.
+      var $rows = this.buildRows(items).contents();
+      // Insert the wrapped region into the editor.
+      $rows.hide()
+      [(location !== undefined && location === 'top') ? 'prependTo' : 'appendTo']($editor);
+      // Reveal the wrapped regions in a pretty way.
+      $editor
+      .find($rows)
+      .slideDown(500);
     };
-    
     return LayoutStep;
     
   }());
