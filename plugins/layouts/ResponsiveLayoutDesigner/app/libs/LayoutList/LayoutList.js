@@ -27,7 +27,6 @@
       }
       // Define topics that will pass-through.
       this.topic('regionOrderUpdated');
-      this.topic('layoutSaved');
       this.topic('regionAdded');
       this.topic('regionRemoved');
       this.topic('regionResized');
@@ -41,6 +40,7 @@
       // The broadcaster just pipes events through.
       var fn = $.proxy(this.eventBroadcaster, this);
       var handlers = {};
+      var newSet = [];
       var i, layoutStep, listener;
       // Get a list of the listeners to register on each Layout.
       var listener;
@@ -58,15 +58,19 @@
           'grid': items[i].grid
         });
         this.items.push(layoutStep);
+        newSet.push(layoutStep);
       }
       // Transfer pass-through subscriptions.
       this.transferSubscriptions(this.items);
+      // Return the items that were added.
+      return newSet;
     };
     /**
      *
      */
     LayoutList.prototype.addItem = function (layout) {
-      this.processList([layout]);
+      var items = this.processList([layout]);
+      return items;
     }
     /**
      *

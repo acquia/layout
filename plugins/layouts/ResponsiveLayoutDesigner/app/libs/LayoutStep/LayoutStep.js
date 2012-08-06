@@ -15,9 +15,17 @@
      */
     LayoutStep.prototype = new RLD.InitClass();
     
-    LayoutStep.prototype.setup = function () {};
+    LayoutStep.prototype.setup = function () {
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
+      this.topic('regionResized');
+      this.topic('regionResizing');
+      this.topic('regionResizeStarted');
+    };
     
-    LayoutStep.prototype.build = function (options) {
+    LayoutStep.prototype.build = function (items, options) {
       this.$editor = $('<div>', {});
       var regions = this.regionList.info('items');
       var step = this.step;

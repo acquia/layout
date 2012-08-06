@@ -154,9 +154,11 @@
         }
         for (i = 0; i < subs.length; i++) {
           sub = subs[i];
-          for (top in topics) {
-            if (topics.hasOwnProperty(top)) {
-              sub.topic(top).subscribe(this.topic(top).publish); 
+          if ('topic' in sub) {
+            for (top in topics) {
+              if (topics.hasOwnProperty(top)) {
+                sub.topic(top).subscribe(this.topic(top).publish); 
+              }
             }
           }
         }

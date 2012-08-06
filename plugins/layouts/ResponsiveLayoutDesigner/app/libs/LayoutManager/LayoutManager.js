@@ -39,7 +39,6 @@
       // Define topics that will pass-through.
       this.topic('regionOrderUpdated');
       this.topic('layoutSaved');
-      this.topic('regionAdded');
       this.topic('regionRemoved');
       this.topic('regionResized');
       this.topic('regionResizing');
@@ -53,6 +52,9 @@
       // Register for events on the stepManager.
       fn = $.proxy(this.switchStep, this);
       this.stepManager.topic('stepActivated').subscribe(fn);
+      // Register for events on the regionList.
+      fn = $.proxy(this.insertRegion, this);
+      this.regionList.topic('regionAdded').subscribe(fn);
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.ui['class-layout']
@@ -118,46 +120,55 @@
      */
     LayoutManager.prototype.switchStep = function (event, step) {
       var args = arguments;
-      var activeStep = this.stepManager.info('activeStep');
-      var id = activeStep.info('breakpoint');
+      var id = this.stepManager.info('activeStep').info('breakpoint');
       var $screen = this.$layouts.find('.rld-screen');
       var $layout = $('<div>', {
         'class': 'rld-layout'
       });
-      var i, layout, grid, gridColumns, gridClasses;
+      var layout = this.getActiveLayout();
+      var i, grid, gridColumns, gridClasses;
       // Clear out the current screen.
       $screen.children('.rld-layout').hide(0, function () {
         $(this).remove();
       });
-      // Get the active step and layout.
+      grid = layout.info('grid');
+      gridColumns = grid.info('columns');
+      gridClasses = grid.info('classes') || [];
+      if (gridClasses.length > 0) {
+        $screen.addClass();
+      }
+      $screen.animate({
+        width: layout.step.info('size')
+      });
+      // Append the frame to the screen.
+      $screen
+      .append(
+        $layout
+        .empty()
+        .addClass('rld-container-' + gridColumns)
+        .append(this.buildAddRegionButton('top'))
+        .append(this.buildGridOverlay(gridColumns))
+        .append(layout.build())
+        .append(this.buildAddRegionButton('bottom'))
+      );
+      this.topic('stepActivated').publish(step);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.getActiveLayout = function () {
+      var activeStep = this.stepManager.info('activeStep');
+      var layout;
       for (i = 0; i < this.layoutList.info('items').length; i++) {
         layout = this.layoutList.info('items')[i];
         if (layout.step.info('machine_name') === activeStep.info('machine_name')) {
-          grid = layout.info('grid');
-          gridColumns = grid.info('columns');
-          gridClasses = grid.info('classes') || [];
-          if (gridClasses.length > 0) {
-            $screen.addClass();
-          }
-          $screen.animate({
-            width: layout.step.info('size')
-          });
-          // Append the frame to the screen.
-          $screen
-          .append(
-            $layout
-            .empty()
-            .addClass('rld-container-' + gridColumns)
-            .append(this.buildAddRegionButton('top'))
-            .append(this.buildGridOverlay(gridColumns))
-            .append(layout.build())
-            .append(this.buildAddRegionButton('bottom'))
-          );
+          return layout;
         }
       }
-      this.topic('stepActivated').publish(step);
     };
-    
+    /**
+     *
+     */
     LayoutManager.prototype.buildGridOverlay = function (columns) {
       var $overlay = $('<div>', {
         'class': 'rld-grid-overlay clearfix'
@@ -222,7 +233,7 @@
         $('<button>', {
           'text': 'Add new region'
         })
-        .bind('click', {'location': location, 'manager': this}, handler)
+        .bind('click', {'location': location}, handler)
       );
       return $controls;
     };
@@ -232,10 +243,19 @@
     LayoutManager.prototype.addRegion = function (event) {
       event.preventDefault();
       var regionList = this.regionList;
-      this.regionList.insertItem({
+      this.regionList.addItem({
         'machine_name': 'some-new-region',
         'label': 'My new region'
-      });
+      }, event.data.location);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.insertRegion = function (event, items, newSet) {
+      var layout = this.getActiveLayout();
+      var $editor = layout.info('$editor');
+      $editor.append(newSet[0].build());
+      this.topic('regionAdded').publish(items, newSet);
     };
     /**
      *

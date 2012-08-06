@@ -20,6 +20,10 @@
      * Called by the InitClass prototype.
      */
     RegionList.prototype.setup = function () {
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
       // Format the regions.
       if ('regions' in this) {
         this.processList(this.regions);
@@ -32,7 +36,8 @@
     /**
      *
      */
-    RegionList.prototype.processList = function (items) {
+    RegionList.prototype.processList = function (items, location) {
+      var newSet = [];
       var i, item, region;
       for (i = 0; i < items.length; i++) {
         item = items[i];
@@ -49,22 +54,21 @@
           });
         };
         // Add the new region to the list.
-        this.items.push(region);
+        this.items[(location !== undefined && location === 'top') ? 'unshift' : 'push'](region);
+        newSet.push(region);
       }
+      // Transfer pass-through subscriptions.
+      this.transferSubscriptions(this.items);
+      // Return the items that were added.
+      return newSet;
     };
     /**
      * @todo, this method needs better argument type handling. It could
      * be either an array or an object.
      */
-    RegionList.prototype.addItem = function (item) {
-      this.processList([item]);
-    };
-    /**
-     *
-     */
-    RegionList.prototype.insertItem = function (item) {
-      this.addItem(item);
-      this.topic('regionAdded').publish(this.items);
+    RegionList.prototype.addItem = function (item, location) {
+      var newSet = this.processList([item], location);
+      this.topic('regionAdded').publish(this.items, newSet);
     };
     /**
      *
