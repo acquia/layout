@@ -243,10 +243,66 @@
     LayoutManager.prototype.addRegionHandler = function (event) {
       event.preventDefault();
       var regionList = this.regionList;
-      this.regionList.insertItem({
+      // Dialog pieces.
+      var $input = $('<input>', { 
+        'type': 'text'
+      });
+      var $machineName = $('<div>', {
+        'text': ''
+      });
+      // Create the dialog callbacks.
+      var saveCallback = $.Callbacks();
+      var save = $.proxy(this.regionList.insertItem, this.regionList, {
         'machine_name': 'some-new-region',
         'label': 'My new region'
       }, event.data.location);
+      // This here is expected to be the div#dialog, which it will be
+      // when the cancel function is called by the dialog.
+      var cancel = function () {
+        $(this).dialog('destroy');
+      };
+      saveCallback.add(save);
+      saveCallback.add(cancel);
+      // Machine name checking callback.
+      var machineNameCheck = $.proxy(this.regionList.guaranteeMachineName, this.regionList);
+      // Machine name writing callback.
+      var machineNamePrint = $.proxy(function machineNamePrintProxy(checker, $input, $display, event) {
+        var candidate = $input.val();
+        var isUnique = checker($input.val());
+        if (isUnique) {
+          $display.text(candidate);
+        }
+      }, this, machineNameCheck, $input, $machineName);
+      // Create and insert the dialog.
+      $('<div>', {
+        'class': 'rld-dialog'
+      })
+      .append($('<label>', {
+        'text': 'Region name'
+      }))
+      .append($input)
+      .append($machineName)
+      .on({
+        'keyup': RLD.Utils.keyManager
+      },
+      'input',
+      {
+        'callback': machineNamePrint,
+        'keys': [65]
+      })
+      .dialog({
+        'title': 'Add a region',
+        'resizable': false,
+        'modal': true,
+        'buttons': {
+          'Save': saveCallback.fire,
+          'Cancel': cancel
+        }
+      });
+      /* this.regionList.insertItem({
+        'machine_name': 'some-new-region',
+        'label': 'My new region'
+      }, event.data.location); */
       
     };
     /**
@@ -263,6 +319,7 @@
     LayoutManager.prototype.getActiveLayoutStep = function () {
     
     };
+
     return LayoutManager;
     
   }());

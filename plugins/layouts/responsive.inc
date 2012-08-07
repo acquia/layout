@@ -269,6 +269,9 @@ function theme_layout_responsive_admin($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
+  // Add required libraries.
+  drupal_add_library('system', 'ui.dialog');
+
   // Add the ResponsiveLayoutDesigner application.
 
   // This is a messy, messy list of files. Eventually we'll want to package
@@ -277,6 +280,7 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutStep/LayoutStep.js');

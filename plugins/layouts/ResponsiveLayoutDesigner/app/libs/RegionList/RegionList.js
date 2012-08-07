@@ -88,6 +88,12 @@
     RegionList.prototype.update = function (type, list) {
       this.items = type;
     };
+    /**
+     *
+     */
+    RegionList.prototype.guaranteeMachineName = function (name) {
+      return true;
+    };
 
     return RegionList;
     
