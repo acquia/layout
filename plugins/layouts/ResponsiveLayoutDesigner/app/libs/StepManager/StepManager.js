@@ -40,12 +40,22 @@
         this.$stepContainer
         .append(
           $('<li>', {
-            'html': $('<a>', {
+            'class': 'rld-tab'
+          })
+          .append(
+            $('<a>', {
+              'class': 'rld-link',
               'href': '#' + id,
               'text': label
             })
             .data('RLD/Step', step)
-          })
+          )
+          .append(
+            $('<div>', {
+              'class': 'rld-meta',
+              'text': step.info('size') + 'px'
+            })
+          )
         );
       }
       // Attach behaviors.

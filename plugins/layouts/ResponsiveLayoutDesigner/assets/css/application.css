@@ -28,14 +28,16 @@
   margin-left: 1em;
   margin-right: 1em;
 }
-.rld-steps .rld-active {
-  background-color: #59A;
+.rld-steps .rld-tab .rld-link {
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-  color: white;
   display: inline-block;
   padding: 0.1667em 0.5em;
+}
+.rld-steps .rld-active {
+  background-color: #59A;
+  color: white;
   text-shadow: 0 1px 0px #828383
 }
 .rld-layouts {
