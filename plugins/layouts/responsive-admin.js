@@ -1,4 +1,4 @@
-(function ($, ResponsiveLayoutDesigner) {
+(function ($, ResponsiveLayoutDesigner, JSON) {
 
 /**
  * Safe logging function.
@@ -105,15 +105,6 @@ Drupal.responsiveLayout.init = function() {
  * to track during prototyping.
  */
 Drupal.responsiveLayout.eventHandler = function(event) {
-  var i;
-  // Log the event type.
-  log(event.type, 'info');
-  var args = Array.prototype.slice.call(arguments);
-  // Print the args as well.
-  for (i = 0; i < args.length; i++) {
-    log(args[i], 'dir');
-  }
-return;
 
   var layoutSettings = {'regions' : [], 'overrides': {}};
   var layoutManager = Drupal.responsiveLayout.editor.save();
@@ -142,10 +133,10 @@ return;
   // built with rapid changes in mind (ordering, adding new regions, resizing),
   // and we don't have a live preview needed given the useful builder view
   // itself.
-  $('#edit-layout-settings-layout-responsive-regions').val($.serializeJSON(layoutSettings));
+  $('#edit-layout-settings-layout-responsive-regions').val(JSON.stringify(layoutSettings));
 }
 
-})(jQuery, ResponsiveLayoutDesigner);
+})(jQuery, ResponsiveLayoutDesigner, JSON);
 
 jQuery(function($) {
     $.extend({

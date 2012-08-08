@@ -271,6 +271,24 @@ function theme_layout_responsive_admin($vars) {
 
   // Add required libraries.
   drupal_add_library('system', 'ui.dialog');
+  // JSON2 is required for stringifying JavaScript data structures in older browsers.
+  $name = 'json2';
+  if (!libraries_detect($name)) {
+    watchdog('responsive', 'The JSON-js library is recommended for this module to function properly. Some older browsers do not provide the JSON function natively. Please visit !url to obtain this library.',
+      array(
+        '!url' => l('JSON-js (Github)', 'https://github.com/douglascrockford/JSON-js',
+          array(
+            'absolute' => TRUE,
+            'external' => TRUE
+          )
+        )
+      ),
+      WATCHDOG_NOTICE
+    );
+  }
+  else {
+    libraries_load($name);
+  }
 
   // Add the ResponsiveLayoutDesigner application.
 
