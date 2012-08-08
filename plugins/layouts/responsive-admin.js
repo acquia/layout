@@ -27,7 +27,7 @@ Drupal.behaviors.responsiveLayoutAdmin = {
 Drupal.responsiveLayout.init = function() {
   // Initialize region list and per-breakpoint columns.
   var regionList = [];
-  var layoutConfig = $.parseJSON($('#edit-layout-settings-layout-responsive-regions').val());
+  var layoutConfig = JSON.parse($('#edit-layout-settings-layout-responsive-regions').val());
   for (var regionIndex in layoutConfig.regions) {
     regionList.push({
       'machine_name': layoutConfig.regions[regionIndex].name,
@@ -77,25 +77,16 @@ Drupal.responsiveLayout.init = function() {
 
   // Register event listeners. Just update our representation of the layout
   // for any event for now.
-  this.editor.topic('regionOrderUpdated').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('layoutSaved').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('regionAdded').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('regionRemoved').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('regionResized').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('regionResizing').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('regionResizeStarted').subscribe(Drupal.responsiveLayout.eventHandler);
-  this.editor.topic('stepActivated').subscribe(Drupal.responsiveLayout.eventHandler);
+  this.editor.topic('regionOrderUpdated').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionAdded').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionRemoved').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionResized').subscribe(Drupal.responsiveLayout.recordState);
 
   // Insert the editor in the DOM.
   this.editor.build().appendTo('#responsive-layout-designer');
 
   // Save a reference to the editor to the DOM for development.
   window.RLDEditor = this.editor;
-
-  // Intervene on form submit to get data from the app into the page.
-  // @todo this form ID seems really generic. We need something more specific.
-  // var that = this;
-  // $('#ctools-export-ui-edit-item-form').bind('submit', {'responsiveLayout': that}, Drupal.responsiveLayout.save);
 }
 
 /**
@@ -104,10 +95,11 @@ Drupal.responsiveLayout.init = function() {
  * This is generic so we don't have to have a callback for each event we'd like
  * to track during prototyping.
  */
-Drupal.responsiveLayout.eventHandler = function(event) {
+Drupal.responsiveLayout.recordState = function(event) {
 
   var layoutSettings = {'regions' : [], 'overrides': {}};
-  var layoutManager = Drupal.responsiveLayout.editor.save();
+  // Get a dump of the state of the application.
+  var layoutManager = Drupal.responsiveLayout.editor.snapshot();
   var regionList = layoutManager.info('regionList');
   var regions = regionList.info('items');
   for (var i = 0; i < regions.length; i++) {
@@ -137,28 +129,3 @@ Drupal.responsiveLayout.eventHandler = function(event) {
 }
 
 })(jQuery, ResponsiveLayoutDesigner, JSON);
-
-jQuery(function($) {
-    $.extend({
-        serializeJSON: function(obj) {
-            var t = typeof(obj);
-            if(t != "object" || obj === null) {
-                // simple data type
-                if(t == "string") obj = '"' + obj + '"';
-                return String(obj);
-            } else {
-                // array or object
-                var json = [], arr = (obj && obj.constructor == Array);
-
-                $.each(obj, function(k, v) {
-                    t = typeof(v);
-                    if(t == "string") v = '"' + v + '"';
-                    else if (t == "object" & v !== null) v = $.serializeJSON(v)
-                    json.push((arr ? "" : '"' + k + '":') + String(v));
-                });
-
-                return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-            }
-        }
-    });
-});

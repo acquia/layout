@@ -262,7 +262,7 @@
       return this.$editor;
     };
 
-    ResponsiveLayoutDesigner.prototype.save = function () {
+    ResponsiveLayoutDesigner.prototype.snapshot = function () {
       return this.layoutManager;
     };
 
