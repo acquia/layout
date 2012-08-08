@@ -243,6 +243,8 @@
     LayoutManager.prototype.addRegionHandler = function (event) {
       event.preventDefault();
       var regionList = this.regionList;
+      this.candidateRegionName = '';
+      this.candidateRegionMachineName = '';
       // Dialog pieces.
       var $input = $('<input>', { 
         'type': 'text'
@@ -267,10 +269,27 @@
       var machineNameCheck = $.proxy(this.regionList.guaranteeMachineName, this.regionList);
       // Machine name writing callback.
       var machineNamePrint = $.proxy(function machineNamePrintProxy(checker, $input, $display, event) {
-        var candidate = $input.val();
-        var isUnique = checker($input.val());
+        var candidate = $input.val() || '';
+        var machine_name = this.candidateRegionName = candidate.replace(/\s+/g, '_').toLowerCase();
+        // Confine the machine name to 24 characters.
+        if (machine_name.length > 24) {
+          machine_name = machine_name.slice(0, 24);
+        }
+        this.candidateRegionMachineName = machine_name;
+        var isUnique = checker(machine_name);
         if (isUnique) {
-          $display.text(candidate);
+          $display
+          .text(machine_name)
+          .css({
+            'color': 'black'
+          });
+        }
+        else {
+          $display
+          .text(machine_name)
+          .css({
+            'color': 'red'
+          });
         }
       }, this, machineNameCheck, $input, $machineName);
       // Create and insert the dialog.
@@ -283,12 +302,13 @@
       .append($input)
       .append($machineName)
       .on({
-        'keyup': RLD.Utils.keyManager
+        'keydown': RLD.Utils.keyManager,
+        'keyup': machineNamePrint
       },
       'input',
       {
         'callback': machineNamePrint,
-        'keys': [65]
+        'pattern': /^[_]*[A-Za-z0-9\_\-\+\s]*$/
       })
       .dialog({
         'title': 'Add a region',

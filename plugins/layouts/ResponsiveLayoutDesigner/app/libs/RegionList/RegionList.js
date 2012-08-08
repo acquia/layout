@@ -92,6 +92,13 @@
      *
      */
     RegionList.prototype.guaranteeMachineName = function (name) {
+      var regions = this.items;
+      var i;
+      for (i = 0; i < regions.length; i++) {
+        if (regions[i].machine_name === name) {
+          return false;
+        }
+      }
       return true;
     };
 
