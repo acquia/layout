@@ -71,6 +71,9 @@
       if (this.columns < 0) {
         this.columns = 0;
       }
+      // Change the view to match the number of columns.
+      this.alterSpan(this.columns);
+      // Return the view.
       return this.$editor;
     };
     /**
@@ -86,8 +89,10 @@
       if (this.span < 0) {
         this.span = 0;
       }
-      this.$editor.supplantClass(this.columnClass, this.columnClass + this.span);
-      return this.$editor;
+      var span = this.columnClass + this.span;
+      this.$editor.supplantClass(this.columnClass, span);
+      // Return the new span.
+      return span;
     };
   
     return Region;

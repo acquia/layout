@@ -356,8 +356,13 @@
      */
     LayoutManager.prototype.removeRegion = function (event, region) {
       var $region = region.info('$editor');
+      var $prev = $region.prev('.rld-region');
+      var $next = $region.next('.rld-region');
+      var span = region.info('span');
+      var activeStep = this.stepManager.info('activeStep');
+      var passiveRegion, replacementRegion;
       // If region has no siblings, hide row. Otherwise, hide region.
-      if ($region.prev('.rld-region').length === 0 && $region.next('.rld-region').length === 0) {
+      if ($prev.length === 0 && $next.length === 0) {
         $region.closest('.rld-row').slideUp(function () {
           $(this).remove();
         });
@@ -365,6 +370,18 @@
       else {
         $region.slideUp(function () {
           $(this).remove();
+          if ($prev.length > 0) {
+            passiveRegion = $prev.data('RLD/Region');
+          }
+          else if ($next.length > 0) {
+            passiveRegion = $next.data('RLD/Region');
+          }
+          if (passiveRegion !== undefined) {
+            span = passiveRegion.alterSpan(span, true);
+            replacementRegion = passiveRegion.snapshot();
+            replacementRegion.columns = span;
+            activeStep.replaceRegion(replacementRegion);
+          }
         });
       }
       this.topic('regionRemoved').publish(event, this);

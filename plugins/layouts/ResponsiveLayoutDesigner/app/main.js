@@ -287,7 +287,7 @@
       var $this = $(this);
       var cl = [];
       // Get an array of classes the excludes any that contain the needle.
-      var classes = $this.attr('class').split(' ');
+      var classes = ($this.attr('class') || '').split(' ');
       for (var i = 0; i < classes.length; i++) {
         if (classes[i].indexOf(needle) === -1) {
           cl.push(classes[i]);

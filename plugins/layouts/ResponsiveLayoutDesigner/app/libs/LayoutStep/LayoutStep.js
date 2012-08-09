@@ -214,7 +214,9 @@
               width: 0
             });
             $placeholder.queue(function (next) {
-              $(this).data('RLD/Region').alterSpan(0).removeAttr('style');
+              var $this = $(this);
+              $this.data('RLD/Region').alterSpan(0);
+              $this.removeAttr('style');
               next();
             });
             $placeholder.queue(function (next) {
@@ -223,7 +225,9 @@
                 'width': size * data.frame
               });
               $shiftedRegion.queue(function (next) {
-                $(this).data('RLD/Region').alterSpan(size).removeAttr('style');
+                var $this = $(this);
+                $this.data('RLD/Region').alterSpan(size);
+                $this.removeAttr('style');
                 next();
               });
               $shiftedRegion.queue(function (next) {
@@ -376,7 +380,7 @@
       // The size of a region may be overridden in this step.
       var regionOverrides = step.info('regionList').info('items');
       var $row;
-      var i, k, fn, region, span;
+      var i, k, fn, region, $region, span;
       // Build rows and regions.
       for (i = 0; i < regions.length; i++) {
         var override = undefined;
@@ -432,16 +436,18 @@
           span = grid.columns;
           count = grid.columns;
         }
-        // Build the region and append it to the row.
+        // Build the region.
+        $region = regions[i].build({
+          'classes': classes
+        });
+        // Alter its span.
+        $region
+        .data('RLD/Region')
+        // Get the Region object and update its span.
+        .alterSpan(span)
+        // Append it to the row.
         $row.append(
-          this.modifyRegionBuild(
-            regions[i].build({
-              'classes': classes
-            })
-            .data('RLD/Region')
-            // Get the Region object and update its span.
-            .alterSpan(span)
-          )
+          this.modifyRegionBuild($region)
         );
         // Append a placeholder to the end of a row if this is the last item processed.
         if (i === (regions.length - 1)) {
