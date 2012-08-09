@@ -70,11 +70,26 @@
           'class': 'rld-splitter rld-splitter-right'
         })
         .data('RLD/Region/Splitter-side', 'right')
+      )
+      .append(
+        $('<a>', {
+          'class': 'rld-region-close',
+          'href': '#',
+          'text': 'X',
+          'title': 'Close',
+        })
       );
-      // Return the editor as a DOM fragment.
+      // Region resize.
       fn = $.proxy(this.startRegionResize, this);
-      $region.find('.rld-splitter').bind('mousedown.ResponsiveLayoutDesigner', {'region': region}, fn);
-      
+      $region
+      .on({
+        'mousedown.ResponsiveLayoutDesigner': fn
+      }, '.rld-splitter', {'region': region});
+      // Region remove.
+      $region.on({
+        'click.ResponsiveLayoutDesigner': this.removeRegion
+      },'.rld-region-close', {'manager': this});
+      // Return the editor as a DOM fragment.
       return $region
     };
     /**
@@ -256,6 +271,15 @@
       $region.find('.splitter').removeClass('splitter-active');
       $(document).unbind('.regionResize');
     }
+    /**
+     *
+     */
+    LayoutStep.prototype.removeRegion = function (event) {
+      event.preventDefault();
+      var $region = $(this).closest('.rld-region');
+      var region = $region.data('RLD/Region');
+      event.data.manager.topic('regionRemoved').publish(event, event.data.manager, region);
+    };
     /**
      *
      */

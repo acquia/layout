@@ -3,22 +3,6 @@
   RLD['Region'] = (function () {
 
     var plugin = 'Region';
-    
-    // Region manipulation functions.
-    function close(event) {
-      event.stopPropagation();
-      var data = {};
-      var region = data.object = this;
-      var $region = data.$object = this.info('$editor');
-      // If region has no siblings, hide row. Otherwise, hide region.
-      if ($region.prev().length === 0 && $region.next().length === 0) {
-        $region.closest('.rld-row').remove();
-      }
-      else {
-        $region.remove();
-      }
-      region.topic('regionRemoved').publish(data);
-    }
     /**
      *
      */
@@ -68,21 +52,9 @@
         })
       })
       .css(style);
-      if (this.type === 'region') {
-        this.$editor
-        .append($('<a>', {
-          'class': 'rld-region-close',
-          'href': '#',
-          'text': 'X',
-          'title': 'Close',
-        }));
-      }
+      // Save a reference to the model object to data().
       this.$editor
       .data('RLD/Region', this);
-      // Region behaviors.
-      fn = $.proxy(close, this);
-      this.$editor
-      .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', fn);
     
       return this.$editor;
     };

@@ -39,7 +39,6 @@
       // Define topics that will pass-through.
       this.topic('regionOrderUpdated');
       this.topic('layoutSaved');
-      this.topic('regionRemoved');
       this.topic('regionResized');
       this.topic('regionResizing');
       this.topic('regionResizeStarted');
@@ -55,6 +54,11 @@
       // Register for events on the regionList.
       fn = $.proxy(this.insertRegion, this);
       this.regionList.topic('regionAdded').subscribe(fn);
+      fn = $.proxy(this.removeRegion, this);
+      this.regionList.topic('regionRemoved').subscribe(fn);
+      // Register for events on the layoutList
+      fn = $.proxy(this.requestRegionRemove, this);
+      this.layoutList.topic('regionRemoved').subscribe(fn);
       // Assemble the editor managers and containers.
       this.$stepSelector = $('<div>', {
         'class': this.ui['class-layout']
@@ -254,10 +258,8 @@
       });
       // Create the dialog callbacks.
       var saveCallback = $.Callbacks();
-      var save = $.proxy(this.regionList.insertItem, this.regionList, {
-        'machine_name': 'some-new-region',
-        'label': 'My new region'
-      }, event.data.location);
+      
+      var save = $.proxy(this.requestRegionAdd, this, event.data.location);
       // This here is expected to be the div#dialog, which it will be
       // when the cancel function is called by the dialog.
       var cancel = function () {
@@ -269,8 +271,8 @@
       var machineNameCheck = $.proxy(this.regionList.guaranteeMachineName, this.regionList);
       // Machine name writing callback.
       var machineNamePrint = $.proxy(function machineNamePrintProxy(checker, $input, $display, event) {
-        var candidate = $input.val() || '';
-        var machine_name = this.candidateRegionName = candidate.replace(/\s+/g, '_').toLowerCase();
+        var candidate = this.candidateRegionName = $input.val() || '';
+        var machine_name = candidate.replace(/\s+/g, '_').toLowerCase();
         // Confine the machine name to 24 characters.
         if (machine_name.length > 24) {
           machine_name = machine_name.slice(0, 24);
@@ -328,16 +330,50 @@
     /**
      *
      */
-    LayoutManager.prototype.insertRegion = function (event, updatedRegionList, newRegionItems, location) {
-      this.getActiveLayout().insertRows(newRegionItems, location);
-      // Publish the regionAdded topic.
-      this.topic('regionAdded').publish(event, updatedRegionList, newRegionItems);
+    LayoutManager.prototype.requestRegionAdd = function (location, event) {
+      this.regionList.insertItem({
+        'machine_name': this.candidateRegionMachineName,
+        'label': this.candidateRegionName
+      }, location);
     };
     /**
      *
      */
-    LayoutManager.prototype.getActiveLayoutStep = function () {
-    
+    LayoutManager.prototype.insertRegion = function (event, updatedRegionList, newRegionItems, location) {
+      this.getActiveLayout().insertRows(newRegionItems, location);
+      // Publish the regionAdded topic.
+      this.topic('regionAdded').publish(event, this);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.requestRegionRemove = function (event, layoutStep, region) {
+      // Remove the item from the regionList.
+      this.regionList.removeItem(region);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.removeRegion = function (event, region) {
+      var $region = region.info('$editor');
+      // If region has no siblings, hide row. Otherwise, hide region.
+      if ($region.prev('.rld-region').length === 0 && $region.next('.rld-region').length === 0) {
+        $region.closest('.rld-row').slideUp(function () {
+          $(this).remove();
+        });
+      }
+      else {
+        $region.slideUp(function () {
+          $(this).remove();
+        });
+      }
+      this.topic('regionRemoved').publish(event, this);
+    };
+    /**
+     *
+     */
+    LayoutManager.prototype.hideRegion = function (event) {
+      this.topic('regionHidden').publish(event, this);
     };
 
     return LayoutManager;

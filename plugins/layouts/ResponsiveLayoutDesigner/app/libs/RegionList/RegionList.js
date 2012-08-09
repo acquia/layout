@@ -20,10 +20,6 @@
      * Called by the InitClass prototype.
      */
     RegionList.prototype.setup = function () {
-      // Define topics that will pass-through.
-      this.topic('regionOrderUpdated');
-      this.topic('regionAdded');
-      this.topic('regionRemoved');
       // Format the regions.
       if ('regions' in this) {
         this.processList(this.regions);
@@ -80,7 +76,15 @@
     /**
      *
      */
-    RegionList.prototype.removeItem = function (index) {
+    RegionList.prototype.removeItem = function (region) {
+      var items = this.items;
+      var i;
+      for (i = 0; i < items.length; i++) {
+        if (items[i].machine_name === region.machine_name) {
+          this.items.splice(i, 1);
+        }
+      }
+      this.topic('regionRemoved').publish(region);
     };
     /**
      *

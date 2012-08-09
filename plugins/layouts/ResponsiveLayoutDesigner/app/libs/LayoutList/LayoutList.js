@@ -25,30 +25,15 @@
       else {
         this.log('[RLD | ' + plugin + '] The list has no items at setup.');
       }
-      // Define topics that will pass-through.
-      this.topic('regionOrderUpdated');
-      this.topic('regionAdded');
-      this.topic('regionRemoved');
-      this.topic('regionResized');
-      this.topic('regionResizing');
-      this.topic('regionResizeStarted');
     };
     /**
      *
      */
     LayoutList.prototype.processList = function (items) {
       // The broadcaster just pipes events through.
-      var fn = $.proxy(this.eventBroadcaster, this);
       var handlers = {};
       var newSet = [];
-      var i, layoutStep, listener;
-      // Get a list of the listeners to register on each Layout.
-      var listener;
-      for (listener in this.listeners) {
-        if (this.listeners.hasOwnProperty(listener)) {
-          handlers[listener] = fn;
-        }
-      }
+      var i, layoutStep, listener, fn;
       // Create obects for each composite.
       for (i = 0; i < items.length; i++) {
         // Save the layout elements into a unit.
@@ -57,10 +42,12 @@
           'step': items[i].step,
           'grid': items[i].grid
         });
+        // Pust the layoutStep into the list.
         this.items.push(layoutStep);
         newSet.push(layoutStep);
+        
       }
-      // Transfer pass-through subscriptions.
+      // Register pass-through topics.
       this.transferSubscriptions(this.items);
       // Return the items that were added.
       return newSet;

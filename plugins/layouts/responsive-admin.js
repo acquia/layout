@@ -80,6 +80,7 @@ Drupal.responsiveLayout.init = function() {
   this.editor.topic('regionOrderUpdated').subscribe(Drupal.responsiveLayout.recordState);
   this.editor.topic('regionAdded').subscribe(Drupal.responsiveLayout.recordState);
   this.editor.topic('regionRemoved').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionHidden').subscribe(Drupal.responsiveLayout.recordState);
   this.editor.topic('regionResized').subscribe(Drupal.responsiveLayout.recordState);
 
   // Insert the editor in the DOM.
