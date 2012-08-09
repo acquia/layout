@@ -207,6 +207,7 @@ function theme_layout_responsive($vars) {
 
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
+  $breakpoint_counters = array();
   foreach ($content as $name => $rendered) {
     if (!empty($rendered)) {
       // Add a minimal wrapper with some common classes + configured custom classes.
@@ -217,18 +218,33 @@ function theme_layout_responsive($vars) {
       $classes[] = 'rld-col';
       // Add breakpoint specific column number classes.
       foreach ($settings['overrides'] as $breakpoint_name => $breakpoint_overrides) {
-        $found_breakpoint_override = FALSE;
+
+        // Initialize breakpoint counter. We use this counter to figure out when
+        // to inject 'first' regions depending on breakpoints. This ensures the
+        // spacing of regions is properly maintained.
+        if (!isset($breakpoint_counters[$breakpoint_name])) {
+          $breakpoint_counters[$breakpoint_name] = 0;
+        }
+
+        // Assume that this column will span the whole width.
+        $this_column = $all_columns = $grids[$breakpoints[$breakpoint_name]->grid_name]->columns;
+
+        // If the existing counters indicate we were at the end of a row with
+        // the previous region, mark this one up as being the first.
+        if (is_int($breakpoint_counters[$breakpoint_name] / $all_columns)) {
+          $classes[] = 'rld-span-' . $breakpoint_name . '_first';
+        }
+
+        // Check if we have region specific overrides for this breakpoint.
         foreach ($breakpoint_overrides as $region_override) {
           if ($region_override['name'] == $name) {
-            $classes[] = 'rld-span-' . $breakpoint_name . '_' . $region_override['columns'];
-            $found_breakpoint_override = TRUE;
+            // Found a region override. Modify the column width to this value.
+            $this_column = $region_override['columns'];
+            break;
           }
         }
-        if (!$found_breakpoint_override) {
-          // If we have not found a breakpoint override for this column, apply
-          // the number of columns stored for this grid.
-          $classes[] = 'rld-span-' . $breakpoint_name . '_' . $grids[$breakpoints[$breakpoint_name]->grid_name]->columns;
-        }
+        $classes[] = 'rld-span-' . $breakpoint_name . '_' . $this_column;
+        $breakpoint_counters[$breakpoint_name] += $this_column;
       }
       $output .= '<div class="' . join(' ', $classes) . '">';
       $output .= $rendered;
