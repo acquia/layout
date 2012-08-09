@@ -24,9 +24,8 @@
     /**
      *
      */
-    Step.prototype.replaceRegion = function (region) {
+    Step.prototype.supplantRegion = function (region) {
       var items = this.regionList.info('items');
-      var stepRegion = {};
       var i, index;
       for (i = 0; i < items.length; i++) {
         if (items[i].machine_name === region.machine_name) {
@@ -37,7 +36,10 @@
       if (index !== undefined) {
         this.regionList.info('items').splice(index, 1, region);
       }
-      this.topic('stepRegionOverridden').publish(stepRegion); 
+      else {
+        this.regionList.addItem(region);
+      }
+      this.topic('stepRegionOverridden').publish(region); 
     };
     /**
      *

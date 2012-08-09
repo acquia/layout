@@ -360,6 +360,8 @@
       var $next = $region.next('.rld-region');
       var span = region.info('span');
       var activeStep = this.stepManager.info('activeStep');
+      var layoutManager = this;
+      var layout = this.getActiveLayout();
       var passiveRegion, replacementRegion;
       // If region has no siblings, hide row. Otherwise, hide region.
       if ($prev.length === 0 && $next.length === 0) {
@@ -378,13 +380,32 @@
           }
           if (passiveRegion !== undefined) {
             span = passiveRegion.alterSpan(span, true);
-            replacementRegion = passiveRegion.snapshot();
-            replacementRegion.columns = span;
-            activeStep.replaceRegion(replacementRegion);
+            // Save any changes to regions.
+            // This doesn't belong here at all, but it's what we've got for the moment.
+            var r;
+            var regionList = layout.regionList.info('items');
+            for (r in regionList) {
+              if (regionList.hasOwnProperty(r)) {
+                // If the region already has an override, update it.
+                if ('span' in regionList[r] && regionList[r].span > 0) {
+                  var item = layout.step.regionList.getItem(regionList[r].info('machine_name'))
+                  if (item) {
+                    item.alterColumns(regionList[r].span);
+                  }
+                  // If the region doesn't have an override yet, create one. This can't be a reference to the
+                  // canonical regionList regions, it needs to be a new object.
+                  else {
+                    var temp = regionList[r].snapshot();
+                    temp.columns = temp.span;
+                    layout.step.regionList.addItem(temp);
+                  }
+                }
+              }
+            }
           }
+          layoutManager.topic('regionRemoved').publish(event, layoutManager);
         });
       }
-      this.topic('regionRemoved').publish(event, this);
     };
     /**
      *
