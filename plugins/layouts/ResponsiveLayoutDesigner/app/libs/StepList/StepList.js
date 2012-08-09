@@ -53,7 +53,7 @@
      */
     StepList.prototype.update = function (type, list) {
       this.stepItems = type;
-      this.triggerEvent('stepOrderUpdated', this);
+      this.topic('stepOrderUpdated').publish(this);
     };
     /**
      * @Todo, the steps will need to be sorted by breakpoint

@@ -1,4 +1,4 @@
-(function ($, ResponsiveLayoutDesigner) {
+(function ($, ResponsiveLayoutDesigner, JSON) {
 
 /**
  * Safe logging function.
@@ -27,7 +27,7 @@ Drupal.behaviors.responsiveLayoutAdmin = {
 Drupal.responsiveLayout.init = function() {
   // Initialize region list and per-breakpoint columns.
   var regionList = [];
-  var layoutConfig = $.parseJSON($('#edit-layout-settings-layout-responsive-regions').val());
+  var layoutConfig = JSON.parse($('#edit-layout-settings-layout-responsive-regions').val());
   for (var regionIndex in layoutConfig.regions) {
     regionList.push({
       'machine_name': layoutConfig.regions[regionIndex].name,
@@ -77,26 +77,17 @@ Drupal.responsiveLayout.init = function() {
 
   // Register event listeners. Just update our representation of the layout
   // for any event for now.
-  this.editor.registerEventListener({
-    'regionOrderUpdated': Drupal.responsiveLayout.eventHandler,
-    'layoutSaved': Drupal.responsiveLayout.eventHandler,
-    'regionRemoved': Drupal.responsiveLayout.eventHandler,
-    'regionAdded': Drupal.responsiveLayout.eventHandler,
-    'regionResized': Drupal.responsiveLayout.eventHandler,
-    'regionResizing': Drupal.responsiveLayout.eventHandler,
-    'regionResizeStarted': Drupal.responsiveLayout.eventHandler
-  });
+  this.editor.topic('regionOrderUpdated').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionAdded').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionRemoved').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionHidden').subscribe(Drupal.responsiveLayout.recordState);
+  this.editor.topic('regionResized').subscribe(Drupal.responsiveLayout.recordState);
 
   // Insert the editor in the DOM.
   this.editor.build().appendTo('#responsive-layout-designer');
 
   // Save a reference to the editor to the DOM for development.
   window.RLDEditor = this.editor;
-
-  // Intervene on form submit to get data from the app into the page.
-  // @todo this form ID seems really generic. We need something more specific.
-  // var that = this;
-  // $('#ctools-export-ui-edit-item-form').bind('submit', {'responsiveLayout': that}, Drupal.responsiveLayout.save);
 }
 
 /**
@@ -105,18 +96,11 @@ Drupal.responsiveLayout.init = function() {
  * This is generic so we don't have to have a callback for each event we'd like
  * to track during prototyping.
  */
-Drupal.responsiveLayout.eventHandler = function(event) {
-  /*var i;
-  // Log the event type.
-  log(event.type, 'info');
-  var args = Array.prototype.slice.call(arguments);
-  // Print the args as well.
-  for (i = 0; i < args.length; i++) {
-    log(args[i], 'dir');
-  }*/
+Drupal.responsiveLayout.recordState = function(event) {
 
   var layoutSettings = {'regions' : [], 'overrides': {}};
-  var layoutManager = Drupal.responsiveLayout.editor.save();
+  // Get a dump of the state of the application.
+  var layoutManager = Drupal.responsiveLayout.editor.snapshot();
   var regionList = layoutManager.info('regionList');
   var regions = regionList.info('items');
   for (var i = 0; i < regions.length; i++) {
@@ -142,32 +126,7 @@ Drupal.responsiveLayout.eventHandler = function(event) {
   // built with rapid changes in mind (ordering, adding new regions, resizing),
   // and we don't have a live preview needed given the useful builder view
   // itself.
-  $('#edit-layout-settings-layout-responsive-regions').val($.serializeJSON(layoutSettings));
+  $('#edit-layout-settings-layout-responsive-regions').val(JSON.stringify(layoutSettings));
 }
 
-})(jQuery, ResponsiveLayoutDesigner);
-
-jQuery(function($) {
-    $.extend({
-        serializeJSON: function(obj) {
-            var t = typeof(obj);
-            if(t != "object" || obj === null) {
-                // simple data type
-                if(t == "string") obj = '"' + obj + '"';
-                return String(obj);
-            } else {
-                // array or object
-                var json = [], arr = (obj && obj.constructor == Array);
-
-                $.each(obj, function(k, v) {
-                    t = typeof(v);
-                    if(t == "string") v = '"' + v + '"';
-                    else if (t == "object" & v !== null) v = $.serializeJSON(v)
-                    json.push((arr ? "" : '"' + k + '":') + String(v));
-                });
-
-                return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
-            }
-        }
-    });
-});
+})(jQuery, ResponsiveLayoutDesigner, JSON);

@@ -1,11 +1,11 @@
 (function (RLD, $) {
   
-  RLD['Layout'] = (function () {
+  RLD['LayoutStep'] = (function () {
 
-    var plugin = 'Layout';
+    var plugin = 'LayoutStep';
 
     // Layout Class
-    function Layout() {
+    function LayoutStep() {
       this.deltaColumns = 0;
       // Initialize the object.
       this.init.apply(this, arguments);
@@ -13,98 +13,24 @@
     /**
      * Extend the InitClass Object.
      */
-    Layout.prototype = new RLD.InitClass();
+    LayoutStep.prototype = new RLD.InitClass();
     
-    Layout.prototype.setup = function () {
-      var fn = $.proxy(this.processEvent, this);
-      this.regionList.registerEventListener({
-        'regionAdded': fn,
-        'regionRemoved': fn,
-        'regionResizeStarted': fn,
-        'regionResizing': fn,
-        'regionResized': fn
-      });
+    LayoutStep.prototype.setup = function () {
+      // Define topics that will pass-through.
+      this.topic('regionOrderUpdated');
+      this.topic('regionAdded');
+      this.topic('regionRemoved');
+      this.topic('regionResized');
+      this.topic('regionResizing');
+      this.topic('regionResizeStarted');
     };
     
-    Layout.prototype.build = function (options) {
+    LayoutStep.prototype.build = function (options, items) {
       this.$editor = $('<div>', {});
-      var regions = this.regionList.info('items');
-      var step = this.step;
-      var grid = this.grid;
-      var count = 0;
-      // The size of a region may be overridden in this step.
-      var regionOverrides = step.info('regionList').info('items');
-      var $row;
-      var i, k, fn, region, span;
-      // Build rows and regions.
-      for (i = 0; i < regions.length; i++) {
-        var override = undefined;
-        var classes = ['rld-col rld-unit'];
-        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
-        if ((count === 0) || (count >= grid.columns)) {
-          // Append a placeholder to the end of a row.
-          if (count >= grid.columns) {
-            $row.append(
-              new RLD.Region({
-                'type': 'placeholder'
-              })
-              .build({
-                'classes': classes
-              })
-            );
-          }
-          // Create a new row.
-          $row = $('<div>', {
-            'class': 'rld-row clearfix'
-          })
-          // Append a placeholder to the start of the row.
-          .append(
-            new RLD.Region({
-              'type': 'placeholder'
-            })
-            .build({
-              'classes': classes
-            })
-          )
-          // Append the row to the editor.
-          .appendTo(this.$editor);
-          // Restart the row span count.
-          count = 0;
-        }
-        region = regions[i];
-        // If this step has region overrides, get the override that matches this region, if any.
-        if (regionOverrides.length > 0) {
-          for (k = 0; k < regionOverrides.length; k++) {         
-            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
-              override = regionOverrides[k];
-              break;
-            }
-          }
-        }
-        // If an override for this region exists, use it.
-        if (override !== undefined) {
-          span = override.columns;
-          count += override.columns;
-        }
-        // Otherwise the region is assumed to be full width.
-        else {
-          span = grid.columns;
-          count = grid.columns;
-        }
-        // Build the region and append it to the row.
-        $row.append(
-          this.modifyRegionBuild(
-            regions[i].build({
-              'classes': classes
-            })
-            .data('RLD/Region')
-            // Get the Region object and update its span.
-            .alterSpan(span)
-          )
-        );
-      }
+      var regions = items || this.regionList.info('items');
+      this.$editor.append(this.buildRows(regions).contents());
       // Bind behaviors.
-      fn = $.proxy(this.processEvent, this);
+      fn = $.proxy(this.sortRows, this);
       this.$editor.sortable({
         // Make a placeholder visible when dragging.
         placeholder: "ui-state-highlight",
@@ -116,31 +42,19 @@
       return this.$editor;
     };
     
-    Layout.prototype.processEvent = function (event, data) {
-      switch (event.type) {
-      case 'regionAdded':
-        this.triggerEvent('regionAdded', this, data.object);
-        break;
-      case 'regionRemoved':
-        this.triggerEvent('regionRemoved', this, data.object);
-        break;
-      case 'sortdeactivate':
-        var regionList = [];
-        var i;
-        // Get the region objects in their new order.
-        var $regions = data.sender.find('.rld-region');
-        for (i = 0; i < $regions.length; i++) {
-          regionList.push($($regions[i]).data('RLD/Region'));
-        }
-        this.regionList.update(regionList);
-        // 
-        this.triggerEvent('regionOrderUpdated', this);
-        break;
-      default:
-        break;
+    LayoutStep.prototype.sortRows = function (event, data) {
+      var regionList = [];
+      var i;
+      // Get the region objects in their new order.
+      var $regions = data.sender.find('.rld-region');
+      for (i = 0; i < $regions.length; i++) {
+        regionList.push($($regions[i]).data('RLD/Region'));
       }
+      this.regionList.update(regionList);
+      // 
+      this.topic('regionOrderUpdated').publish(this);
     };
-    Layout.prototype.modifyRegionBuild = function ($region) {
+    LayoutStep.prototype.modifyRegionBuild = function ($region) {
       var region = $region.data('RLD/Region');
       var fn;
       // Add splittrs to the regions.
@@ -156,17 +70,32 @@
           'class': 'rld-splitter rld-splitter-right'
         })
         .data('RLD/Region/Splitter-side', 'right')
+      )
+      .append(
+        $('<a>', {
+          'class': 'rld-region-close',
+          'href': '#',
+          'text': 'X',
+          'title': 'Close',
+        })
       );
-      // Return the editor as a DOM fragment.
+      // Region resize.
       fn = $.proxy(this.startRegionResize, this);
-      $region.find('.rld-splitter').bind('mousedown.ResponsiveLayoutDesigner', {'region': region}, fn);
-      
+      $region
+      .on({
+        'mousedown.ResponsiveLayoutDesigner': fn
+      }, '.rld-splitter', {'region': region});
+      // Region remove.
+      $region.on({
+        'click.ResponsiveLayoutDesigner': this.removeRegion
+      },'.rld-region-close', {'manager': this});
+      // Return the editor as a DOM fragment.
       return $region
     };
     /**
      *
      */
-    Layout.prototype.startRegionResize = function (event) {
+    LayoutStep.prototype.startRegionResize = function (event) {
       this.$editor.sortable('disable');
       event.stopImmediatePropagation();
       var data = event.data;
@@ -209,12 +138,12 @@
       fn = $.proxy(this.finishRegionResize, this);
       $(document).bind('mouseup.regionResize', data, fn);
       // Call listeners.
-      this.triggerEvent('regionResizeStarted', this);
+      this.topic('regionResizeStarted').publish(this);
     };
     /**
      *
      */
-    Layout.prototype.resizeRegion = function (event) {
+    LayoutStep.prototype.resizeRegion = function (event) {
       event.stopImmediatePropagation();
       var data = event.data;
       var region = data.region;
@@ -252,12 +181,12 @@
           affectedRegions.left.alterSpan(traversedChunk, true);
         }
       }
-      // this.triggerEvent('regionResizing', this);
+      // this.topic('regionResizing').publish(this);
     };
     /**
      *
      */
-    Layout.prototype.finishRegionResize = function (event) {
+    LayoutStep.prototype.finishRegionResize = function (event) {
       this.$editor.sortable('enable');
       event.stopImmediatePropagation();
       var layout = this;
@@ -285,7 +214,9 @@
               width: 0
             });
             $placeholder.queue(function (next) {
-              $(this).data('RLD/Region').alterSpan(0).removeAttr('style');
+              var $this = $(this);
+              $this.data('RLD/Region').alterSpan(0);
+              $this.removeAttr('style');
               next();
             });
             $placeholder.queue(function (next) {
@@ -294,7 +225,9 @@
                 'width': size * data.frame
               });
               $shiftedRegion.queue(function (next) {
-                $(this).data('RLD/Region').alterSpan(size).removeAttr('style');
+                var $this = $(this);
+                $this.data('RLD/Region').alterSpan(size);
+                $this.removeAttr('style');
                 next();
               });
               $shiftedRegion.queue(function (next) {
@@ -327,7 +260,7 @@
                   }
                 }
                 // Call listeners for this event.
-                layout.triggerEvent('regionResized', layout);
+                layout.topic('regionResized').publish(layout);
                 next();
               });
               next();
@@ -345,7 +278,16 @@
     /**
      *
      */
-    Layout.prototype.getAffectedRegions = function (region, data, traversedChunk) {
+    LayoutStep.prototype.removeRegion = function (event) {
+      event.preventDefault();
+      var $region = $(this).closest('.rld-region');
+      var region = $region.data('RLD/Region');
+      event.data.manager.topic('regionRemoved').publish(event, event.data.manager, region);
+    };
+    /**
+     *
+     */
+    LayoutStep.prototype.getAffectedRegions = function (region, data, traversedChunk) {
       var units = data.units;
       var activeSide = (data.side === 'left') ? 'right' : 'left';
       var candidateSide = (data.side === 'left') ? 'left' : 'right';
@@ -397,7 +339,7 @@
     /**
      *
      */
-    Layout.prototype.getActivePlaceholder = function (data) {
+    LayoutStep.prototype.getActivePlaceholder = function (data) {
       var units = data.units;
       var activeRegionIndex = this.getActiveRegionIndex(units);
       var placeHolderIndex = (activeRegionIndex === 1 && data.side === 'left') ? 0 : (units.length - 1);
@@ -412,13 +354,13 @@
     /**
      *
      */
-    Layout.prototype.getActiveRegion = function (units) {
+    LayoutStep.prototype.getActiveRegion = function (units) {
       return units[this.getActiveRegionIndex(units)];
     };
     /**
      *
      */
-    Layout.prototype.getActiveRegionIndex = function (units) {
+    LayoutStep.prototype.getActiveRegionIndex = function (units) {
       var i;
       for (i = 0; i < units.length; i++) {
         if ('active' in units[i] && units[i].active) {
@@ -430,11 +372,113 @@
     /**
      *
      */
-    Layout.prototype.processRemove = function (event) {
-      
+    LayoutStep.prototype.buildRows = function (regions, options) {
+      var $container = $('<div>', {});
+      var step = this.step;
+      var grid = this.grid;
+      var count = 0;
+      // The size of a region may be overridden in this step.
+      var regionOverrides = step.info('regionList').info('items');
+      var $row;
+      var i, k, fn, region, $region, span;
+      // Build rows and regions.
+      for (i = 0; i < regions.length; i++) {
+        var override = undefined;
+        var classes = ['rld-col rld-unit'];
+        // Start a new row if the spans in the previous row are sufficient or exceed the allotment.
+        if ((count === 0) || (count >= grid.columns)) {
+          // Append a placeholder to the end of a row.
+          if (count >= grid.columns) {
+            $row.append(
+              new RLD.Region({
+                'type': 'placeholder'
+              })
+              .build({
+                'classes': classes
+              })
+            );
+          }
+          // Create a new row.
+          $row = $('<div>', {
+            'class': 'rld-row clearfix'
+          })
+          // Append a placeholder to the start of the row.
+          .append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': classes
+            })
+          )
+          // Append the row to the editor.
+          .appendTo($container);
+          // Restart the row span count.
+          count = 0;
+        }
+        region = regions[i];
+        // If this step has region overrides, get the override that matches this region, if any.
+        if (regionOverrides.length > 0) {
+          for (k = 0; k < regionOverrides.length; k++) {         
+            if (region.info('machine_name') === regionOverrides[k]['machine_name']) {
+              override = regionOverrides[k];
+              break;
+            }
+          }
+        }
+        // If an override for this region exists, use it.
+        if (override !== undefined) {
+          span = override.columns;
+          count += override.columns;
+        }
+        // Otherwise the region is assumed to be full width.
+        else {
+          span = grid.columns;
+          count = grid.columns;
+        }
+        // Build the region.
+        $region = regions[i].build({
+          'classes': classes
+        });
+        // Alter its span.
+        $region
+        .data('RLD/Region')
+        // Get the Region object and update its span.
+        .alterSpan(span)
+        // Append it to the row.
+        $row.append(
+          this.modifyRegionBuild($region)
+        );
+        // Append a placeholder to the end of a row if this is the last item processed.
+        if (i === (regions.length - 1)) {
+          $row.append(
+            new RLD.Region({
+              'type': 'placeholder'
+            })
+            .build({
+              'classes': classes
+            })
+          );
+        }
+      }
+      return $container;
     };
-    
-    return Layout;
+    /**
+     *
+     */
+    LayoutStep.prototype.insertRows = function (items, location) {
+      var $editor = this.$editor;
+      // Get a well-formed region, ready to insert into a layout.
+      var $rows = this.buildRows(items).contents();
+      // Insert the wrapped region into the editor.
+      $rows.hide()
+      [(location !== undefined && location === 'top') ? 'prependTo' : 'appendTo']($editor);
+      // Reveal the wrapped regions in a pretty way.
+      $editor
+      .find($rows)
+      .slideDown(500);
+    };
+    return LayoutStep;
     
   }());
 }(ResponsiveLayoutDesigner, jQuery));

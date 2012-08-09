@@ -32,15 +32,14 @@
     /**
      *
      */
-    RegionList.prototype.processList = function (items) {
-      var fn = $.proxy(this.eventBroadcaster, this);
+    RegionList.prototype.processList = function (items, location) {
+      var newSet = [];
       var i, item, region;
       for (i = 0; i < items.length; i++) {
         item = items[i];
         // Check if this item is already an item.
         if ('init' in item && typeof item['init'] === 'function') {
           region = item;
-          region.clearEventListeners();
         }
         else {
           region = new RLD.Region({
@@ -49,29 +48,62 @@
             'classes': ('classes' in item) ? item['classes'] : [],
             'columns': ('columns' in item) ? item['columns'] : null
           });
-        }
-        region.registerEventListener({
-          'regionAdded': fn,
-          'regionRemoved': fn,
-          'regionResizing': fn,
-          'regionResizeStarted': fn,
-          'regionResized': fn
-        });
+        };
         // Add the new region to the list.
-        this.items.push(region);
+        this.items[(location !== undefined && location === 'top') ? 'unshift' : 'push'](region);
+        newSet.push(region);
       }
+      // Transfer pass-through subscriptions.
+      this.transferSubscriptions(this.items);
+      // Return the items that were added.
+      return newSet;
+    };
+    /**
+     * @todo, this method needs better argument type handling. It could
+     * be either an array or an object.
+     */
+    RegionList.prototype.addItem = function (item, location) {
+      return this.processList([item], location)
+    };
+    /**
+     * @todo, this method needs better argument type handling. It could
+     * be either an array or an object.
+     */
+    RegionList.prototype.insertItem = function (item, location) {
+      var newItems = this.addItem(item, location);
+      this.topic('regionAdded').publish(this.items, newItems, location);
     };
     /**
      *
      */
-    RegionList.prototype.addItem = function (item) {
-      this.processList([item]);
-    }
+    RegionList.prototype.removeItem = function (region) {
+      var items = this.items;
+      var i;
+      for (i = 0; i < items.length; i++) {
+        if (items[i].machine_name === region.machine_name) {
+          this.items.splice(i, 1);
+        }
+      }
+      this.topic('regionRemoved').publish(region);
+    };
     /**
      *
      */
     RegionList.prototype.update = function (type, list) {
       this.items = type;
+    };
+    /**
+     *
+     */
+    RegionList.prototype.guaranteeMachineName = function (name) {
+      var regions = this.items;
+      var i;
+      for (i = 0; i < regions.length; i++) {
+        if (regions[i].machine_name === name) {
+          return false;
+        }
+      }
+      return true;
     };
 
     return RegionList;

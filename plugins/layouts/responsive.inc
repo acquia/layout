@@ -285,6 +285,27 @@ function theme_layout_responsive_admin($vars) {
 
   layout_responsive_merge_default_settings($settings, $layout);
 
+  // Add required libraries.
+  drupal_add_library('system', 'ui.dialog');
+  // JSON2 is required for stringifying JavaScript data structures in older browsers.
+  $name = 'json2';
+  if (!libraries_detect($name)) {
+    watchdog('responsive', 'The JSON-js library is recommended for this module to function properly. Some older browsers do not provide the JSON function natively. Please visit !url to obtain this library.',
+      array(
+        '!url' => l('JSON-js (Github)', 'https://github.com/douglascrockford/JSON-js',
+          array(
+            'absolute' => TRUE,
+            'external' => TRUE
+          )
+        )
+      ),
+      WATCHDOG_NOTICE
+    );
+  }
+  else {
+    libraries_load($name);
+  }
+
   // Add the ResponsiveLayoutDesigner application.
 
   // This is a messy, messy list of files. Eventually we'll want to package
@@ -293,9 +314,10 @@ function theme_layout_responsive_admin($vars) {
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Layout/Layout.js');
+  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutStep/LayoutStep.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
   drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');

@@ -3,22 +3,6 @@
   RLD['Region'] = (function () {
 
     var plugin = 'Region';
-    
-    // Region manipulation functions.
-    function close(event) {
-      event.stopPropagation();
-      var data = {};
-      var region = data.object = this;
-      var $region = data.$object = this.info('$editor');
-      // If region has no siblings, hide row. Otherwise, hide region.
-      if ($region.prev().length === 0 && $region.next().length === 0) {
-        $region.closest('.rld-row').remove();
-      }
-      else {
-        $region.remove();
-      }
-      region.triggerEvent('regionRemoved', data);
-    }
     /**
      *
      */
@@ -47,11 +31,16 @@
     Region.prototype.build = function (options) {
       // @todo this classes stuff needs to be generalized.
       var classes = [];
+      var style = {};
       classes.push('rld-' + this.type);
       var fn;
       if (options && 'classes' in options && 'length' in options.classes && options.classes.length > 0) {
         classes = classes.concat(options.classes).join(' ');
       }
+      if (options && 'style' in options && typeof options.style === 'object') {
+        style = $.extend(style, options.style);
+      }
+      
       this.$editor = $('<div>', {
         'id': ('label' in this) ? 'rld-region-' + this.label.split(' ').join('_') : '',
         'class': classes,
@@ -61,22 +50,11 @@
             'text': this.label
           })
         })
-      });
-      if (this.type === 'region') {
-        this.$editor
-        .append($('<a>', {
-          'class': 'rld-region-close',
-          'href': '#',
-          'text': 'X',
-          'title': 'Close',
-        }));
-      }
+      })
+      .css(style);
+      // Save a reference to the model object to data().
       this.$editor
       .data('RLD/Region', this);
-      // Region behaviors.
-      fn = $.proxy(close, this);
-      this.$editor
-      .delegate('.rld-region-close', 'mousedown.ResponsiveLayoutDesigner', fn);
     
       return this.$editor;
     };
@@ -93,6 +71,9 @@
       if (this.columns < 0) {
         this.columns = 0;
       }
+      // Change the view to match the number of columns.
+      this.alterSpan(this.columns);
+      // Return the view.
       return this.$editor;
     };
     /**
@@ -108,8 +89,10 @@
       if (this.span < 0) {
         this.span = 0;
       }
-      this.$editor.supplantClass(this.columnClass, this.columnClass + this.span);
-      return this.$editor;
+      var span = this.columnClass + this.span;
+      this.$editor.supplantClass(this.columnClass, span);
+      // Return the new span.
+      return span;
     };
   
     return Region;

@@ -31,33 +31,33 @@
      */
     LayoutList.prototype.processList = function (items) {
       // The broadcaster just pipes events through.
-      var fn = $.proxy(this.eventBroadcaster, this);
       var handlers = {};
-      var i, layout, listener;
-      // Get a list of the listeners to register on each Layout.
-      var listener;
-      for (listener in this.listeners) {
-        if (this.listeners.hasOwnProperty(listener)) {
-          handlers[listener] = fn;
-        }
-      }
+      var newSet = [];
+      var i, layoutStep, listener, fn;
       // Create obects for each composite.
       for (i = 0; i < items.length; i++) {
         // Save the layout elements into a unit.
-        layout = new RLD.Layout({
+        layoutStep = new RLD.LayoutStep({
           'regionList': items[i].regionList,
           'step': items[i].step,
           'grid': items[i].grid
         });
-        layout.registerEventListener(handlers);
-        this.items.push(layout);
+        // Pust the layoutStep into the list.
+        this.items.push(layoutStep);
+        newSet.push(layoutStep);
+        
       }
+      // Register pass-through topics.
+      this.transferSubscriptions(this.items);
+      // Return the items that were added.
+      return newSet;
     };
     /**
      *
      */
     LayoutList.prototype.addItem = function (layout) {
-      this.processList([layout]);
+      var items = this.processList([layout]);
+      return items;
     }
     /**
      *

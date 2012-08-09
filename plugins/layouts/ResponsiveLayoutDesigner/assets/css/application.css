@@ -28,14 +28,16 @@
   margin-left: 1em;
   margin-right: 1em;
 }
-.rld-steps .rld-active {
-  background-color: #59A;
+.rld-steps .rld-tab .rld-link {
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-  color: white;
   display: inline-block;
   padding: 0.1667em 0.5em;
+}
+.rld-steps .rld-active {
+  background-color: #59A;
+  color: white;
   text-shadow: 0 1px 0px #828383
 }
 .rld-layouts {
@@ -53,7 +55,6 @@
   position: relative;
 }
 .rld-layout {
-  padding-top: 20px;
   position: relative;
 }
 .rld-row {
@@ -111,8 +112,11 @@
   margin: 0.25em 0;
   min-height: 20px;
   position: absolute;
-  top: 0;
+  top: 24px;
   width: 100%;
+}
+.rld-grid-overlay + * {
+  margin-top: 24px;
 }
 .rld-grid-col {
   background-color: #59A;
@@ -121,6 +125,9 @@
   border-width: 0 2px;
   height: 100%;
   min-height: 1em;
+}
+.rld-layoutstep-controls {
+  margin-bottom: 5px;
 }
 .rld-splitter {
   background-attachment: scroll;
@@ -135,6 +142,9 @@
   top: 0;
   width: 12px;
   z-index: 1;
+}
+.rld-splitter:hover {
+  background-color: rgba(0, 0, 0, 0.3333);
 }
 .rld-splitter-left {
   background-position: left center;
