@@ -200,7 +200,7 @@
       })
       .append(
         $('<button>', {
-          'text': 'Add new region'
+          'text': 'Add region to ' + location
         })
         .bind('click', {'location': location}, handler)
       );
