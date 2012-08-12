@@ -85,6 +85,7 @@
 }
 .rld-placeholder {
   background-color: white;
+  background-color: rgba(255,255,255,0.6667);
   color: #ccc;
   height: 4em;
   outline: 1px dashed #31cbff;
@@ -108,23 +109,27 @@
 .rld-col.rld-region {
   padding: 0;
 }
-.rld-grid-overlay {
+.rld-grid-underlay {
+  bottom: 24px;
+  height: auto;
   margin: 0.25em 0;
   min-height: 20px;
   position: absolute;
   top: 24px;
   width: 100%;
 }
-.rld-grid-overlay + * {
+.rld-grid-underlay + * {
   margin-top: 24px;
 }
 .rld-grid-col {
-  background-color: #59A;
+  background-color: #E0E3E8;
   border-color: white;
   border-style: solid;
   border-width: 0 2px;
   height: 100%;
   min-height: 1em;
+  outline: 1px solid #B8B8B8;
+  outline-offset: -3px;
 }
 .rld-layoutstep-controls {
   margin-bottom: 5px;

@@ -151,10 +151,11 @@
         .empty()
         .addClass('rld-container-' + gridColumns)
         .append(this.buildAddRegionButton('top'))
-        .append(this.buildGridOverlay(gridColumns))
+        .append(this.buildGridUnderlay(gridColumns))
         .append(layout.build())
         .append(this.buildAddRegionButton('bottom'))
       );
+      
       this.topic('stepActivated').publish(step);
     };
     /**
@@ -173,9 +174,9 @@
     /**
      *
      */
-    LayoutManager.prototype.buildGridOverlay = function (columns) {
+    LayoutManager.prototype.buildGridUnderlay = function (columns, height) {
       var $overlay = $('<div>', {
-        'class': 'rld-grid-overlay clearfix'
+        'class': 'rld-grid-underlay clearfix'
       });
       var cols = Number(columns);
       var fn;
@@ -187,43 +188,7 @@
         );
         cols -= 1;
       }
-      fn = $.proxy(this.expandGridOverlay, $overlay);
-      $overlay
-      .bind('mousedown.ResponsiveLayoutDesigner', fn);
-      fn = $.proxy(this.contractGridOverlay, $overlay);
-      $overlay
-      .bind('mouseup.ResponsiveLayoutDesigner', fn);
-      
       return $overlay;
-    };
-    /**
-     *
-     */
-    LayoutManager.prototype.expandGridOverlay = function (event) {
-      var $overlay = this;
-      var height = $overlay.parent().innerHeight();
-      $overlay.animate({
-        height: height,
-        'opacity': 0.4545
-      })
-      .css({
-        'z-index': 100
-      });
-      
-    };
-    /**
-     *
-     */
-    LayoutManager.prototype.contractGridOverlay = function (event) {
-      var $overlay = this;
-      var height = $overlay.parent().innerHeight();
-      $overlay.animate({
-        height: 0,
-        'opacity': 1
-      })
-      .css({
-        'z-index': 0
-      });
     };
     /**
      *
