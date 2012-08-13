@@ -193,7 +193,7 @@
      */
     ResponsiveLayoutDesigner.prototype.setup = function () {
       // Merge in user options.
-      var regionList,stepList, gridList;
+      var regionList, availableRegionList, stepList, gridList;
       // Create the application root node.
       this.$editor = $('<div>', {
         'class': 'rld-application'
@@ -202,9 +202,16 @@
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
       if ('regions' in this) {
-        regionList = new RLD.RegionList({
-          'regions': this.regions
-        });
+        if ('active' in this.regions) {
+          regionList = new RLD.RegionList({
+            'regions': this.regions.active
+          });
+        }
+        if ('available' in this.regions) {
+          availableRegionList = new RLD.RegionList({
+            'regions': this.regions.available
+          });
+        }
         delete this.regions;
       }
       else {
@@ -232,6 +239,7 @@
       this.layoutManager = new RLD.LayoutManager({
         'stepList': stepList,
         'regionList': regionList,
+        'availableRegionList': availableRegionList,
         'gridList': gridList
       });
       // Define topics that will pass-through.

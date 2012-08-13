@@ -34,6 +34,21 @@ Drupal.responsiveLayout.init = function() {
       'label': layoutConfig.regions[regionIndex].admin_title,
     });
   }
+  // Regions that are available for this layout to use.
+  var availableRegionList = [
+    {
+      'machine_name': 'triptych_a',
+      'label': 'Triptych Left'
+    },
+    {
+      'machine_name': 'triptych_b',
+      'label': 'Triptych Center'
+    },
+    {
+      'machine_name': 'triptych_c',
+      'label': 'Triptych Right'
+    }
+  ];
 
   // Build a list of grids for the editor.
   var gridList = [];
@@ -68,7 +83,10 @@ Drupal.responsiveLayout.init = function() {
 
   // Instantiate a layout designer.
   this.editor = new ResponsiveLayoutDesigner({
-    'regions': regionList,
+    'regions': {
+      'active': regionList,
+      'available': availableRegionList
+    },
     'steps': breakpointList,
     'grids': gridList,
   });

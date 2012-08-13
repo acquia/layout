@@ -219,19 +219,29 @@
         'type': 'text'
       });
       var $machineName = $('<div>', {
-        'text': ''
+        'text': '',
+        'class': 'rld-description'
       });
-      // Create the dialog callbacks.
-      var saveCallback = $.Callbacks();
-      
-      var save = $.proxy(this.requestRegionAdd, this, event.data.location);
-      // This here is expected to be the div#dialog, which it will be
-      // when the cancel function is called by the dialog.
-      var cancel = function () {
-        $(this).dialog('destroy');
-      };
-      saveCallback.add(save);
-      saveCallback.add(cancel);
+      var $availableRegionSelectbox = $('<select>', {
+        'name': 'available-region-select'
+      })
+      .append(
+        $('<option>', {
+          'text': 'No selection',
+          'value': 'null',
+          'selected': 'selected'
+        })
+      );
+      // Populate the available regions select box with a list of regions.
+      var availableRegions = this.availableRegionList.info('items');
+      var i;
+      for (i = 0; i < availableRegions.length; i++) {
+        $('<option>', {
+          'text': availableRegions[i].label || 'No label',
+          'value': availableRegions[i].machine_name
+        })
+        .appendTo($availableRegionSelectbox);
+      }
       // Machine name checking callback.
       var machineNameCheck = $.proxy(this.regionList.guaranteeMachineName, this.regionList);
       // Machine name writing callback.
@@ -260,7 +270,7 @@
         }
       }, this, machineNameCheck, $input, $machineName);
       // Create and insert the dialog.
-      $('<div>', {
+      var $dialog = $('<div>', {
         'class': 'rld-dialog'
       })
       .append($('<label>', {
@@ -268,6 +278,10 @@
       }))
       .append($input)
       .append($machineName)
+      .append($('<label>', {
+        'text': 'Available regions'
+      }))
+      .append($availableRegionSelectbox)
       .on({
         'keydown': RLD.Utils.keyManager,
         'keyup': machineNamePrint
@@ -279,23 +293,45 @@
       })
       .dialog({
         'title': 'Add a region',
-        'resizable': false,
-        'modal': true,
-        'buttons': {
-          'Save': saveCallback.fire,
-          'Cancel': cancel
-        }
+        'resizable': true,
+        'modal': true
       });
-      /* this.regionList.insertItem({
-        'machine_name': 'some-new-region',
-        'label': 'My new region'
-      }, event.data.location); */
-      
+      // This is a touch circular, but we need the callback to have the context of the application,
+      // not the dialog box.
+      // Create the dialog callbacks.
+      var buttons = {};
+      var saveCallback = $.Callbacks();
+      var save = $.proxy(this.requestRegionAdd, this, event.data.location, $dialog);
+      // This here is expected to be the div#dialog, which it will be
+      // when the cancel function is called by the dialog.
+      var cancel = function () {
+        $(this).dialog('destroy');
+      };
+      saveCallback.add(save);
+      saveCallback.add(cancel);
+      buttons['Save'] = saveCallback.fire;
+      buttons['Cancel'] = cancel;
+      $dialog.dialog('option', 'buttons', buttons);
     };
     /**
      *
      */
-    LayoutManager.prototype.requestRegionAdd = function (location, event) {
+    LayoutManager.prototype.requestRegionAdd = function (location, $dialog, event) {
+      // If an available region is selected, add it.
+      var region;
+      var $selectedAvailableRegion = $dialog.find('[name="available-region-select"]').find('option').filter(':selected');
+      if ($selectedAvailableRegion.val() !== 'null') {
+        var region = this.availableRegionList.getItem($selectedAvailableRegion.val());
+        this.regionList.insertItem({
+          'machine_name': region.machine_name,
+          'label': region.label
+        }, location);
+        // Remove the region from the list of available regions.
+        this.availableRegionList.removeItem(region);
+        return; // This isn't the best interaction. It's just stub code for now.
+      }
+      // this.availableRegionList.removeItem(region.machine_name);
+      // If a new region is named, add it.
       this.regionList.insertItem({
         'machine_name': this.candidateRegionMachineName,
         'label': this.candidateRegionName
@@ -315,6 +351,8 @@
     LayoutManager.prototype.requestRegionRemove = function (event, layoutStep, region) {
       // Remove the item from the regionList.
       this.regionList.removeItem(region);
+      // Add the region to the list of available regions.
+      this.availableRegionList.addItem(region);
     };
     /**
      *

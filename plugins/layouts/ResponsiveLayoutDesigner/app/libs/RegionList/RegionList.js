@@ -61,11 +61,15 @@
     /**
      * @todo, this method needs better argument type handling. It could
      * be either an array or an object.
+     *
+     * @todo this should be a private method.
      */
     RegionList.prototype.addItem = function (item, location) {
       return this.processList([item], location)
     };
     /**
+     * This is public method, an interface for this.addItem().
+     *
      * @todo, this method needs better argument type handling. It could
      * be either an array or an object.
      */
