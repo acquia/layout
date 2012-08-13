@@ -6,7 +6,7 @@
   RLD['LayoutManager'] = (function build() {
 
     var plugin = 'LayoutManager';
-    
+
     function LayoutManager() {
       // Ui components.
       this.options = {
@@ -155,7 +155,7 @@
         .append(layout.build())
         .append(this.buildAddRegionButton('bottom'))
       );
-      
+
       this.topic('stepActivated').publish(step);
     };
     /**
@@ -215,7 +215,7 @@
       this.candidateRegionName = '';
       this.candidateRegionMachineName = '';
       // Dialog pieces.
-      var $input = $('<input>', { 
+      var $input = $('<input>', {
         'type': 'text'
       });
       var $machineName = $('<div>', {
@@ -274,14 +274,14 @@
         'class': 'rld-dialog'
       })
       .append($('<label>', {
-        'text': 'Region name'
+        'text': 'Existing region'
+      }))
+      .append($availableRegionSelectbox)
+      .append($('<label>', {
+        'text': 'New region'
       }))
       .append($input)
       .append($machineName)
-      .append($('<label>', {
-        'text': 'Available regions'
-      }))
-      .append($availableRegionSelectbox)
       .on({
         'keydown': RLD.Utils.keyManager,
         'keyup': machineNamePrint
@@ -418,7 +418,7 @@
     };
 
     return LayoutManager;
-    
+
   }());
 
 }(ResponsiveLayoutDesigner, jQuery));
