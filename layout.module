@@ -6,6 +6,21 @@
  */
 
 /**
+ * Implementation of hook_module_implements_alter().
+ */
+function layout_module_implements_alter(&$implementations, $hook) {
+  if ($hook == 'menu_alter') {
+    // Move layout_menu_alter() to the end of the list. module_implements()
+    // iterates through $implementations with a foreach loop which PHP iterates
+    // in the order that the items were added, so to move an item to the end of
+    // the array, we remove it and then add it.
+    $group = $implementations['layout'];
+    unset($implementations['layout']);
+    $implementations['layout'] = $group;
+  }
+}
+
+/**
  * Implementation of hook_menu_alter().
  */
 function layout_menu_alter(&$items) {
@@ -16,6 +31,22 @@ function layout_menu_alter(&$items) {
   if (isset($items['admin/structure/panels/layouts/regions'])) {
     $items['admin/structure/panels/layouts/regions']['type'] = MENU_LOCAL_TASK;
   }
+
+  // Hide this local action so its not visible anymore in Panels.
+  if (isset($items['admin/structure/panels/layouts/add-flexible'])) {
+    $items['admin/structure/panels/layouts/add-flexible']['type'] = MENU_CALLBACK;
+    $items['admin/structure/panels/layouts/add-responsive']['title'] = 'Add layout';
+    // Modify the title on the 'List' tab, although this makes it pretty
+    // non-standard, by putting more things on the same level (breakpoints,
+    // grids and regions by side of layouts), it becomes confusing as long
+    // as the tab is labeled 'List'.
+    $items['admin/structure/panels/layouts/list']['title'] = 'Layouts';
+  }
+
+  // Hack to make titles used above available for translation.
+  return;
+  t('Add layout');
+  t('Layouts');
 }
 
 /**
