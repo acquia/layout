@@ -62,7 +62,7 @@
       this.$stepContainer.delegate('a', 'click.RLD.StepManager', {'manager': this}, this.activateStep);
       // Attach the steps and layouts to the $editor and return it.
       return this.$editor
-      .append(this.$stepContainer).contents();
+      .append(this.$stepContainer);
     };
     /**
      *
