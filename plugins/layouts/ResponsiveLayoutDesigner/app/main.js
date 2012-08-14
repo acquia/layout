@@ -22,10 +22,7 @@
       var plugin = 'InitClass';
 
       function InitClass() {
-        this.$editor = $('<div>', {});
-        this.listeners = {};
-        this.topics = {};
-        this.items = [];
+        // Don't set anything in here, or all objects will inherit these values.
       }
       /**
        * Safe logging function.
@@ -42,6 +39,9 @@
        *
        */
       InitClass.prototype.init = function (opts) {
+        // Create a topics property for pub/sub event handling.
+        this.topics = {};
+        // Process the options for this instance.
         var prop;
         var options = ('options' in this) ? this.options : {};
         options = $.extend({}, options, opts);
@@ -246,6 +246,8 @@
         'gridList': gridList
       });
       // Define topics that will pass-through.
+      this.topic('stepActivated');
+      this.transferSubscriptions(this.layoutPreviewer);
       this.topic('regionOrderUpdated');
       this.topic('layoutSaved');
       this.topic('regionAdded');
@@ -253,7 +255,6 @@
       this.topic('regionResized');
       this.topic('regionResizing');
       this.topic('regionResizeStarted');
-      this.topic('stepActivated');
       // Transfer pass-through subscriptions.
       this.transferSubscriptions(this.layoutManager);
     };

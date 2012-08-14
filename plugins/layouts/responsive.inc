@@ -208,7 +208,7 @@ function theme_layout_responsive($vars) {
   drupal_add_js(array(
     'layout' => array(
       'breakpoints' => $breakpoints,
-      'grids' => $gids,
+      'grids' => $grids,
     ),
   ), 'setting');
   // Add the ResponsiveLayoutDesigner application.
@@ -355,6 +355,7 @@ function layout_responsive_load_rld_application($path) {
   // this app up into a single JavaScript file or wrap it in a Drupal library
   // indirection. And minify it for inclusion on the release.
   drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/application.css');
+  drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/grid.css');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/main.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
