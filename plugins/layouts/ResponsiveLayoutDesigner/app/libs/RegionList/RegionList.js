@@ -64,8 +64,11 @@
      *
      * @todo this should be a private method.
      */
-    RegionList.prototype.addItem = function (item, location) {
-      return this.processList([item], location)
+    RegionList.prototype.addItem = function (items, location) {
+      if (typeof items === 'object' && !('length' in items)) {
+        var items = [items];
+      }
+      return this.processList(items, location)
     };
     /**
      * This is public method, an interface for this.addItem().

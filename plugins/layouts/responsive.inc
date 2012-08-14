@@ -204,6 +204,18 @@ function theme_layout_responsive($vars) {
 
   $breakpoints = layout_breakpoint_load_all();
   $grids = gridbuilder_load_all();
+  // Push the breakpoints info to settings for the layoutPreviewer.
+  drupal_add_js(array(
+    'layout' => array(
+      'breakpoints' => $breakpoints,
+      'grids' => $gids,
+    ),
+  ), 'setting');
+  // Add the ResponsiveLayoutDesigner application.
+  layout_responsive_load_rld_application($layout['path']);
+  drupal_add_css($layout['path'] . '/responsive-in-place.css');
+  // Add integration code for Drupal.
+  drupal_add_js($layout['path'] . '/responsive-in-place.js');
 
   // Render the regions ordered as configured with minimal wrappers.
   $output = '';
@@ -307,25 +319,7 @@ function theme_layout_responsive_admin($vars) {
   }
 
   // Add the ResponsiveLayoutDesigner application.
-
-  // This is a messy, messy list of files. Eventually we'll want to package
-  // this app up into a single JavaScript file or wrap it in a Drupal library
-  // indirection. And minify it for inclusion on the release.
-  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/application.css');
-  drupal_add_css($layout['path'] . '/ResponsiveLayoutDesigner/assets/css/grid.css');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/main.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/LayoutStep/LayoutStep.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/RegionList/RegionList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Region/Region.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/GridList/GridList.js');
-  drupal_add_js($layout['path'] . '/ResponsiveLayoutDesigner/app/libs/Grid/Grid.js');
-
+  layout_responsive_load_rld_application($layout['path']);
   // Add integration code for Drupal.
   drupal_add_js($layout['path'] . '/responsive-admin.js');
 
@@ -352,4 +346,26 @@ function theme_layout_responsive_admin($vars) {
 
   // This is filled in on the client side.
   return '<div id="responsive-layout-designer"></div>';
+}
+/**
+ * Load the files necessary to launch a ResponsiveLayoutDesigner application.
+ */
+function layout_responsive_load_rld_application($path) {
+  // This is a messy, messy list of files. Eventually we'll want to package
+  // this app up into a single JavaScript file or wrap it in a Drupal library
+  // indirection. And minify it for inclusion on the release.
+  drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/application.css');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/main.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutPreviewer/LayoutPreviewer.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutList/LayoutList.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutStep/LayoutStep.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/StepManager/StepManager.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/StepList/StepList.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Step/Step.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/RegionList/RegionList.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Region/Region.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/GridList/GridList.js');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Grid/Grid.js');
 }

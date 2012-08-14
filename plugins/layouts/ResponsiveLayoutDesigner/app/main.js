@@ -201,16 +201,14 @@
       // Instansiate the LayoutManager.
       // this.regions is a simple object. The RegionList provides methods to
       // manipulate this simple set.
+      regionList = new RLD.RegionList();
+      availableRegionList = new RLD.RegionList();
       if ('regions' in this) {
         if ('active' in this.regions) {
-          regionList = new RLD.RegionList({
-            'regions': this.regions.active
-          });
+          regionList.addItem(this.regions.active);
         }
         if ('available' in this.regions) {
-          availableRegionList = new RLD.RegionList({
-            'regions': this.regions.available
-          });
+          availableRegionList.addItem(this.regions.available);
         }
         delete this.regions;
       }
@@ -240,6 +238,11 @@
         'stepList': stepList,
         'regionList': regionList,
         'availableRegionList': availableRegionList,
+        'gridList': gridList
+      });
+      // Create a layoutPreviewer.
+      this.layoutPreviewer = new RLD.LayoutPreviewer({
+        'stepList': stepList,
         'gridList': gridList
       });
       // Define topics that will pass-through.
