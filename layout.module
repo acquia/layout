@@ -42,11 +42,6 @@ function layout_menu_alter(&$items) {
     // as the tab is labeled 'List'.
     $items['admin/structure/panels/layouts/list']['title'] = 'Layouts';
   }
-
-  // Hack to make titles used above available for translation.
-  return;
-  t('Add layout');
-  t('Layouts');
 }
 
 /**
