@@ -185,7 +185,19 @@ function layout_responsive_merge_default_settings(&$settings, &$layout) {
 
   return $settings;
 }
-
+/**
+ *
+ */
+function layout_responsive_html_head_alter(&$head_elements) {
+  $head_elements['viewport'] = array(
+    '#type' => 'html_tag',
+    '#tag' => 'meta',
+    '#attributes' => array(
+      'name' => 'viewport',
+      'content' => 'width=device-width,initial-scale=1',
+    ),
+  );
+}
 /**
  * Draw the responsive layout.
  *
@@ -356,6 +368,7 @@ function layout_responsive_load_rld_application($path) {
   // indirection. And minify it for inclusion on the release.
   drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/grid.css');
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/assets/js/plugins/breakup/jquery.breakup.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/main.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');

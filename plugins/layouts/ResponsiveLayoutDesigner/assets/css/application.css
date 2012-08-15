@@ -198,3 +198,12 @@
 /* @end */
 
 /* @end */
+
+/* @group Previewer */
+
+.rld-previewer {
+  position: absolute;
+  top: 60px;
+}
+
+/* @end */

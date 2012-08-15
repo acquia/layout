@@ -17,26 +17,8 @@
  *
  */
 
-(function (factory) {
-  // Load this plugin with require.js if available.
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(['jquery'], factory);
-  } 
-  else {
-    // If jQuery is not defined, warn the user and return.
-    if (window.jQuery === undefined) {
-      if (typeof window.console === 'object' && typeof window.console.log === 'function') {
-        console.log("The plugin \"BreakUp\" failed to run because jQuery is not present.");
-      }
-      return null;
-    }
-    // Call the plugin factory. jQuery is a global object.
-    factory();
-  }
-}
 // The plugin factory function.
-(function () {
+(function ($) {
   var pluginName = 'BreakUp';
   var $ = jQuery;
   // plugin defaults
@@ -272,4 +254,4 @@
     // Return a new BreakUp object.
     return BreakUp;
   }());
-}));
+}(jQuery));

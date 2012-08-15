@@ -61,6 +61,8 @@
         // Save the composition elements into a unit.
         this.registerLayoutStep(steps[i]);
       }
+      // Register a DOM ready handler.
+      $(document).on('ready', $.proxy(this.injectPreviewDOM, this));
     };
     /**
      *
@@ -87,28 +89,40 @@
       if (!this.stepManager.info('activeStep')) {
         return;
       }
-      var args = arguments;
-      var id = this.stepManager.info('activeStep').info('breakpoint');
-      var $screen = this.$layouts.find('.rld-screen');
-      var $layout = $('<div>', {
-        'class': 'rld-layout'
-      });
-      var layout = this.getActiveLayout();
-      var i, grid, gridColumns, gridClasses;
-      grid = layout.info('grid');
-      gridColumns = grid.info('columns');
-      gridClasses = grid.info('classes') || [];
-      if (gridClasses.length > 0) {
-        $screen.addClass();
+      var width, frame, $frame;
+      var grid = this.gridList.getItem(step.grid['machine_name']);
+      var $frame = $('.rld-previewer');
+      if ($frame.length === 0) {
+        frame = document.createElement('iframe');
+        frame.height = document.documentElement.clientHeight;
+        frame.className = 'rld-previewer';
+        document.body.appendChild(frame);
+        frame.src = window.location.href;
+        $frame = $('.rld-previewer');
       }
-      $screen.animate({
-        width: layout.step.info('size')
+      else {
+        frame = $frame.get();
+      }
+      width = Number(step.info('breakpoint'));
+      $frame.animate({
+        width: Number(step.info('breakpoint')),
+        left: (document.documentElement.clientWidth - width ) / 2
       });
-      // Append the frame to the screen.
-      $screen
-      .append($());
-      
       this.topic('stepActivated').publish(step);
+    };
+    /**
+     *
+     */
+    LayoutPreviewer.prototype.injectPreviewDOM = function (event) {
+      var steps = this.stepList.info('items');
+      var grids = this.gridList.info('items')
+      var breakUpPayload = {};
+      var step;
+      for (step in steps) {
+        if (steps.hasOwnProperty(step)) {
+          // breakUpPayload[step.machine_name] = $.proxy(this.switchStep, this, step, );
+        }
+      }
     };
     /**
      *
