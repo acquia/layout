@@ -89,16 +89,34 @@
       if (!this.stepManager.info('activeStep')) {
         return;
       }
-      var width, frame, $frame;
+      var width, frame, $frame, fn;
       var grid = this.gridList.getItem(step.grid['machine_name']);
       var $frame = $('.rld-previewer');
       if ($frame.length === 0) {
         frame = document.createElement('iframe');
         frame.height = document.documentElement.clientHeight;
-        frame.className = 'rld-previewer';
+        frame.className = 'rld-modal rld-previewer';
         document.body.appendChild(frame);
         frame.src = window.location.href;
         $frame = $('.rld-previewer');
+        $('<div>', {
+          'class': 'rld-modal rld-modal-screen'
+        })
+        .insertBefore($frame)
+        .fadeIn();
+        $('<a>', {
+          'class': 'rld-modal rld-modal-close',
+          'href': '#',
+          'text': 'Close'
+        })
+        .on({
+          'click': function (event) {
+            $('.rld-modal').fadeOut(function () {
+              $(this).remove();
+            });
+          }
+        })
+        .insertAfter($frame);
       }
       else {
         frame = $frame.get();

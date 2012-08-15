@@ -205,5 +205,32 @@
   position: absolute;
   top: 60px;
 }
+.rld-modal-screen {
+  background-color: white;
+  bottom: 0;
+  height: 100%;
+  opacity: 0.9;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.rld-modal-close {
+  background-color: #0071B3;
+  border-radius: 7px;
+  box-shadow: -1px -1px 0 1px #3F3F3F inset;
+  color: white;
+  display: block;
+  font-size: 24px;
+  letter-spacing: 1.5pt;
+  padding: 0.08333em 0.1667em;
+  position: absolute;
+  right: 50px;
+  top: 100px;
+}
+.rld-modal-close:hover {
+  background-color: #0988E3;
+  color: white;
+  text-decoration: none;
+}
 
 /* @end */
