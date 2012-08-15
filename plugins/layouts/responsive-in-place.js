@@ -60,7 +60,7 @@
       .editor
       .layoutPreviewer
       .build()
-      .appendTo('#toolbar .toolbar-drawer');
+      .appendTo('#navbar-drawer');
     }
   };
 })(jQuery, ResponsiveLayoutDesigner, JSON);
