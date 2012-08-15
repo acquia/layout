@@ -86,18 +86,33 @@
      *
      */
     LayoutPreviewer.prototype.switchStep = function (event, step) {
-      if (!this.stepManager.info('activeStep')) {
-        return;
-      }
       var width, frame, $frame, fn;
       var grid = this.gridList.getItem(step.grid['machine_name']);
       var $frame = $('.rld-previewer');
       if ($frame.length === 0) {
-        frame = document.createElement('iframe');
-        frame.height = document.documentElement.clientHeight;
-        frame.className = 'rld-modal rld-previewer';
-        document.body.appendChild(frame);
-        frame.src = window.location.href;
+        var preview = $('<div>', {}).load( window.location.href, function (data, status, jqXHR) {
+          var $html = $(this);
+          var $head = $html.find('meta, link, title, style, script');
+          var $body = $html.not('meta, link, title, style, script');
+          $body.not('#page-wrapper').remove();
+          $head = $('<div>', {
+            'html': $head
+          });
+          $body = $('<div>', {
+            'html': $body
+          });
+          frame = document.createElement('iframe');
+          frame.height = document.documentElement.clientHeight;
+          frame.className = 'rld-modal rld-previewer';
+          document.body.appendChild(frame);
+          var content = '<!DOCTYPE html><html><head>' + $head.html() + '</head><body>' + $body.html() + '</body></html>';
+          
+          frame.contentWindow.document.open('text/html', 'replace');
+          frame.contentWindow.document.write(content);
+          frame.contentWindow.document.close();
+          
+        });
+        
         $frame = $('.rld-previewer');
         $('<div>', {
           'class': 'rld-modal rld-modal-screen'
@@ -119,7 +134,7 @@
         .insertAfter($frame);
       }
       else {
-        frame = $frame.get();
+        frame = $frame.get()[0];
       }
       width = Number(step.info('breakpoint'));
       $frame.animate({
