@@ -20,13 +20,13 @@
     StepManager.prototype.setup = function (options) {
       // UI objects.
       this.$stepContainer = $('<div>', {});
+      this.activeStep = this.activeStep || this.steps[0];
     };
     /**
      *
      */
     StepManager.prototype.build = function ($stepContainer) {
       this.$editor = $('<div>', {});
-      this.activeStep = this.activeStep || this.steps[0];
       var handler, i, step;
       this.$stepContainer = ($stepContainer.length > 0) ? $stepContainer : this.$stepContainer;
       // Clear the UI.

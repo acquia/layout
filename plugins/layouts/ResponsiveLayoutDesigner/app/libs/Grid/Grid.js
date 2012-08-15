@@ -12,6 +12,12 @@
      * Extend the InitClass Object.
      */
     Grid.prototype = new RLD.InitClass();
+    /**
+     *
+     */
+    Grid.prototype.setup = function () {
+      
+    };
     
     return Grid;
     

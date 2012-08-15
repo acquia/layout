@@ -274,7 +274,7 @@ function layout_breakpoint_load($name) {
  */
 function layout_breakpoint_get_css($include_media_queries = TRUE) {
   $breakpoints = layout_breakpoint_load_all();
-
+  
   $breakpoint_css = array();
   $min_width = 0;
 
@@ -308,8 +308,9 @@ function layout_breakpoint_get_css($include_media_queries = TRUE) {
       $breakpoint_css[] = gridbuilder_get_css($breakpoint->grid_name, NULL, NULL, TRUE);
     }
   }
+  $css = join("\n", $breakpoint_css);
 
-  return join("\n", $breakpoint_css);
+  return $css;
 }
 
 /**

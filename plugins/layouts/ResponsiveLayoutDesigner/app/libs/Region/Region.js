@@ -7,7 +7,7 @@
      *
      */
     function Region() {
-      this.visibility;
+      this.$editor = $('<div>', {});
       this.type = 'region';
       this.columns = 0; // The number of columns this region consumes in a step.
       this.span = 0; // A temporary column consumption count for rendering a view.

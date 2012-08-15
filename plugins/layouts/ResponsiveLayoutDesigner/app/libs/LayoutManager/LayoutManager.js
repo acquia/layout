@@ -108,8 +108,6 @@
      * A layout is a set of regions, in the context of a step, laid out on a grid.
      */
     LayoutManager.prototype.registerLayoutStep = function (step) {
-      // Add the Layout to the LayoutList.
-      var fn = $.proxy(this.eventBroadcaster, this);
       // Add the LayoutSteps to the LayoutList.
       this.layoutList.addItem({
         'step': step,
