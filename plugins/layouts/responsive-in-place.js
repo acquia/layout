@@ -56,11 +56,13 @@
       // Get an instance of a previewer.
       Drupal.responsiveLayoutPreview = new ResponsiveLayoutPreview(context);
       // Initialize responsive layout previewer.
-      Drupal.responsiveLayoutPreview
+      var $previewer = Drupal.responsiveLayoutPreview
       .editor
       .layoutPreviewer
-      .build()
-      .appendTo('#navbar-drawer');
+      .build();
+      $('#navbar-drawer').once('rld-layout-previewer',function (index, element) {
+        $(this).append($previewer);
+      });
     }
   };
 })(jQuery, ResponsiveLayoutDesigner, JSON);

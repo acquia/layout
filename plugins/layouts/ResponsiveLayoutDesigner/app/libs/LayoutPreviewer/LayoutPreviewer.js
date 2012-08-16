@@ -87,14 +87,14 @@
      */
     LayoutPreviewer.prototype.switchStep = function (event, step) {
       var width, frame, $frame, fn;
+      var $editor = this.$editor;
       var grid = this.gridList.getItem(step.grid['machine_name']);
       var $frame = $('.rld-previewer');
       if ($frame.length === 0) {
         var preview = $('<div>', {}).load( window.location.href, function (data, status, jqXHR) {
           var $html = $(this);
           var $head = $html.find('meta, link, title, style, script');
-          var $body = $html.not('meta, link, title, style, script');
-          $body.not('#page-wrapper').remove();
+          var $body = $html.find('#page-wrapper');
           $head = $('<div>', {
             'html': $head
           });
@@ -110,31 +110,34 @@
           frame.contentWindow.document.open('text/html', 'replace');
           frame.contentWindow.document.write(content);
           frame.contentWindow.document.close();
-          
-        });
         
-        $frame = $('.rld-previewer');
-        $('<div>', {
-          'class': 'rld-modal rld-modal-screen'
-        })
-        .insertBefore($frame)
-        .fadeIn();
-        $('<a>', {
-          'class': 'rld-modal rld-modal-close',
-          'href': '#',
-          'text': 'Close'
-        })
-        .on({
-          'click': function (event) {
-            $('.rld-modal').fadeOut(function () {
-              $(this).remove();
-            });
-          }
-        })
-        .insertAfter($frame);
-      }
-      else {
-        frame = $frame.get()[0];
+          $frame = $('.rld-previewer');
+          $('<div>', {
+            'class': 'rld-modal rld-modal-screen'
+          })
+          .insertBefore($frame)
+          .fadeIn();
+          $('<li>', {
+            'class': 'rld-modal rld-modal-close rld-tab',
+            'html': $('<a>', {
+              'href': '#',
+              'text': 'Close'
+            })
+            .on({
+              'click': function (event) {
+                $('.rld-modal').fadeOut(function () {
+                  $(this).remove();
+                });
+              }
+            })
+          })
+          .appendTo($editor.find('.rld-steps'));
+          width = Number(step.info('breakpoint'));
+          $frame.animate({
+            width: Number(step.info('breakpoint')),
+            left: (document.documentElement.clientWidth - width ) / 2
+          });
+        });
       }
       width = Number(step.info('breakpoint'));
       $frame.animate({
