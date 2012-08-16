@@ -28,6 +28,7 @@
   display: inline-block;
   margin-left: 1em;
   margin-right: 1em;
+  vertical-align: middle;
 }
 .rld-steps .rld-tab .rld-link {
   -moz-border-radius: 4px;
@@ -222,7 +223,6 @@
   box-shadow: -1px -1px 0 1px #3F3F3F inset;
   color: white;
   display: inline-block;
-  font-size: 24px;
   letter-spacing: 1.5pt;
   padding: 0.08333em 0.1667em;
 }
