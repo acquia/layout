@@ -1,3 +1,8 @@
+/* @group This styling needs to be removed eventually. It's presentation and it doesn't belong here. */
+.rld-steps a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+/* @end */
 .clearfix::after {
   clear: both;
   content: ' ';
@@ -18,17 +23,56 @@
 /* @group Layout */
 
 /* @group StepManager */
-
+.rld-layout-previewer {
+  text-align: center;
+}
+.rld-layout-previewer .rld-stepmanager {
+  margin: 0 auto;
+}
 .rld-steps {
   list-style: none;
   margin: 0;
-  text-align: center;
+  padding: 0;
 }
-.rld-steps li {
+.rld-steps .rld-tab {
   display: inline-block;
   margin-left: 1em;
   margin-right: 1em;
+  position: relative;
   vertical-align: middle;
+}
+.rld-steps .rld-tab::before,
+.rld-steps .rld-tab::after {
+  background-attachment: scroll;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  content: ' ';
+  display: block;
+  position: absolute;
+}
+.rld-steps .rld-tab::before {
+  background-color: #7d7d7d;
+  height: 1px;
+  left: -22px;
+  top: 1.2em;
+  width: 20px;
+}
+.rld-steps .rld-tab:first-child::before {  
+  background-color: transparent;
+  background-image: url("../images/small-screen.png");
+  background-position: left center;
+  height: 22px;
+  left: -28px;
+  top: 6px;
+  width: 25px;
+}
+.rld-steps .rld-tab:last-child::after {
+  background-image: url("../images/large-screen.png");
+  background-position: right center;
+  height: 22px;
+  right: -39px;
+  top: 6px;
+  width: 35px;
 }
 .rld-steps .rld-tab .rld-link {
   -moz-border-radius: 4px;
@@ -36,12 +80,21 @@
   border-radius: 4px;
   color: #ccc;
   display: inline-block;
-  padding: 0.1667em 0.5em;
+  line-height: 1.8em;
+  padding: 5px;
 }
-.rld-steps .rld-active {
-  background-color: #59A;
-  color: white;
-  text-shadow: 0 1px 0px #828383
+.rld-link.rld-active::after,
+.rld-link.rld-active:hover::after {
+  border-color: transparent transparent #ccc transparent;
+  border-style: solid;
+  border-width: 6px 4px;
+  bottom: 2px;
+  content: ' ';
+  display: block;
+  height: 0px;
+  left: 40%;
+  position: absolute;
+  width: 0px;
 }
 .rld-layouts {
   margin-top: 0.5em;
@@ -218,17 +271,23 @@
   top: 0;
   width: 100%;
 }
+.rld-modal-close {
+  position: absolute;
+  margin-top: 5px;
+  right: 10px;
+}
 .rld-modal-close a {
-  background-color: #0071B3;
+  background-color: #59a;
+  border: 1px solid #3F3F3F;
   border-radius: 7px;
-  box-shadow: -1px -1px 0 1px #3F3F3F inset;
+  box-sizing: border-box;
   color: white;
   display: inline-block;
   letter-spacing: 1.5pt;
-  padding: 0.08333em 0.1667em;
+  padding: 0.08333em 0.3333em;
 }
 .rld-modal-close a:hover {
-  background-color: #0988E3;
+  background-color: #666666;
   color: white;
   text-decoration: none;
 }

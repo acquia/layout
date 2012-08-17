@@ -117,21 +117,24 @@
           })
           .insertBefore($frame)
           .fadeIn();
-          $('<li>', {
-            'class': 'rld-modal rld-modal-close rld-tab',
+          $('<div>', {
+            'class': 'rld-modal rld-modal-close',
             'html': $('<a>', {
               'href': '#',
               'text': 'Close'
             })
             .on({
               'click': function (event) {
+                // The following functions are acting globally on the page. This is bad bad bad.
+                // They should only apply with the application or the editor.
+                $('.rld-steps .rld-active').removeClass('rld-active');
                 $('.rld-modal').fadeOut(function () {
                   $(this).remove();
                 });
               }
             })
           })
-          .appendTo($editor.find('.rld-steps'));
+          .prependTo($editor);
           width = Number(step.info('breakpoint'));
           $frame.animate({
             width: Number(step.info('breakpoint')),
