@@ -23,9 +23,11 @@
 /* @group Layout */
 
 /* @group StepManager */
+.rld-layout-manager,
 .rld-layout-previewer {
   text-align: center;
 }
+.rld-layout-manager .rld-stepmanager,
 .rld-layout-previewer .rld-stepmanager {
   margin: 0 auto;
 }
@@ -78,14 +80,17 @@
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-  color: #ccc;
   display: inline-block;
   line-height: 1.8em;
   padding: 5px;
 }
-.rld-link.rld-active::after,
-.rld-link.rld-active:hover::after {
-  border-color: transparent transparent #ccc transparent;
+.rld-layout-previewer .rld-tab .rld-link {
+  color: #ccc;
+}
+.rld-layout-manager .rld-tab .rld-link {
+  color: #484848;
+}
+.rld-link.rld-active::after {
   border-style: solid;
   border-width: 6px 4px;
   bottom: 2px;
@@ -95,6 +100,12 @@
   left: 40%;
   position: absolute;
   width: 0px;
+}
+.rld-layout-previewer .rld-link.rld-active::after {
+  border-color: transparent transparent #ccc transparent;
+}
+.rld-layout-manager .rld-link.rld-active::after {
+  border-color: transparent transparent #484848 transparent;
 }
 .rld-layouts {
   margin-top: 0.5em;
