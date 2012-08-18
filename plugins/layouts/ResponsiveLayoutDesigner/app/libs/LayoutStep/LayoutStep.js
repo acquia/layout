@@ -27,24 +27,24 @@
     
     LayoutStep.prototype.build = function (options, items) {
       this.$editor = $('<div>', {
-        'class': 'rld-region-list'
+        'class': 'rld-region-list gridster'
       });
       var $gridster = $('<div>', {
         'class': 'rld-gridster-hook'
       });
       var regions = items || this.regionList.info('items');
-      $gridster.append(this.buildRows(regions).contents());
+      $gridster.append(this.buildRows(regions));
       this.$editor.append($gridster);
       // Bind behaviors.
       fn = $.proxy(this.sortRows, this);
       // Invoke the gridster plugin on the regions.
-      var gridster = $gridster.gridster({
-        'widget_selector': '.rld-row',
-        widget_margins: [10, 10],
-        widget_base_dimensions: [140, 140],
-        min_cols: 6,
-        min_rows: 20
-      }).data('gridster');
+      $($.proxy(function ($gridster) {
+        $gridster.gridster({
+          'widget_selector': '.rld-row',
+          widget_margins: [10, 10],
+          widget_base_dimensions: [140, 140]
+        }).data('gridster');
+      }, this, $gridster));
       // Return the $editor as a jQuery object.
       return this.$editor;
     };
@@ -384,7 +384,26 @@
       var step = this.step;
       var grid = this.grid;
       var count = 0;
-      // The size of a region may be overridden in this step.
+      var itemCount = 1
+      var i;
+      var iterations = 12;
+      var columns = 3;
+      var row = 1;
+      for (i = 0; i < iterations; i++) {
+        if (i !== 0 && i % columns === 0) {
+         row++;
+        }
+        $container.append($('<div>', {
+          'class': 'rld-row',
+          'text': 'I am block ' + i,
+          'data-sizex': 1,
+          'data-sizey': 1,
+          'data-row': row,
+          'data-col': (i % columns) + 1
+        }));
+      }
+      return $container.contents();
+      // The size of a region may be overridden in this process.
       var regionOverrides = step.info('regionList').info('items');
       var $row, i, k, fn, region, $region, span;
       // Build rows and regions.
@@ -406,7 +425,11 @@
           }
           // Create a new row.
           $row = $('<div>', {
-            'class': 'rld-row clearfix'
+            'class': 'rld-row clearfix',
+            'data-sizex': grid.columns,
+            'data-sizey': 1,
+            'data-row': itemCount,
+            'data-col': 1
           })
           // Append a placeholder to the start of the row.
           .append(
@@ -421,6 +444,8 @@
           .appendTo($container);
           // Restart the row span count.
           count = 0;
+          // Increment the item count.
+          itemCount += 1;
         }
         region = regions[i];
         // If this step has region overrides, get the override that matches this region, if any.
@@ -467,7 +492,7 @@
           );
         }
       }
-      return $container;
+      return $container.contents();
     };
     /**
      *

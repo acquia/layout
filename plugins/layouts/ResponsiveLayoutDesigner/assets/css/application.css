@@ -127,6 +127,9 @@
 .rld-row {
   -webkit-user-select: none;
   cursor: move;
+  outline: 1px dotted red;
+  position: absolute;
+  background-color: white;
 }
 .rld-placeholder,
 .rld-region {

@@ -348,7 +348,7 @@ function theme_layout_responsive_admin($vars) {
     )
   ), 'setting');
 
-  drupal_add_library('system', 'ui.sortable');
+  // drupal_add_library('system', 'ui.sortable');
 
   // Embed the grid css inline for now. Yeah, I know this is evil.
   // It is just a prototype for now, ok? I know it is evil. Yes.
