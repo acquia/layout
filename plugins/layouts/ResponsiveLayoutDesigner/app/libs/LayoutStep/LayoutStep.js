@@ -26,18 +26,25 @@
     };
     
     LayoutStep.prototype.build = function (options, items) {
-      this.$editor = $('<div>', {});
+      this.$editor = $('<div>', {
+        'class': 'rld-region-list'
+      });
+      var $gridster = $('<div>', {
+        'class': 'rld-gridster-hook'
+      });
       var regions = items || this.regionList.info('items');
-      this.$editor.append(this.buildRows(regions).contents());
+      $gridster.append(this.buildRows(regions).contents());
+      this.$editor.append($gridster);
       // Bind behaviors.
       fn = $.proxy(this.sortRows, this);
-      this.$editor.sortable({
-        // Make a placeholder visible when dragging.
-        placeholder: "ui-state-highlight",
-        // When the dragging and dropping is done, save updated region
-        // list in our local list.
-        deactivate: fn
-      });
+      // Invoke the gridster plugin on the regions.
+      var gridster = $gridster.gridster({
+        'widget_selector': '.rld-row',
+        widget_margins: [10, 10],
+        widget_base_dimensions: [140, 140],
+        min_cols: 6,
+        min_rows: 20
+      }).data('gridster');
       // Return the $editor as a jQuery object.
       return this.$editor;
     };

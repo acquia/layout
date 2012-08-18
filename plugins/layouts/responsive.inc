@@ -329,7 +329,6 @@ function theme_layout_responsive_admin($vars) {
   else {
     libraries_load($name);
   }
-
   // Add the ResponsiveLayoutDesigner application.
   layout_responsive_load_rld_application($layout['path']);
   // Add integration code for Drupal.
@@ -368,7 +367,10 @@ function layout_responsive_load_rld_application($path) {
   // indirection. And minify it for inclusion on the release.
   drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/application.css');
   drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/css/grid.css');
+  drupal_add_css($path . '/ResponsiveLayoutDesigner/assets/js/plugins/gridster.js/dist/jquery.gridster.min.css');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/assets/js/plugins/breakup/jquery.breakup.js');
+  // Add the gridster libarary.
+  drupal_add_js($path . '/ResponsiveLayoutDesigner/assets/js/plugins/gridster.js/dist/jquery.gridster.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/main.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/Utils/Utils.js');
   drupal_add_js($path . '/ResponsiveLayoutDesigner/app/libs/LayoutManager/LayoutManager.js');

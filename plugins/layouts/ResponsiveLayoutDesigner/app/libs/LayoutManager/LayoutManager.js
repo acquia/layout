@@ -153,7 +153,7 @@
         .append(layout.build())
         .append(this.buildAddRegionButton('bottom'))
       );
-
+      // Publish the step activation event.
       this.topic('stepActivated').publish(step);
     };
     /**
