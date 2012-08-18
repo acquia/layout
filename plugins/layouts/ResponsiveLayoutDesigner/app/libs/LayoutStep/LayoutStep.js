@@ -379,8 +379,7 @@
       var count = 0;
       // The size of a region may be overridden in this step.
       var regionOverrides = step.info('regionList').info('items');
-      var $row;
-      var i, k, fn, region, $region, span;
+      var $row, i, k, fn, region, $region, span;
       // Build rows and regions.
       for (i = 0; i < regions.length; i++) {
         var override = undefined;
