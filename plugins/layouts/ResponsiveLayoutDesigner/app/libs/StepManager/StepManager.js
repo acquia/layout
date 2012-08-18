@@ -46,7 +46,7 @@
             $('<a>', {
               'class': 'rld-link',
               'href': '#' + id,
-              'text': step.info('size') + 'px'
+              'text': breakpoint + 'px'
             })
             .data('RLD/Step', step)
           )

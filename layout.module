@@ -220,7 +220,7 @@ function layout_default_layout_breakpoint() {
   $breakpoint->api_version = 1;
   $breakpoint->name = 'smartphone';
   $breakpoint->admin_title = 'Smartphone';
-  $breakpoint->width = '320px';
+  $breakpoint->width = '0px';
   $breakpoint->grid_name = 'three_column_fluid';
   $export['smatphone'] = $breakpoint;
 
@@ -228,7 +228,7 @@ function layout_default_layout_breakpoint() {
   $breakpoint->api_version = 1;
   $breakpoint->name = 'tablet';
   $breakpoint->admin_title = 'Tablet';
-  $breakpoint->width = '760px';
+  $breakpoint->width = '320px';
   $breakpoint->grid_name = 'six_column_fluid';
   $export['tablet'] = $breakpoint;
 
@@ -236,7 +236,7 @@ function layout_default_layout_breakpoint() {
   $breakpoint->api_version = 1;
   $breakpoint->name = 'standard';
   $breakpoint->admin_title = 'Standard';
-  $breakpoint->width = '960px';
+  $breakpoint->width = '760px';
   $breakpoint->grid_name = 'twelve_column_fluid';
   $export['standard'] = $breakpoint;
 

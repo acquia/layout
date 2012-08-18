@@ -65,7 +65,7 @@
         var i, k, step, breakMin, breakMax, size;
         for (i = 0; i < this.items.length; i++) {
           step = this.items[i];
-          breakMin = Number(step.info('breakpoint'));
+          breakMin = Number(step.info('breakpoint')) || 0;
           if (this.items[i + 1] !== undefined) {
             breakMax = Number(this.items[i + 1].info('breakpoint'));
             size = breakMax - breakMin;
